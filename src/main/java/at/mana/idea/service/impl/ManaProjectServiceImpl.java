@@ -67,8 +67,7 @@ public class ManaProjectServiceImpl implements ManaProjectService {
                             PsiMethod method = Arrays.stream(clazz.getMethods()).filter( psiMethod -> psiMethod.getName().equals( methodName ) ).findFirst().get();
                             energyStatsModel.computeIfAbsent(clazz, c -> new ManaEnergyExperimentModel());
                             ManaEnergyExperimentModel model = this.energyStatsModel.get(clazz);
-                            MethodEnergyStatistics stat = computeStatistics(recorded, method, event.getFile());
-                            model.getMethodEnergyStatistics().add( stat );
+                            computeStatistics(model, recorded, method, event.getFile());
                         }
 
                     } catch( ParseException e ) {
@@ -95,8 +94,7 @@ public class ManaProjectServiceImpl implements ManaProjectService {
                 String clazzName = clazz.getQualifiedName();
                 if (clazzName != null) {
                     ManaEnergyExperimentModel model = energyStatsModel.get(clazzName);
-                    // TODO: here i need to verify if methods are there.
-                    return model.getMethodEnergyStatistics().stream().filter( methodEnergyStatistics -> methodEnergyStatistics.getMethod().equals( method ) ).findFirst().get();
+                    return model.getMethodEnergyStatistics().get(method);
                 }
             }
         }
@@ -107,13 +105,13 @@ public class ManaProjectServiceImpl implements ManaProjectService {
         return Arrays.stream( file.getClasses() ).map( c-> energyStatsModel.get(c) ).filter( Objects::nonNull ).collect( Collectors.toList() );
     }
 
-    private MethodEnergyStatistics computeStatistics(LocalDateTime recorded, PsiMethod method, VirtualFile f) {
+    private void computeStatistics(ManaEnergyExperimentModel model, LocalDateTime recorded, PsiMethod method, VirtualFile f) {
         try {
             JsonObject jsonTree = (JsonObject) JsonParser.parseReader(new FileReader(f.getPath()));
             //{
             //    "data":[{"id":"","power-core":"", "power-gpu":"", "power-other":"", "power-ram":""}]
             //}
-            JsonArray dataArray = jsonTree.get( "data" ).getAsJsonArray();
+            JsonArray dataArray = jsonTree.get( "data" ).getAsJsonArray();  // reading one file
             Double[][] energyData = StreamSupport.stream(
                     dataArray.spliterator(), true ).map(data -> {
                 JsonObject entry = data.getAsJsonObject();
@@ -131,9 +129,10 @@ public class ManaProjectServiceImpl implements ManaProjectService {
             } ).toArray( Double[][]::new );
             // TODO: parse duration
             energyData = transpose().apply( energyData );
-            return new MethodEnergyStatistics(recorded, method, 0l, energyData[0],energyData[1], energyData[2], energyData[3]);
+            model.getMethodEnergyStatistics().computeIfAbsent( method, psiMethod -> new MethodEnergyStatistics(recorded, method) );
+            model.getMethodEnergyStatistics().get( method ).addSample( 0l,energyData[0],energyData[1], energyData[2], energyData[3] );
         } catch( IOException e) {
-            return null;
+            logger.error( e );
         }
     }
 
@@ -177,7 +176,7 @@ public class ManaProjectServiceImpl implements ManaProjectService {
                             PsiMethod method = Arrays.stream(clazz.getMethods()).filter( psiMethod -> psiMethod.getName().equals( methodName ) ).findFirst().get();
                             energyStatsModel.computeIfAbsent(clazz, c -> new ManaEnergyExperimentModel());
                             ManaEnergyExperimentModel model = this.energyStatsModel.get(clazz);
-                            model.getMethodEnergyStatistics().add(computeStatistics(recorded, method, file));
+                            computeStatistics(model, recorded, method, file);
                         }
                     }
                 } catch( ParseException e ) {

@@ -36,9 +36,9 @@ import static at.mana.idea.util.MatrixOperations.transpose;
 @Service
 public class ManaProjectServiceImpl implements ManaProjectService {
 
-    private static String MANA_NAME_SUFFIX = ".mana";
+    private final static String MANA_NAME_SUFFIX = ".mana";
     private VirtualFile selectedManaTraceFile;
-    private Project project;
+    private final Project project;
     private Map<PsiClass,ManaEnergyExperimentModel> energyStatsModel;
     public ManaProjectServiceImpl(Project project) {
         this.project = project;

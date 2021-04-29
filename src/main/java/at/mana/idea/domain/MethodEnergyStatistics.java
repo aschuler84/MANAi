@@ -41,24 +41,24 @@ public class MethodEnergyStatistics {
         this.method = method;
     }
 
-    public Double getCpuWattage() {
+    public DoubleStatistics getCpuWattage() {
         return samples.stream()
-            .flatMap( sample -> Arrays.stream( sample.getCpu() ) ).collect( DoubleStatistics.collector() ).getAverage();
+            .flatMap( sample -> Arrays.stream( sample.getCpu() ) ).collect( DoubleStatistics.collector() );
     }
 
-    public Double getGpuWattage() {
+    public DoubleStatistics getGpuWattage() {
         return samples.stream()
-                .flatMap( sample -> Arrays.stream( sample.getGpu() ) ).collect( DoubleStatistics.collector() ).getAverage();
+                .flatMap( sample -> Arrays.stream( sample.getGpu() ) ).collect( DoubleStatistics.collector() );
     }
 
-    public Double getRamWattage() {
+    public DoubleStatistics getRamWattage() {
         return samples.stream()
-                .flatMap( sample -> Arrays.stream( sample.getRam() ) ).collect( DoubleStatistics.collector() ).getAverage();
+                .flatMap( sample -> Arrays.stream( sample.getRam() ) ).collect( DoubleStatistics.collector() );
     }
 
-    public Double getOtherWattage() {
+    public DoubleStatistics getOtherWattage() {
         return samples.stream()
-                .flatMap( sample -> Arrays.stream( sample.getOther() ) ).collect( DoubleStatistics.collector() ).getAverage();
+                .flatMap( sample -> Arrays.stream( sample.getOther() ) ).collect( DoubleStatistics.collector() );
     }
 
     public void addSample( long durationMilliseconds, Double[] cpu, Double[] gpu, Double[] ram, Double[] other ) {
@@ -67,7 +67,7 @@ public class MethodEnergyStatistics {
 
 
     public Double getTotal() {
-        return this.getCpuWattage() + this.getGpuWattage() + this.getOtherWattage() + this.getRamWattage();
+        return this.getCpuWattage().getAverage() + this.getGpuWattage().getAverage() + this.getOtherWattage().getAverage() + this.getRamWattage().getAverage();
     }
 
 }

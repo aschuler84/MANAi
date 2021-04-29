@@ -37,6 +37,8 @@
 
         <fileEditorProvider implementation="at.mana.idea.component.ManaTraceFileEditorProvider" />
 
+        <configurationType implementation="at.mana.idea.configuration.ManaRaplConfigurationType"/>
+
     </extensions>
 
     <actions>

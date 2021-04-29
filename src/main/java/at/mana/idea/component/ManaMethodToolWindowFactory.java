@@ -60,7 +60,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
     // Table listing all method attributions
     //private Tree manaFileList = new Tree();
     //private TableView<MethodEnergyStatistics> methodTable = new TableView<>(  );
-    private Tree methodTree = new Tree();
+    private final Tree methodTree = new Tree();
     private SingleStackedBarPlotComponent barPlotComponent;
     private SingleStackedBarPlotModel barPlotModel;
     private JLabel lblTitle;
@@ -270,7 +270,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
         });
         treeTable.setDefaultRenderer( TreeTableModel.class, new ColoredTableCellRenderer() {
             @Override
-            protected void customizeCellRenderer(JTable table, @Nullable Object value, boolean selected, boolean hasFocus, int row, int column) {
+            protected void customizeCellRenderer(@NotNull JTable table, @Nullable Object value, boolean selected, boolean hasFocus, int row, int column) {
                 setIcon(AllIcons.Actions.ProfileBlue);
             }
         });
@@ -325,7 +325,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
     private void initTable() {
         methodTree.getEmptyText().setShowAboveCenter(true);
         methodTree.getEmptyText().setText("Select a class file to display recorded energy data");
-        methodTree.getEmptyText().getComponent().add( new LinkLabel<String>("Initialize Mana", AllIcons.Ide.Link));
+        methodTree.getEmptyText().getComponent().add( new LinkLabel<String>("Initialize mana", AllIcons.Ide.Link));
     }
 
     private class FileEditorSelectionChangedListener implements FileEditorManagerListener {
@@ -408,7 +408,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
             this.setTextAlign( SwingConstants.RIGHT );
             if( value instanceof DoubleStatistics ) {
                 DoubleStatistics data = (DoubleStatistics) value;
-                append( String.format( "(±%.3f) ", data.getStandardDeviation()), new SimpleTextAttributes( SimpleTextAttributes.STYLE_PLAIN, JBColor.orange ) );
+                append( String.format( "(\u00B1%.3f) ", data.getStandardDeviation()), new SimpleTextAttributes( SimpleTextAttributes.STYLE_PLAIN, JBColor.orange ) );
                 append( String.format( "%.3f", data.getAverage()), new SimpleTextAttributes( SimpleTextAttributes.STYLE_PLAIN, JBColor.foreground() ), true );
             } else {
                 append( value.toString() );

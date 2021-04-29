@@ -6,6 +6,7 @@ import at.mana.idea.component.plot.SingleStackedBarPlotModel;
 import at.mana.idea.domain.MethodEnergyStatistics;
 import at.mana.idea.model.ManaEnergyExperimentModel;
 import at.mana.idea.service.ManaProjectService;
+import at.mana.idea.util.DoubleStatistics;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbarPosition;
@@ -71,7 +72,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
     private void updateModel( PsiJavaFile file, List<ManaEnergyExperimentModel> data ) {
         DefaultMutableTreeNode root = new DefaultMutableTreeNode( file.getClasses()[0] );
         for( ManaEnergyExperimentModel stats: data) {
-            stats.getMethodEnergyStatistics().forEach( e ->
+            stats.getMethodEnergyStatistics().values().forEach( e ->
                     root.add( new DefaultMutableTreeNode(e) )
                     );
         }
@@ -134,28 +135,28 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
                                 }
                                 return null;
                             }),
-                            new TreeTableColumn<MethodEnergyStatistics.DoubleStatistics>("CPU Power", MethodEnergyStatistics.DoubleStatistics.class, node -> {
+                            new TreeTableColumn<DoubleStatistics>("CPU Power", DoubleStatistics.class, node -> {
                                 if( node.getUserObject() instanceof MethodEnergyStatistics ) {
                                     MethodEnergyStatistics statistics = (MethodEnergyStatistics) node.getUserObject();
-                                    return statistics.getCoreWattage();
+                                    return statistics.getCpuWattage();
                                 }
                                 return null;
                             }),
-                            new TreeTableColumn<MethodEnergyStatistics.DoubleStatistics>("GPU Power", MethodEnergyStatistics.DoubleStatistics.class, node -> {
+                            new TreeTableColumn<DoubleStatistics>("GPU Power", DoubleStatistics.class, node -> {
                                 if( node.getUserObject() instanceof MethodEnergyStatistics ) {
                                     MethodEnergyStatistics statistics = (MethodEnergyStatistics) node.getUserObject();
                                     return statistics.getGpuWattage();
                                 }
                                 return null;
                             }),
-                            new TreeTableColumn<MethodEnergyStatistics.DoubleStatistics>("DRAM Power", MethodEnergyStatistics.DoubleStatistics.class, node -> {
+                            new TreeTableColumn<DoubleStatistics>("DRAM Power", DoubleStatistics.class, node -> {
                                 if( node.getUserObject() instanceof MethodEnergyStatistics ) {
                                     MethodEnergyStatistics statistics = (MethodEnergyStatistics) node.getUserObject();
                                     return statistics.getRamWattage();
                                 }
                                 return null;
                             }),
-                            new TreeTableColumn<MethodEnergyStatistics.DoubleStatistics>("Other Power", MethodEnergyStatistics.DoubleStatistics.class, node -> {
+                            new TreeTableColumn<DoubleStatistics>("Other Power", DoubleStatistics.class, node -> {
                                 if( node.getUserObject() instanceof MethodEnergyStatistics ) {
                                     MethodEnergyStatistics statistics = (MethodEnergyStatistics) node.getUserObject();
                                     return statistics.getOtherWattage();
@@ -184,12 +185,12 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
     protected void bind( MethodEnergyStatistics energyStatistics ) {
 
         String[] legend = new String[]{
-                String.format("CPU Power %.2f Watt", energyStatistics.getCoreWattage().getAverage()),
+                String.format("CPU Power %.2f Watt", energyStatistics.getCpuWattage().getAverage()),
                 String.format("GPU Power %.2f Watt", energyStatistics.getGpuWattage().getAverage()),
                 String.format("DRAM Power %.2f Watt", energyStatistics.getRamWattage().getAverage()),
                 String.format("Other Power %.2f Watt", energyStatistics.getOtherWattage().getAverage())};
         Double[] values = new Double[]{
-                energyStatistics.getCoreWattage().getAverage(),
+                energyStatistics.getCpuWattage().getAverage(),
                 energyStatistics.getGpuWattage().getAverage(),
                 energyStatistics.getRamWattage().getAverage(),
                 energyStatistics.getOtherWattage().getAverage()};
@@ -260,7 +261,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
 
 
         };
-        treeTable.setDefaultRenderer( MethodEnergyStatistics.DoubleStatistics.class, new DecimalCellRenderer() );
+        treeTable.setDefaultRenderer( DoubleStatistics.class, new DecimalCellRenderer() );
         treeTable.getTree().setCellRenderer(new ColoredTreeCellRenderer() {
             @Override
             public void customizeCellRenderer(@NotNull JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
@@ -405,8 +406,8 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
                 return;
             }
             this.setTextAlign( SwingConstants.RIGHT );
-            if( value instanceof MethodEnergyStatistics.DoubleStatistics ) {
-                MethodEnergyStatistics.DoubleStatistics data = (MethodEnergyStatistics.DoubleStatistics) value;
+            if( value instanceof DoubleStatistics ) {
+                DoubleStatistics data = (DoubleStatistics) value;
                 append( String.format( "(±%.3f) ", data.getStandardDeviation()), new SimpleTextAttributes( SimpleTextAttributes.STYLE_PLAIN, JBColor.orange ) );
                 append( String.format( "%.3f", data.getAverage()), new SimpleTextAttributes( SimpleTextAttributes.STYLE_PLAIN, JBColor.foreground() ), true );
             } else {

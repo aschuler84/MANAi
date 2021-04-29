@@ -1,7 +1,5 @@
 package at.mana.idea.component;
 
-import at.mana.idea.component.method.MethodIconColumn;
-import at.mana.idea.component.method.MethodStringColumn;
 import at.mana.idea.component.plot.DefaultSingleStackedBarPlotModel;
 import at.mana.idea.component.plot.SingleStackedBarPlotComponent;
 import at.mana.idea.component.plot.SingleStackedBarPlotModel;
@@ -38,12 +36,9 @@ import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.ListTableModel;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.vcs.log.ui.render.GraphCommitCellRenderer;
-import com.intellij.vcs.log.ui.table.VcsLogColumn;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.TableCellEditor;
@@ -52,10 +47,12 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+
+import java.awt.*;
+import javax.swing.*;
 
 public class ManaMethodToolWindowFactory implements ToolWindowFactory {
 

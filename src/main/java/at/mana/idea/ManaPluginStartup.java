@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class ManaPluginStartup implements StartupActivity {
 
-    private static final Logger log = Logger.getInstance( ManaPluginStartup.class );
+    private static final Logger logger = Logger.getInstance( ManaPluginStartup.class );
 
 
     @Override

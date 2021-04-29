@@ -9,10 +9,7 @@ import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
-import com.intellij.ui.JBColor;
 import org.jetbrains.annotations.NotNull;
-
-import java.awt.*;
 
 public class ManaMethodEnergyAnnotator implements Annotator {
 

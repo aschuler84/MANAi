@@ -91,11 +91,8 @@ public class ManaProjectServiceImpl implements ManaProjectService {
         if( method.getNameIdentifier() != null ) {
             String methodName = method.getNameIdentifier().getText();
             if (clazz != null) {
-                String clazzName = clazz.getQualifiedName();
-                if (clazzName != null) {
-                    ManaEnergyExperimentModel model = energyStatsModel.get(clazzName);
-                    return model.getMethodEnergyStatistics().get(method);
-                }
+                    ManaEnergyExperimentModel model = energyStatsModel.get(clazz);
+                    return model != null ? model.getMethodEnergyStatistics().get(method) : null;
             }
         }
         return null;

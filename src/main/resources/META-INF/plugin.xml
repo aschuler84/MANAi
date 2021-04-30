@@ -25,6 +25,10 @@
                                         implementationClass="at.mana.idea.ManaMethodMarkerProvider"/>
         <annotator language="JAVA" implementationClass="at.mana.idea.ManaMethodEnergyAnnotator"/>
 
+        <notificationGroup id="ManaNotificationGroup" displayType="BALLOON"/>
+
+        <programRunner implementation="at.mana.idea.runner.ManaRaplProgramRunner" />
+
         <!--<toolWindow id="ManaOveriew"
                     icon="AllIcons.Debugger.ThreadStates.Socket"
                     anchor="left"

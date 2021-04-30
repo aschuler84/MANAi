@@ -1,10 +1,14 @@
 package at.mana.idea.configuration;
 
 import com.intellij.execution.configurations.ConfigurationFactory;
+import com.intellij.execution.configurations.ConfigurationType;
 import com.intellij.execution.configurations.RunConfiguration;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+
+import javax.swing.*;
 
 public class ManaRaplConfigurationFactory extends ConfigurationFactory {
 
@@ -23,5 +27,12 @@ public class ManaRaplConfigurationFactory extends ConfigurationFactory {
     @Override
     public @NotNull @Nls String getName() {
         return MANA_RAPL_FACTORY_NAME;
+    }
+
+
+    @Override
+    public @NotNull
+    @NonNls String getId() {
+        return getName();
     }
 }

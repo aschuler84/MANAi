@@ -11,6 +11,7 @@ import javax.swing.*;
 
 public class ManaRaplConfigurationType implements ConfigurationType {
 
+
     @Override
     public @NotNull @Nls(capitalization = Nls.Capitalization.Title) String getDisplayName() {
         return "Mana";

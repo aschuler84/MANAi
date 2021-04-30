@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -39,7 +40,7 @@ public class ManaProjectServiceImpl implements ManaProjectService {
     private final static String MANA_NAME_SUFFIX = ".mana";
     private VirtualFile selectedManaTraceFile;
     private final Project project;
-    private Map<PsiClass,ManaEnergyExperimentModel> energyStatsModel;
+    private Map<PsiClass,ManaEnergyExperimentModel> energyStatsModel = new HashMap<>();
     public ManaProjectServiceImpl(Project project) {
         this.project = project;
     }
@@ -67,6 +68,7 @@ public class ManaProjectServiceImpl implements ManaProjectService {
                             PsiMethod method = Arrays.stream(clazz.getMethods()).filter( psiMethod -> psiMethod.getName().equals( methodName ) ).findFirst().get();
                             energyStatsModel.computeIfAbsent(clazz, c -> new ManaEnergyExperimentModel());
                             ManaEnergyExperimentModel model = this.energyStatsModel.get(clazz);
+
                             computeStatistics(model, recorded, method, event.getFile());
                         }
 
@@ -99,6 +101,7 @@ public class ManaProjectServiceImpl implements ManaProjectService {
     }
 
     public List<ManaEnergyExperimentModel> findStatisticsFor( PsiJavaFile file ) {
+
         return Arrays.stream( file.getClasses() ).map( c-> energyStatsModel.get(c) ).filter( Objects::nonNull ).collect( Collectors.toList() );
     }
 

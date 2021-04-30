@@ -54,7 +54,8 @@ public class ManaRaplProgramRunner extends GenericProgramRunner<ManaRaplProgramR
     @Nullable
     @Override
     protected RunContentDescriptor doExecute(@NotNull RunProfileState state, @NotNull ExecutionEnvironment environment) throws ExecutionException {
-        ExecutionResult result = environment.getState().execute( environment.getExecutor(),this );
+        ExecutionResult result = Objects.requireNonNull(environment.getState()).execute( environment.getExecutor(),this );
+        Objects.requireNonNull( result );
         return new RunContentBuilder(result, environment).showRunContent(environment.getContentToReuse());
     }
 }

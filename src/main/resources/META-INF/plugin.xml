@@ -43,6 +43,8 @@
 
         <configurationType implementation="at.mana.idea.configuration.ManaRaplConfigurationType"/>
 
+        <editor.linePainter implementation="at.mana.idea.editor.ManaLineEditorPainter" />
+
     </extensions>
 
     <actions>

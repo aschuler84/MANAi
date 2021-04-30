@@ -20,6 +20,9 @@ public class ManaRaplRunProfileState extends CommandLineState {
 
     @Override
     protected @NotNull ProcessHandler startProcess() throws ExecutionException {
+
+        // TODO: implement a command, that executes a particular test over and over again.
+
         GeneralCommandLine commandLine = new GeneralCommandLine("C:\\ProgramData\\chocolatey\\lib\\maven\\apache-maven-3.8.1\\bin\\mvn.cmd");
         commandLine.addParameter( "-v" );
         commandLine.setWorkDirectory( this.getEnvironment().getProject().getBasePath() );

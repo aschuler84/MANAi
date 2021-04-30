@@ -29,6 +29,8 @@ public class ManaRaplConfiguration extends RunConfigurationBase {
 
     @Override
     public @Nullable RunProfileState getState(@NotNull Executor executor, @NotNull ExecutionEnvironment environment) throws ExecutionException {
-        return null;
+        return new ManaRaplRunProfileState( environment );
     }
+
+
 }

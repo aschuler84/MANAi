@@ -4,9 +4,7 @@ import at.mana.idea.configuration.ManaRaplConfiguration;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionManager;
 import com.intellij.execution.ExecutionResult;
-import com.intellij.execution.configurations.GeneralCommandLine;
-import com.intellij.execution.configurations.RunProfile;
-import com.intellij.execution.configurations.RunProfileState;
+import com.intellij.execution.configurations.*;
 import com.intellij.execution.process.ScriptRunnerUtil;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.runners.GenericProgramRunner;
@@ -38,6 +36,7 @@ public class ManaRaplProgramRunner extends GenericProgramRunner<ManaRaplProgramR
         return profile instanceof ManaRaplConfiguration;
     }
 
+
     /*@Override
     public void execute(@NotNull ExecutionEnvironment environment) throws ExecutionException {
         //Notification notification = new Notification("ManaNotificationGroup", AllIcons.Debugger.ThreadStates.Socket, NotificationType.INFORMATION);
@@ -54,6 +53,7 @@ public class ManaRaplProgramRunner extends GenericProgramRunner<ManaRaplProgramR
     @Nullable
     @Override
     protected RunContentDescriptor doExecute(@NotNull RunProfileState state, @NotNull ExecutionEnvironment environment) throws ExecutionException {
+
         ExecutionResult result = Objects.requireNonNull(environment.getState()).execute( environment.getExecutor(),this );
         Objects.requireNonNull( result );
         return new RunContentBuilder(result, environment).showRunContent(environment.getContentToReuse());

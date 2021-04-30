@@ -1,21 +1,30 @@
 package at.mana.idea.configuration;
 
+import at.mana.idea.util.OsCheck;
 import com.intellij.execution.ExecutionException;
+import com.intellij.execution.ExecutionTarget;
 import com.intellij.execution.Executor;
-import com.intellij.execution.configurations.ConfigurationFactory;
-import com.intellij.execution.configurations.RunConfiguration;
-import com.intellij.execution.configurations.RunConfigurationBase;
-import com.intellij.execution.configurations.RunProfileState;
+import com.intellij.execution.configurations.*;
 import com.intellij.execution.runners.ExecutionEnvironment;
+import com.intellij.execution.runners.ProgramRunner;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsSafe;
+import com.intellij.util.EnvironmentUtil;
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
+@Getter
+@Setter
 public class ManaRaplConfiguration extends RunConfigurationBase {
+
+    private int noOfSamples = 10;
+    private int samplingRate = 50;
+
     public ManaRaplConfiguration(@NotNull Project project, ManaRaplConfigurationFactory factory, String name) {
         super(project, factory, name );
     }
@@ -23,8 +32,17 @@ public class ManaRaplConfiguration extends RunConfigurationBase {
 
     @Override
     public @NotNull SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
-        return new ManaRaplSettingsEditor();
+        //return new ManaRaplSettingsEditor();
+        return new ManaRaplConfigurationEditor();
     }
+
+    @Override
+    public boolean canRunOn(@NotNull ExecutionTarget target) {
+        //return OsCheck.getOperatingSystemType().equals(OsCheck.OSType.Linux) || OsCheck.getOperatingSystemType().equals(OsCheck.OSType.MacOS);
+        return true;
+    }
+
+
 
 
     @Override

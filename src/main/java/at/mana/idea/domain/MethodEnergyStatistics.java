@@ -26,7 +26,7 @@ public class MethodEnergyStatistics {
     //private DoubleStatistics otherWattage;
     //private DoubleStatistics ramWattage;
     private Long durationMillis;
-    private JBColor heatColor = new JBColor(new Color(252, 43, 43, 60), new Color(252, 43, 43, 60));
+    private JBColor heatColor = new JBColor(JBColor.decode("0xD8F0E8"),JBColor.decode("0xD8F0E8"));
 
     private Set<MethodEnergyStatisticsSample> samples = new HashSet<>(); 
 

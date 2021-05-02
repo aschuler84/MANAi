@@ -44,7 +44,7 @@ public class ManaProjectServiceImpl implements ManaProjectService {
     public ManaProjectServiceImpl(Project project) {
         this.project = project;
     }
-    private final SimpleDateFormat FOLDER_DATE = new SimpleDateFormat("ddMMyyyyHHmmss");
+    public static final SimpleDateFormat FOLDER_DATE = new SimpleDateFormat("ddMMyyyyHHmmss");
     private static final Logger logger = Logger.getInstance( ManaProjectServiceImpl.class );
 
 

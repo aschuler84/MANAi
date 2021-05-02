@@ -17,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.io.File;
 
 @Getter
 @Setter
@@ -24,11 +25,18 @@ public class ManaRaplConfiguration extends RunConfigurationBase {
 
     private int noOfSamples = 10;
     private int samplingRate = 50;
+    private String outputFolder;
 
     public ManaRaplConfiguration(@NotNull Project project, ManaRaplConfigurationFactory factory, String name) {
         super(project, factory, name );
     }
 
+    public String getOutputFolder() {
+        if( this.outputFolder == null ) {
+            this.outputFolder = getProject().getBasePath() + File.separator + ".mana";
+        }
+        return this.outputFolder;
+    }
 
     @Override
     public @NotNull SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {

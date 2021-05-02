@@ -44,8 +44,8 @@ public class ManaLineEditorPainter extends EditorLinePainter {
             statistics.forEach( model -> {
                 model.getMethodEnergyStatistics().forEach( (k,v)-> {
                     if( doc.getLineNumber( k.getTextOffset() ) == lineNumber ) {
-                        String output = String.format( " [%.2f|%.2f|%.2f|%.2f]", v.getCpuWattage().getAverage(), v.getGpuWattage().getAverage(), v.getRamWattage().getAverage(), v.getOtherWattage().getAverage() );
-                        lines.add( new LineExtensionInfo( output, JBColor.decode("0x1A6FFF"), EffectType.BOXED, JBColor.YELLOW, Font.ITALIC) );
+                        String output = String.format( " %.2f|%.2f|%.2f|%.2f", v.getCpuWattage().getAverage(), v.getGpuWattage().getAverage(), v.getRamWattage().getAverage(), v.getOtherWattage().getAverage() );
+                        lines.add( new LineExtensionInfo( output, JBColor.decode("0x54F756"), EffectType.BOXED, JBColor.YELLOW, Font.ITALIC) );
                     }
                 });
             } );

@@ -4,6 +4,7 @@ import at.mana.idea.component.plot.DefaultSingleStackedBarPlotModel;
 import at.mana.idea.component.plot.SingleStackedBarPlotComponent;
 import at.mana.idea.component.plot.SingleStackedBarPlotModel;
 import at.mana.idea.domain.MethodEnergyStatistics;
+import at.mana.idea.domain.MethodEnergyStatisticsSample;
 import at.mana.idea.model.ManaEnergyExperimentModel;
 import at.mana.idea.service.ManaProjectService;
 import at.mana.idea.util.DoubleStatistics;
@@ -72,9 +73,10 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
     private void updateModel( PsiJavaFile file, List<ManaEnergyExperimentModel> data ) {
         DefaultMutableTreeNode root = new DefaultMutableTreeNode( file.getClasses()[0] );
         for( ManaEnergyExperimentModel stats: data) {
-            stats.getMethodEnergyStatistics().values().forEach( e ->
-                    root.add( new DefaultMutableTreeNode(e) )
-                    );
+            stats.getMethodEnergyStatistics().values().forEach( e -> {
+                DefaultMutableTreeNode node = new DefaultMutableTreeNode(e);
+                root.add(node);
+            });
         }
         methodTree.setModel( new DefaultTreeModel( root )  );
         /*methodTable.setModelAndUpdateColumns(
@@ -139,13 +141,19 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
                                 if( node.getUserObject() instanceof MethodEnergyStatistics ) {
                                     MethodEnergyStatistics statistics = (MethodEnergyStatistics) node.getUserObject();
                                     return statistics.getCpuWattage();
-                                }
+                                } else if( node.getUserObject() instanceof MethodEnergyStatisticsSample ) {
+                                    MethodEnergyStatisticsSample sample = (MethodEnergyStatisticsSample) node.getUserObject();
+                                    return sample.getCpuWattage();
+                                 }
                                 return null;
                             }),
                             new TreeTableColumn<DoubleStatistics>("GPU Power", DoubleStatistics.class, node -> {
                                 if( node.getUserObject() instanceof MethodEnergyStatistics ) {
                                     MethodEnergyStatistics statistics = (MethodEnergyStatistics) node.getUserObject();
                                     return statistics.getGpuWattage();
+                                } else if( node.getUserObject() instanceof MethodEnergyStatisticsSample ) {
+                                    MethodEnergyStatisticsSample sample = (MethodEnergyStatisticsSample) node.getUserObject();
+                                    return sample.getGpuWattage();
                                 }
                                 return null;
                             }),
@@ -153,6 +161,9 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
                                 if( node.getUserObject() instanceof MethodEnergyStatistics ) {
                                     MethodEnergyStatistics statistics = (MethodEnergyStatistics) node.getUserObject();
                                     return statistics.getRamWattage();
+                                } else if( node.getUserObject() instanceof MethodEnergyStatisticsSample ) {
+                                    MethodEnergyStatisticsSample sample = (MethodEnergyStatisticsSample) node.getUserObject();
+                                    return sample.getRamWattage();
                                 }
                                 return null;
                             }),
@@ -160,6 +171,9 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
                                 if( node.getUserObject() instanceof MethodEnergyStatistics ) {
                                     MethodEnergyStatistics statistics = (MethodEnergyStatistics) node.getUserObject();
                                     return statistics.getOtherWattage();
+                                } else if( node.getUserObject() instanceof MethodEnergyStatisticsSample ) {
+                                    MethodEnergyStatisticsSample sample = (MethodEnergyStatisticsSample) node.getUserObject();
+                                    return sample.getOtherWattage();
                                 }
                                 return null;
                             }),
@@ -205,8 +219,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
             DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("root");
             DefaultMutableTreeNode groupA = new DefaultMutableTreeNode( energyStatistics );
 
-            groupA.add( new DefaultMutableTreeNode( "Method A" ) );
-            groupA.add( new DefaultMutableTreeNode( "Method B" ) );
+            energyStatistics.getSamples().forEach( n -> groupA.add( new DefaultMutableTreeNode( n ) ) );
 
             rootNode.add( groupA );
 

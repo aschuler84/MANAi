@@ -61,9 +61,9 @@ public class ManaProjectServiceImpl implements ManaProjectService {
                                 .atZone(ZoneId.systemDefault())
                                 .toLocalDateTime();
 
-                        String className = event.getFile().getName().substring(0, event.getFile().getName().lastIndexOf('.')).replace("_", ".");
+                        String className = event.getFile().getName().substring(0, event.getFile().getName().lastIndexOf('_')).replace("_", ".");
                         PsiClass clazz = JavaPsiFacade.getInstance(project).findClass(className, GlobalSearchScope.projectScope(project));
-                        String methodName = event.getFile().getName().substring( event.getFile().getName().indexOf( '_' ), event.getFile().getName().lastIndexOf('.') );
+                        String methodName = event.getFile().getName().substring( event.getFile().getName().indexOf( '_' ), event.getFile().getName().lastIndexOf('_') );
                         if (clazz != null) {
                             PsiMethod method = Arrays.stream(clazz.getMethods()).filter( psiMethod -> psiMethod.getName().equals( methodName ) ).findFirst().get();
                             energyStatsModel.computeIfAbsent(clazz, c -> new ManaEnergyExperimentModel());
@@ -169,9 +169,11 @@ public class ManaProjectServiceImpl implements ManaProjectService {
                     for (VirtualFile file : folder.getChildren()) {
                         if (!file.getName().endsWith(MANA_NAME_SUFFIX)) continue;
 
-                        String className = file.getName().substring(0, file.getName().lastIndexOf('.')).replace("_", ".");
+                        //at.mana.ManaInstrumentTest_testAlgorithmsSort_1619982618133.mana
+
+                        String className = file.getName().substring(0, file.getName().lastIndexOf('_')).replace("_", ".");
                         PsiClass clazz = JavaPsiFacade.getInstance(project).findClass(className.substring(0,className.lastIndexOf('.')), GlobalSearchScope.projectScope(project));
-                        String methodName = file.getName().substring( file.getName().indexOf( '_' ), file.getName().lastIndexOf('.') ).substring(1);
+                        String methodName = file.getName().substring( file.getName().indexOf( '_' ), file.getName().lastIndexOf('_') ).substring(1);
                         if (clazz != null) {
                             PsiMethod method = Arrays.stream(clazz.getMethods()).filter( psiMethod -> psiMethod.getName().equals( methodName ) ).findFirst().get();
                             energyStatsModel.computeIfAbsent(clazz, c -> new ManaEnergyExperimentModel());

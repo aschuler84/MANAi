@@ -25,7 +25,7 @@ public class MethodEnergyStatistics {
     //private DoubleStatistics gpuWattage;
     //private DoubleStatistics otherWattage;
     //private DoubleStatistics ramWattage;
-    private Long durationMillis;
+    private Double durationMillis;
     private JBColor heatColor = new JBColor(JBColor.decode("0xD8F0E8"),JBColor.decode("0xD8F0E8"));
 
     private Set<MethodEnergyStatisticsSample> samples = new HashSet<>(); 
@@ -60,6 +60,11 @@ public class MethodEnergyStatistics {
         return samples.stream()
                 .flatMap( sample -> Arrays.stream( sample.getOther() ) ).collect( DoubleStatistics.collector() );
     }
+
+    public DoubleStatistics getDuration() {
+        return  samples.stream().map( v -> (double) v.getDuration() ).collect( DoubleStatistics.collector() );
+    }
+
 
     public void addSample( long durationMilliseconds, Double[] cpu, Double[] gpu, Double[] ram, Double[] other ) {
         this.samples.add( new MethodEnergyStatisticsSample( durationMilliseconds, cpu, gpu, ram, other ) );

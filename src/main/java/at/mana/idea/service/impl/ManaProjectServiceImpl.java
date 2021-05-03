@@ -41,12 +41,13 @@ public class ManaProjectServiceImpl implements ManaProjectService {
     private VirtualFile selectedManaTraceFile;
     private final Project project;
     private Map<PsiClass,ManaEnergyExperimentModel> energyStatsModel = new HashMap<>();
-    public ManaProjectServiceImpl(Project project) {
-        this.project = project;
-    }
+
     public static final SimpleDateFormat FOLDER_DATE = new SimpleDateFormat("ddMMyyyyHHmmss");
     private static final Logger logger = Logger.getInstance( ManaProjectServiceImpl.class );
 
+    public ManaProjectServiceImpl(Project project) {
+        this.project = project;
+    }
 
     @Override  // executed whenever a file is changed
     public void after(@NotNull List<? extends VFileEvent> events) {
@@ -111,7 +112,8 @@ public class ManaProjectServiceImpl implements ManaProjectService {
             //{
             //    "data":[{"id":"","power-core":"", "power-gpu":"", "power-other":"", "power-ram":""}]
             //}
-            JsonArray dataArray = jsonTree.get( "data" ).getAsJsonArray();  // reading one file
+            JsonArray dataArray = jsonTree.get( "data" ).getAsJsonArray();// reading one file
+            Double duration = jsonTree.get("duration").getAsDouble();
             Double[][] energyData = StreamSupport.stream(
                     dataArray.spliterator(), true ).map(data -> {
                 JsonObject entry = data.getAsJsonObject();
@@ -127,10 +129,9 @@ public class ManaProjectServiceImpl implements ManaProjectService {
                                         + entry.get("power-ram" ).getAsDouble()
                         };
             } ).toArray( Double[][]::new );
-            // TODO: parse duration
             energyData = transpose().apply( energyData );
             model.getMethodEnergyStatistics().computeIfAbsent( method, psiMethod -> new MethodEnergyStatistics(recorded, method) );
-            model.getMethodEnergyStatistics().get( method ).addSample( 0l,energyData[0],energyData[1], energyData[2], energyData[3] );
+            model.getMethodEnergyStatistics().get( method ).addSample( (long) (duration * 1000), energyData[0],energyData[1], energyData[2], energyData[3] );
         } catch( IOException e) {
             logger.error( e );
         }

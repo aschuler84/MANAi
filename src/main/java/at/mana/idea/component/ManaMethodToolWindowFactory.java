@@ -19,10 +19,7 @@ import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiJavaFile;
-import com.intellij.psi.PsiManager;
+import com.intellij.psi.*;
 import com.intellij.ui.*;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.labels.LinkLabel;
@@ -49,11 +46,12 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
 import java.util.function.Function;
 
 import java.awt.*;
+import java.util.stream.Collectors;
 import javax.swing.*;
 
 public class ManaMethodToolWindowFactory implements ToolWindowFactory {
@@ -71,12 +69,20 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
 
 
     private void updateModel( PsiJavaFile file, List<ManaEnergyExperimentModel> data ) {
+
+        Map<MethodEnergyStatistics, Set<MethodEnergyStatisticsSample>> values =
+                data.stream().flatMap( v -> v.getMethodEnergyStatistics().entrySet().stream() ).collect( Collectors.toMap(
+                        (Map.Entry<PsiMethod, MethodEnergyStatistics> entry ) -> entry.getValue(),
+                        (Map.Entry<PsiMethod, MethodEnergyStatistics> entry ) -> entry.getValue().getSamples() ) );
+
         DefaultMutableTreeNode root = new DefaultMutableTreeNode( file.getClasses()[0] );
-        for( ManaEnergyExperimentModel stats: data) {
-            stats.getMethodEnergyStatistics().values().forEach( e -> {
-                DefaultMutableTreeNode node = new DefaultMutableTreeNode(e);
-                root.add(node);
-            });
+        for( var stats: values.entrySet()) {
+            DefaultMutableTreeNode node = new DefaultMutableTreeNode(stats.getKey());
+            root.add( node );
+            /*stats.getValue().forEach( e -> {
+                DefaultMutableTreeNode eNode = new DefaultMutableTreeNode(e);
+                node.add(eNode);
+            });*/
         }
         methodTree.setModel( new DefaultTreeModel( root )  );
         /*methodTable.setModelAndUpdateColumns(
@@ -97,6 +103,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
         splitNorthSouth.setSecondComponent(createRightComponent());
         splitNorthSouth.setBorder(JBUI.Borders.empty());
         splitNorthSouth.setDividerWidth(1);
+        splitNorthSouth.setProportion( 0.2f );
         return splitNorthSouth;
     }
 
@@ -129,11 +136,14 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
         if( this.columns == null ) {
             columns = new ColumnInfo[]
                     {
-                            new TreeTableColumn<String>("Record", TreeTableModel.class, node -> node.getUserObject().toString() ),
-                            new TreeTableColumn<String>("Duration", String.class, node -> {
+                            new TreeTableColumn<String>("Record", TreeTableModel.class, node ->node.getUserObject().toString() ),
+                            new TreeTableColumn<DoubleStatistics>("Duration", DoubleStatistics.class, node -> {
                                 if( node.getUserObject() instanceof MethodEnergyStatistics ) {
                                     MethodEnergyStatistics statistics = (MethodEnergyStatistics) node.getUserObject();
-                                    return statistics.getDurationMillis() + "";
+                                    return statistics.getDuration();
+                                }  else if( node.getUserObject() instanceof MethodEnergyStatisticsSample ) {
+                                    MethodEnergyStatisticsSample sample = (MethodEnergyStatisticsSample) node.getUserObject();
+                                    return Arrays.stream( new Double[]{ sample.getDuration() + 0.0 } ).collect( DoubleStatistics.collector() );
                                 }
                                 return null;
                             }),
@@ -176,21 +186,14 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
                                     return sample.getOtherWattage();
                                 }
                                 return null;
-                            }),
-                            new TreeTableColumn<String>("# Samples", String.class, node -> {
-                                if( node.getUserObject() instanceof MethodEnergyStatistics ) {
-                                    MethodEnergyStatistics statistics = (MethodEnergyStatistics) node.getUserObject();
-                                    return 1 + "";
-                                }
-                                return null;
-                            }),
-                            new TreeTableColumn<String>("Energy", String.class, node -> {
+                            })
+                            /*new TreeTableColumn<String>("Energy", String.class, node -> {
                                 if( node.getUserObject() instanceof MethodEnergyStatistics ) {
                                     MethodEnergyStatistics statistics = (MethodEnergyStatistics) node.getUserObject();
                                     return "42.42";
                                 }
                                 return null;
-                            })
+                            })*/
                     };
         }
         return columns;
@@ -225,6 +228,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
 
             ListTreeTableModel model = new ListTreeTableModel(rootNode, getColumns() );
             treeTable.setModel( model );
+            treeTable.getTree().expandRow(1);
         }
 
         if( lblTitle != null ) {
@@ -238,7 +242,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
     }
 
     private JPanel createRightComponent() {
-        JBSplitter splitRigthDetails = new JBSplitter( false, "ManaMethodToolWindow.main.divider.proportion", 0.8f );
+        JBSplitter splitRigthDetails = new JBSplitter( false, "ManaMethodToolWindow.details.divider.proportion", 0.8f );
         splitRigthDetails.setFirstComponent( createTableSummaryComponent() );
         splitRigthDetails.setSecondComponent( createChartComponent() );
         splitRigthDetails.setBorder(JBUI.Borders.empty());
@@ -246,6 +250,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
         JPanel panel = new JPanel();
         panel.setLayout( new BorderLayout() );
         panel.add( splitRigthDetails, BorderLayout.CENTER );
+        splitRigthDetails.setProportion( 0.8f );
         return panel;
     }
 
@@ -266,7 +271,21 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
                 tableRenderer.setCellRenderer(new ColoredTreeCellRenderer() {
                     @Override
                     public void customizeCellRenderer(@NotNull JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-                        setIcon(AllIcons.Actions.ProfileBlue);
+
+                        if( value instanceof  DefaultMutableTreeNode ) {
+                            DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
+                            if (node.getUserObject() instanceof MethodEnergyStatistics) {
+                                MethodEnergyStatistics data = (MethodEnergyStatistics) node.getUserObject();
+                                append(data.getMethod().getName());
+                                setIcon(AllIcons.Actions.ProfileBlue);
+                            } else if (node.getUserObject() instanceof MethodEnergyStatisticsSample) {
+                                MethodEnergyStatisticsSample data = (MethodEnergyStatisticsSample) node.getUserObject();
+                                append( row + "");
+                                setIcon(AllIcons.Xml.Html_id);
+                            }
+                        } else {
+                            append(value.toString());
+                        }
                     }
                 });
                 return tableRenderer;
@@ -275,18 +294,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
 
         };
         treeTable.setDefaultRenderer( DoubleStatistics.class, new DecimalCellRenderer() );
-        treeTable.getTree().setCellRenderer(new ColoredTreeCellRenderer() {
-            @Override
-            public void customizeCellRenderer(@NotNull JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-                setIcon(AllIcons.Actions.ProfileBlue);
-            }
-        });
-        treeTable.setDefaultRenderer( TreeTableModel.class, new ColoredTableCellRenderer() {
-            @Override
-            protected void customizeCellRenderer(@NotNull JTable table, @Nullable Object value, boolean selected, boolean hasFocus, int row, int column) {
-                setIcon(AllIcons.Actions.ProfileBlue);
-            }
-        });
+
         treeTable.getTree().setShowsRootHandles(true);
         treeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         ToolbarDecorator decorator = ToolbarDecorator.createDecorator( treeTable );
@@ -421,12 +429,14 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
             this.setTextAlign( SwingConstants.RIGHT );
             if( value instanceof DoubleStatistics ) {
                 DoubleStatistics data = (DoubleStatistics) value;
-                append( String.format( "(\u00B1%.3f) ", data.getStandardDeviation()), new SimpleTextAttributes( SimpleTextAttributes.STYLE_PLAIN, JBColor.orange ) );
-                append( String.format( "%.3f", data.getAverage()), new SimpleTextAttributes( SimpleTextAttributes.STYLE_PLAIN, JBColor.foreground() ), true );
+                append(String.format("(\u00B1%.2f) ", data.getStandardDeviation()), new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.orange));
+                append(String.format("%.3f", data.getAverage()), new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.foreground()), true);
             } else {
                 append( value.toString() );
             }
         }
     }
+
+
 
 }

@@ -12,7 +12,7 @@ import java.util.Arrays;
 @AllArgsConstructor
 public class MethodEnergyStatisticsSample {
     
-    private long duration;
+    private double duration;
     private Double[] cpu;
     private Double[] gpu;
     private Double[] ram;

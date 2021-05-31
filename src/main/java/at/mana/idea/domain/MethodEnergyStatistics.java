@@ -62,12 +62,12 @@ public class MethodEnergyStatistics {
     }
 
     public DoubleStatistics getDuration() {
-        return  samples.stream().map( v -> (double) v.getDuration() ).collect( DoubleStatistics.collector() );
+        return  samples.stream().map(MethodEnergyStatisticsSample::getDuration).collect( DoubleStatistics.collector() );
     }
 
 
     public void addSample( long durationMilliseconds, Double[] cpu, Double[] gpu, Double[] ram, Double[] other ) {
-        this.samples.add( new MethodEnergyStatisticsSample( durationMilliseconds, cpu, gpu, ram, other ) );
+        this.samples.add( new MethodEnergyStatisticsSample( durationMilliseconds / 1000.0, cpu, gpu, ram, other ) );
     }
 
 

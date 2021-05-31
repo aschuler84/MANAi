@@ -429,7 +429,9 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
             this.setTextAlign( SwingConstants.RIGHT );
             if( value instanceof DoubleStatistics ) {
                 DoubleStatistics data = (DoubleStatistics) value;
-                append(String.format("(\u00B1%.2f) ", data.getStandardDeviation()), new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.orange));
+                if( data.getCount() > 1 ) {
+                    append(String.format("(\u00B1%.2f) ", data.getStandardDeviation()), new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.orange));
+                }
                 append(String.format("%.3f", data.getAverage()), new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.foreground()), true);
             } else {
                 append( value.toString() );

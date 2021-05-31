@@ -24,8 +24,6 @@ public class ManaRaplRunProfileState extends CommandLineState {
         super(environment);
     }
 
-
-
     @Override
     protected @NotNull ProcessHandler startProcess() throws ExecutionException {
         GeneralCommandLine commandLine = new GeneralCommandLine("/Users/andreasschuler/Dropbox/Dokumente/Dissertation/repository/testsuiteoptimizer/exec/src/main/resources/rapl/execute_rapl_idea");

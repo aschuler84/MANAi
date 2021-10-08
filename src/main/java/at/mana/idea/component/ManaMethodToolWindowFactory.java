@@ -6,6 +6,8 @@ import at.mana.idea.component.plot.SingleStackedBarPlotModel;
 import at.mana.idea.domain.MethodEnergyStatistics;
 import at.mana.idea.domain.MethodEnergyStatisticsSample;
 import at.mana.idea.model.ManaEnergyExperimentModel;
+import at.mana.idea.service.EnergyDataNotifierEvent;
+import at.mana.idea.service.ManaEnergyDataNotifier;
 import at.mana.idea.service.ManaProjectService;
 import at.mana.idea.util.DoubleStatistics;
 import com.intellij.icons.AllIcons;
@@ -46,6 +48,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
 import java.util.List;
 import java.util.function.Function;
@@ -54,7 +58,7 @@ import java.awt.*;
 import java.util.stream.Collectors;
 import javax.swing.*;
 
-public class ManaMethodToolWindowFactory implements ToolWindowFactory {
+public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnergyDataNotifier {
 
     // Table listing all method attributions
     //private Tree manaFileList = new Tree();
@@ -65,27 +69,31 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
     private JLabel lblTitle;
     private TreeTable treeTable;
     private ColumnInfo<DefaultMutableTreeNode, String>[] columns;
+    private ManaEnergyExperimentModel model;
 
 
-
-    private void updateModel( PsiJavaFile file, List<ManaEnergyExperimentModel> data ) {
-        Map<MethodEnergyStatistics, Set<MethodEnergyStatisticsSample>> values = data.stream().flatMap( v -> v.getMethodEnergyStatistics().entrySet().stream() )
-                .collect( Collectors.toMap(
-                        Map.Entry::getValue,
-                        (Map.Entry<PsiMethod, MethodEnergyStatistics> entry ) ->
-                                entry.getValue().getSamples().values().stream().flatMap(Collection::stream).collect(Collectors.toSet())
-                ) );
-
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode( file.getClasses()[0] );
-        for( var stats: values.entrySet()) {
-            DefaultMutableTreeNode node = new DefaultMutableTreeNode(stats.getKey());
-            root.add( node );
+    private void updateModel( PsiJavaFile file, ManaEnergyExperimentModel data ) {
+        this.model = data;
+        if( model != null ) {
+            DefaultMutableTreeNode root = new DefaultMutableTreeNode(file.getClasses()[0]);
+            for (var stats : model.getMethodEnergyStatistics().entrySet()) {
+                DefaultMutableTreeNode node = new DefaultMutableTreeNode(stats.getKey());
+                root.add(node);
             /*stats.getValue().forEach( e -> {
                 DefaultMutableTreeNode eNode = new DefaultMutableTreeNode(e);
                 node.add(eNode);
             });*/
+            }
+            methodTree.setModel(new DefaultTreeModel(root));
+        } else {
+            DefaultMutableTreeNode root = new DefaultMutableTreeNode(file.getClasses()[0]);
+            root.add( new DefaultMutableTreeNode( "No recorded energy data found" ) );
+            methodTree.setModel(new DefaultTreeModel(root));
+            bind( new ArrayList<>() );
         }
-        methodTree.setModel( new DefaultTreeModel( root )  );
+
+
+
         /*methodTable.setModelAndUpdateColumns(
                 new ListTableModel<>( new ColumnInfo[]{
                         new MethodIconColumn(),
@@ -123,8 +131,8 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
                 if( node.getUserObject() instanceof PsiClass ) {
                     PsiClass clazz = (PsiClass) node.getUserObject();
                     // TODO: Compute totals
-                } else if ( node.getUserObject() instanceof MethodEnergyStatistics ) {
-                    MethodEnergyStatistics stats = (MethodEnergyStatistics) node.getUserObject();
+                } else if ( node.getUserObject() instanceof PsiMethod ) {
+                    List<MethodEnergyStatistics> stats = model.getMethodEnergyStatistics().get( node.getUserObject() );
                     bind( stats );
                 }
             }
@@ -145,6 +153,16 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
                                 }  else if( node.getUserObject() instanceof MethodEnergyStatisticsSample ) {
                                     MethodEnergyStatisticsSample sample = (MethodEnergyStatisticsSample) node.getUserObject();
                                     return Arrays.stream( new Double[]{ sample.getDuration() + 0.0 } ).collect( DoubleStatistics.collector() );
+                                }
+                                return null;
+                            }),
+                            new TreeTableColumn<DoubleStatistics>("Energy Consumption", DoubleStatistics.class, node -> {
+                                if( node.getUserObject() instanceof MethodEnergyStatistics ) {
+                                    MethodEnergyStatistics statistics = (MethodEnergyStatistics) node.getUserObject();
+                                    return statistics.getEnergyConsumption();
+                                }  else if( node.getUserObject() instanceof MethodEnergyStatisticsSample ) {
+                                    MethodEnergyStatisticsSample sample = (MethodEnergyStatisticsSample) node.getUserObject();
+                                    return Arrays.stream( new Double[]{ sample.getEnergyConsumption() + 0.0 } ).collect( DoubleStatistics.collector() );
                                 }
                                 return null;
                             }),
@@ -200,36 +218,41 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
         return columns;
     }
 
-    protected void bind( MethodEnergyStatistics energyStatistics ) {
+    protected void bind( List<MethodEnergyStatistics> energyStatistics ) {
 
-        String[] legend = new String[]{
-                String.format("CPU Power %.2f Watt", energyStatistics.getCpuWattage().getAverage()),
-                String.format("GPU Power %.2f Watt", energyStatistics.getGpuWattage().getAverage()),
-                String.format("DRAM Power %.2f Watt", energyStatistics.getRamWattage().getAverage()),
-                String.format("Other Power %.2f Watt", energyStatistics.getOtherWattage().getAverage())};
-        Double[] values = new Double[]{
-                energyStatistics.getCpuWattage().getAverage(),
-                energyStatistics.getGpuWattage().getAverage(),
-                energyStatistics.getRamWattage().getAverage(),
-                energyStatistics.getOtherWattage().getAverage()};
-        barPlotModel = new DefaultSingleStackedBarPlotModel( legend, values );
+        MethodEnergyStatistics statistics =
+                energyStatistics.stream().max( Comparator.comparing( MethodEnergyStatistics::getRecorded ) ).orElse(null);
+        if( statistics != null ) {
+            String[] legend = new String[]{
+                    String.format("CPU Power %.2f Watt", statistics.getCpuWattage().getAverage()),
+                    String.format("GPU Power %.2f Watt", statistics.getGpuWattage().getAverage()),
+                    String.format("DRAM Power %.2f Watt", statistics.getRamWattage().getAverage()),
+                    String.format("Other Power %.2f Watt", statistics.getOtherWattage().getAverage())};
+            Double[] values = new Double[]{
+                    statistics.getCpuWattage().getAverage(),
+                    statistics.getGpuWattage().getAverage(),
+                    statistics.getRamWattage().getAverage(),
+                    statistics.getOtherWattage().getAverage()};
+            barPlotModel = new DefaultSingleStackedBarPlotModel(legend, values);
 
-        if(barPlotComponent != null) {
-            barPlotComponent.setModel( barPlotModel );
+            if (barPlotComponent != null) {
+                barPlotComponent.setModel(barPlotModel);
+            }
+        } else {
+            barPlotComponent.setModel( null );
         }
+
 
         if( treeTable != null ) {
 
             DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("root");
-            DefaultMutableTreeNode groupA = new DefaultMutableTreeNode( energyStatistics );
 
-            energyStatistics.getSamples()
-                    .values()
-                    .stream()
-                    .flatMap(Collection::stream)
-                    .forEach( n -> groupA.add( new DefaultMutableTreeNode( n ) ) );
-
-            rootNode.add( groupA );
+            energyStatistics.forEach( methodEnergyStatistics -> {
+                DefaultMutableTreeNode group = new DefaultMutableTreeNode( methodEnergyStatistics );
+                methodEnergyStatistics.getSamples()
+                        .forEach( n -> group.add( new DefaultMutableTreeNode( n ) ) );
+                rootNode.add( group );
+            } );
 
             ListTreeTableModel model = new ListTreeTableModel(rootNode, getColumns() );
             treeTable.setModel( model );
@@ -238,10 +261,13 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
 
         if( lblTitle != null ) {
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) this.methodTree.getLastSelectedPathComponent();
-            if( node.getUserObject() instanceof MethodEnergyStatistics ){
-                MethodEnergyStatistics stats = (MethodEnergyStatistics) node.getUserObject();
-                lblTitle.setText( stats.getMethod() != null ? stats.getMethod().getName() : "<???>" );
+            if( node != null && node.getUserObject() instanceof PsiMethod ){
+                PsiMethod stats = (PsiMethod) node.getUserObject();
+                lblTitle.setText(stats.getName() );
                 lblTitle.setIcon( AllIcons.Nodes.Method );
+            } else {
+                lblTitle.setText( "" );
+                lblTitle.setIcon( null );
             }
         }
     }
@@ -281,7 +307,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
                             DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
                             if (node.getUserObject() instanceof MethodEnergyStatistics) {
                                 MethodEnergyStatistics data = (MethodEnergyStatistics) node.getUserObject();
-                                append(data.getMethod().getName());
+                                append(data.getRecorded().format( DateTimeFormatter.ISO_DATE_TIME ));
                                 setIcon(AllIcons.Actions.ProfileBlue);
                             } else if (node.getUserObject() instanceof MethodEnergyStatisticsSample) {
                                 MethodEnergyStatisticsSample data = (MethodEnergyStatisticsSample) node.getUserObject();
@@ -342,32 +368,35 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         project.getMessageBus().connect().subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new FileEditorSelectionChangedListener());
+        project.getMessageBus().connect().subscribe(ManaEnergyDataNotifier.MANA_ENERGY_DATA_NOTIFIER_TOPIC, this);
         toolWindow.setTitle( "Mana" );
         initTable();
         toolWindow.getComponent().setBorder( JBUI.Borders.empty() );
         toolWindow.getComponent().add( createBaseComponent() );
-
-
-        FileEditor editor = FileEditorManager.getInstance(project).getSelectedEditor();
-        if( editor != null ) {
-            VirtualFile file = editor.getFile();
-            if( file != null  ) {
-                PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
-                if (psiFile instanceof PsiJavaFile) {
-                    PsiJavaFile javaFile = (PsiJavaFile) psiFile;
-                    ManaProjectService service = ServiceManager.getService(project, ManaProjectService.class);
-                    updateModel(javaFile, service.findStatisticsFor(javaFile));
-                } else {
-                    methodTree.getEmptyText().setText("Select a class file to display recorded energy data");
-                }
-            }
-        }
     }
 
     private void initTable() {
         methodTree.getEmptyText().setShowAboveCenter(true);
         methodTree.getEmptyText().setText("Select a class file to display recorded energy data");
         methodTree.getEmptyText().getComponent().add( new LinkLabel<String>("Initialize mana", AllIcons.Ide.Link));
+    }
+
+    @Override
+    public void update(EnergyDataNotifierEvent event) {
+        FileEditor editor = FileEditorManager.getInstance(event.getProject()).getSelectedEditor();
+        if( editor != null ) {
+            VirtualFile file = editor.getFile();
+            if( file != null  ) {
+                PsiFile psiFile = PsiManager.getInstance(event.getProject()).findFile(file);
+                if (psiFile instanceof PsiJavaFile) {
+                    PsiJavaFile javaFile = (PsiJavaFile) psiFile;
+                    ManaProjectService service = ServiceManager.getService(event.getProject(), ManaProjectService.class);
+                    updateModel(javaFile, service.findStatisticsFor(javaFile));
+                } else {
+                    methodTree.getEmptyText().setText("Select a class file to display recorded energy data");
+                }
+            }
+        }
     }
 
     private class FileEditorSelectionChangedListener implements FileEditorManagerListener {
@@ -414,12 +443,14 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
                     label.setIcon( AllIcons.Nodes.Class );
                     PsiClass clazz = (PsiClass) node.getUserObject();
                     label.setText( clazz.getName() );
-                } else {
+                } else if( node.getUserObject() instanceof PsiMethod ) {
                     label.setIcon( AllIcons.Nodes.Folder );
-                    MethodEnergyStatistics stats = (MethodEnergyStatistics) node.getUserObject();
+                    PsiMethod method = (PsiMethod) node.getUserObject();
                     label.setIcon( AllIcons.Nodes.Method );
-                    label.setText( stats.getMethod() != null ? stats.getMethod().getName() : "<???>" );
-                    //label.setText( stats.getMethod() != null ? stats.getMethod().getName() : "<???>" );
+                    label.setText( method.getName() );
+                } else if( node.getUserObject() instanceof String ) {
+                    label.setIcon( AllIcons.General.Error );
+                    label.setText( node.getUserObject().toString() );
                 }
             }
             return label;

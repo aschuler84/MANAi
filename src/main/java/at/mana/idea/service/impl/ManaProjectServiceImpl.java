@@ -1,17 +1,23 @@
 package at.mana.idea.service.impl;
 
 import at.mana.idea.model.ManaEnergyExperimentModel;
+import at.mana.idea.service.EnergyDataNotifierEvent;
+import at.mana.idea.service.ManaEnergyDataNotifier;
 import at.mana.idea.service.ManaProjectService;
 import at.mana.idea.domain.MethodEnergyStatistics;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.intellij.execution.Executor;
+import com.intellij.execution.process.ProcessAdapter;
+import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.ui.RunContentDescriptor;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
@@ -19,6 +25,7 @@ import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.ClassUtil;
 import com.intellij.ui.JBColor;
+import com.intellij.util.messages.MessageBusConnection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,7 +46,7 @@ import java.util.stream.StreamSupport;
 import static at.mana.idea.util.MatrixOperations.transpose;
 
 @Service
-public class ManaProjectServiceImpl implements ManaProjectService {
+public class ManaProjectServiceImpl extends ProcessAdapter implements ManaProjectService {
 
     private final static String MANA_NAME_SUFFIX = ".mana";
     private VirtualFile selectedManaTraceFile;
@@ -51,6 +58,11 @@ public class ManaProjectServiceImpl implements ManaProjectService {
 
     public ManaProjectServiceImpl(Project project) {
         this.project = project;
+    }
+
+    @Override
+    public void before(@NotNull List<? extends VFileEvent> events) {
+        ManaProjectService.super.before(events);
     }
 
     @Override  // executed whenever a file is changed
@@ -97,6 +109,12 @@ public class ManaProjectServiceImpl implements ManaProjectService {
     }
 
 
+    /**
+     * Returns the most recent collected energy readings for a given method
+     * @param method the method for which the energy stats should be returned
+     * @param file the file in which the method is contained
+     * @return the most recent energy statistics for the given method
+     */
     @Override
     public MethodEnergyStatistics findStatisticsForMethod(PsiMethod method, VirtualFile file ) {
         PsiClass clazz = method.getContainingClass();
@@ -105,15 +123,17 @@ public class ManaProjectServiceImpl implements ManaProjectService {
             String methodName = method.getNameIdentifier().getText();
             if (clazz != null) {
                     ManaEnergyExperimentModel model = energyStatsModel.get(clazz);
-                    return model != null ? model.getMethodEnergyStatistics().get(method) : null;
+                    if( model != null && model.getMethodEnergyStatistics().containsKey( method ) ) {
+                        return model.getMethodEnergyStatistics().get(method)
+                                .stream().max(Comparator.comparing(MethodEnergyStatistics::getRecorded)).orElse(null);
+                    }
             }
         }
         return null;
     }
 
-    public List<ManaEnergyExperimentModel> findStatisticsFor( PsiJavaFile file ) {
-
-        return Arrays.stream( file.getClasses() ).map( c-> energyStatsModel.get(c) ).filter( Objects::nonNull ).collect( Collectors.toList() );
+    public ManaEnergyExperimentModel findStatisticsFor( PsiJavaFile file ) {
+        return Arrays.stream( file.getClasses() ).map( c -> energyStatsModel.get(c) ).filter( Objects::nonNull ).findFirst().orElse(null);
     }
 
     private void computeStatistics(ManaEnergyExperimentModel model, LocalDateTime recorded, PsiMethod method, VirtualFile f) {
@@ -137,8 +157,16 @@ public class ManaProjectServiceImpl implements ManaProjectService {
                         };
             } ).toArray( Double[][]::new );
             energyData = transpose().apply( energyData );
-            model.getMethodEnergyStatistics().computeIfAbsent( method, psiMethod -> new MethodEnergyStatistics(method) );
-            model.getMethodEnergyStatistics().get( method ).addSample( recorded, (long) (duration * 1000), energyData[0],energyData[1], energyData[2], energyData[3] );
+            model.getMethodEnergyStatistics().computeIfAbsent( method, p -> new ArrayList<MethodEnergyStatistics>() );
+
+            // try to find a method stats that fits the current date
+            MethodEnergyStatistics methodEnergyStatistics = model.getMethodEnergyStatistics().get(method)
+                    .stream().filter( m -> m.getRecorded().equals( recorded ) ).findFirst().orElseGet( () -> {
+                        var m = new MethodEnergyStatistics( recorded, method );
+                        model.getMethodEnergyStatistics().get( method ).add( m );
+                        return m;
+                    } );
+            methodEnergyStatistics.addSample( (long) (duration * 1000), energyData[0],energyData[1], energyData[2], energyData[3] );
         } catch( IOException e) {
             logger.error( e );
         }
@@ -195,26 +223,18 @@ public class ManaProjectServiceImpl implements ManaProjectService {
                 }
             }
         }
+        notifyEnergyModelChanged(project);
+    }
 
-/*      final double range = max - min;
-        final double minV = min;
-        energyStatsModel.getMethodEnergyStatistics().forEach( v -> {
-            if( ((v.getTotal() - minV )/ range) < 0.2 )
-                v.setHeatColor( new JBColor(new Color(134, 252, 43, 60), new Color(134, 252, 43, 60)) );
-            else if ( ((v.getTotal() - minV )/ range) < 0.4 )
-                v.setHeatColor( new JBColor(new Color(252, 249, 43, 60), new Color(252, 249, 43, 60)) );
-            else if ( ((v.getTotal() - minV )/ range) < 0.6 )
-                v.setHeatColor( new JBColor(new Color(252, 147, 43, 60), new Color(252, 147, 43, 60)) );
-            else if ( ((v.getTotal() - minV )/ range) < 0.8 )
-                v.setHeatColor( new JBColor(new Color(255, 147, 43, 60), new Color(255, 147, 43, 60)) );
-            else if ( ((v.getTotal() - minV )/ range) <= 1.0 )
-                v.setHeatColor( new JBColor(new Color(252, 43, 43, 60), new Color(252, 43, 43, 60)) );
-        } );
- */
+    private void notifyEnergyModelChanged( Project project ) {
+        ManaEnergyDataNotifier publisher = project.getMessageBus().syncPublisher(ManaEnergyDataNotifier.MANA_ENERGY_DATA_NOTIFIER_TOPIC);
+        publisher.update( new EnergyDataNotifierEvent( project, null ));
     }
 
     @Override
-    public void consume(Set<String> strings) {
-        System.out.printf("");
+    public void processTerminated(@NotNull ProcessEvent event) {
+        if( event.getExitCode() == 0 )  // only refresh if execution was successful
+            ApplicationManager.getApplication().invokeLater(this::init);
     }
+
 }

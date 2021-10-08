@@ -11,6 +11,10 @@ import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.process.*;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.ui.ConsoleView;
+import com.intellij.icons.AllIcons;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.components.ServiceManager;
@@ -28,7 +32,15 @@ public class ManaRaplRunProfileState extends CommandLineState {
 
     @Override
     protected @NotNull ProcessHandler startProcess() throws ExecutionException {
-        GeneralCommandLine commandLine = new GeneralCommandLine("/Users/andreasschuler/Dropbox/Dokumente/Dissertation/repository/testsuiteoptimizer/exec/src/main/resources/rapl/execute_rapl_idea");
+
+        Notification notification = new Notification("ManaNotificationGroup", AllIcons.Debugger.ThreadStates.Socket, NotificationType.INFORMATION);
+        notification.setContent( "Mann RAPL Executor started" );
+        Notifications.Bus.notify(notification);
+
+        //throw new ExecutionException("Unable to start due to missing configuration of RAPL");
+
+        GeneralCommandLine commandLine = new GeneralCommandLine("ipconfig");
+        //GeneralCommandLine commandLine = new GeneralCommandLine("/Users/andreasschuler/Dropbox/Dokumente/Dissertation/repository/testsuiteoptimizer/exec/src/main/resources/rapl/execute_rapl_idea");
         ManaRaplConfiguration configuration = (ManaRaplConfiguration) this.getEnvironment().getRunProfile();
         // System.out.println(PathEnvironmentVariableUtil.getPathVariableValue());
         // Ensure that environment variable RAPL.HOME is set and use its value to start RAPL

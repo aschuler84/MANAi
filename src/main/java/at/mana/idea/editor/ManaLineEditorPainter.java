@@ -35,6 +35,16 @@ public class ManaLineEditorPainter extends EditorLinePainter {
             new JBColor(new Color(255,173,138), new Color(255,173,138)),
             new JBColor(new Color(255, 143, 143), new Color(255, 143, 143)),
     };
+    private final Color[] ylgnbu = new Color[] {
+            new JBColor(new Color(255,255,217), new Color(255,255,217)),
+            new JBColor(new Color(237,248,177), new Color(237,248,177)),
+            new JBColor(new Color(199,233,180), new Color(199,233,180)),
+            new JBColor(new Color(127,205,187), new Color(127,205,187)),
+            new JBColor(new Color(65, 182, 196), new Color(65, 182, 196)),
+            new JBColor(new Color(29, 145, 192), new Color(29, 145, 192)),
+            new JBColor(new Color(34, 94, 168), new Color(34, 94, 168)),
+            new JBColor(new Color(37, 52, 148), new Color(37, 52, 148)),
+    };
 
     @Override
     public @Nullable Collection<LineExtensionInfo> getLineExtensions(@NotNull Project project, @NotNull VirtualFile file, int lineNumber) {
@@ -93,7 +103,7 @@ public class ManaLineEditorPainter extends EditorLinePainter {
     }
 
     private List<LineExtensionInfo> createHistogram( List<MethodEnergyStatistics> statistics ) {
-        final int max = 10;
+        final int max = 5;
         double[] bins = new double[max];
         String[] elements = new String[]{
                 "\u2581",
@@ -130,7 +140,7 @@ public class ManaLineEditorPainter extends EditorLinePainter {
 
         for(double entry : bins) {
             int index = (int) ( (elements.length - 1) * (entry / maxV));
-            lines.add( new LineExtensionInfo( elements[index], colors[0], EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN) );
+            lines.add( new LineExtensionInfo( elements[index], ylgnbu[index], EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN) );
         }
 
         if( lines.size() < max )
@@ -138,7 +148,7 @@ public class ManaLineEditorPainter extends EditorLinePainter {
 
         lines.add(0,new LineExtensionInfo("      \u2502", JBColor.decode("0x999999"), EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
         lines.add(new LineExtensionInfo("\u251C ",JBColor.decode("0x999999"), EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
-        lines.add(new LineExtensionInfo(sum + "" ,JBColor.decode("0x999999"), EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
+        lines.add(new LineExtensionInfo(String.format( "%.3fJ", sum/(1.0*bins.length))  ,JBColor.decode("0x999999"), EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
 
 
         return lines;

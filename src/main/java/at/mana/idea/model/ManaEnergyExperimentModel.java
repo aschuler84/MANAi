@@ -40,6 +40,6 @@ public class ManaEnergyExperimentModel {
 
 
     private PsiClass experimentClass;
-    private Map<PsiMethod, MethodEnergyStatistics> methodEnergyStatistics = new HashMap<>();
+    private Map<PsiMethod, List<MethodEnergyStatistics>> methodEnergyStatistics = new HashMap<>();
 
 }

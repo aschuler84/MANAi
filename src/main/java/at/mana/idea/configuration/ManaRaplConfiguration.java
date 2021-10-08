@@ -19,16 +19,37 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.io.File;
 
-@Getter
-@Setter
-public class ManaRaplConfiguration extends RunConfigurationBase {
+public class ManaRaplConfiguration extends RunConfigurationBase<ManaRaplConfigurationOptions> {
 
-    private int noOfSamples = 10;
-    private int samplingRate = 50;
     private String outputFolder;
 
     public ManaRaplConfiguration(@NotNull Project project, ManaRaplConfigurationFactory factory, String name) {
         super(project, factory, name );
+    }
+
+    @Override
+    protected @NotNull ManaRaplConfigurationOptions getOptions() {
+        return (ManaRaplConfigurationOptions) super.getOptions();
+    }
+
+    public int getNoOfSamples() {
+        return getOptions().getNoOfSamples();
+    }
+
+    public void setNoOfSamples(int noOfSamples) {
+        getOptions().setNoOfSamples(noOfSamples);
+    }
+
+    public int getSamplingRate() {
+        return getOptions().getSamplingRate();
+    }
+
+    public void setSamplingRate(int samplingRate) {
+        getOptions().setSamplingRate( samplingRate );
+    }
+
+    public void setOutputFolder(String outputFolder) {
+        this.outputFolder = outputFolder;
     }
 
     public String getOutputFolder() {
@@ -40,7 +61,6 @@ public class ManaRaplConfiguration extends RunConfigurationBase {
 
     @Override
     public @NotNull SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
-        //return new ManaRaplSettingsEditor();
         return new ManaRaplConfigurationEditor();
     }
 
@@ -49,8 +69,6 @@ public class ManaRaplConfiguration extends RunConfigurationBase {
         //return OsCheck.getOperatingSystemType().equals(OsCheck.OSType.Linux) || OsCheck.getOperatingSystemType().equals(OsCheck.OSType.MacOS);
         return true;
     }
-
-
 
 
     @Override

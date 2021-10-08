@@ -8,11 +8,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.awt.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Getter
@@ -20,56 +20,55 @@ import java.util.stream.Collectors;
 public class MethodEnergyStatistics {
 
     private PsiMethod method;
-    private LocalDateTime recorded;
-    //private DoubleStatistics coreWattage;
-    //private DoubleStatistics gpuWattage;
-    //private DoubleStatistics otherWattage;
-    //private DoubleStatistics ramWattage;
     private Double durationMillis;
     private JBColor heatColor = new JBColor(JBColor.decode("0xD8F0E8"),JBColor.decode("0xD8F0E8"));
+    private Map<LocalDateTime, Set<MethodEnergyStatisticsSample>> samples = new HashMap<>();
 
-    private Set<MethodEnergyStatisticsSample> samples = new HashSet<>(); 
-
-
-    public MethodEnergyStatistics( LocalDateTime recorded, PsiMethod method ) {
-        //coreWattage = Arrays.stream(core).collect(DoubleStatistics.collector());
-        //gpuWattage = Arrays.stream(gpu).collect(DoubleStatistics.collector());
-        //otherWattage = Arrays.stream(other).collect(DoubleStatistics.collector());
-        //ramWattage = Arrays.stream(ram).collect(DoubleStatistics.collector());
-        //this.durationMillis = durationMilliseconds;
-        this.recorded = recorded;
+    public MethodEnergyStatistics( PsiMethod method ) {
         this.method = method;
     }
 
+    public DoubleStatistics getCpuWattageLatest() {
+        LocalDateTime date = samples.keySet().stream().max(LocalDateTime::compareTo).orElse( null );
+        return date != null ? samples.get( date ).stream()
+                .flatMap( sample -> Arrays.stream( sample.getCpu() ) ).collect( DoubleStatistics.collector() ) : null;
+    }
+
+    private DoubleStatistics getValue(Function<MethodEnergyStatisticsSample,Double[]> map ) {
+        return samples.values().stream()
+                .flatMap(Collection::stream)
+                .map( map )
+                .flatMap( Arrays::stream )
+                .collect( DoubleStatistics.collector() );
+    }
+
     public DoubleStatistics getCpuWattage() {
-        return samples.stream()
-            .flatMap( sample -> Arrays.stream( sample.getCpu() ) ).collect( DoubleStatistics.collector() );
+        return getValue( MethodEnergyStatisticsSample::getCpu );
     }
 
     public DoubleStatistics getGpuWattage() {
-        return samples.stream()
-                .flatMap( sample -> Arrays.stream( sample.getGpu() ) ).collect( DoubleStatistics.collector() );
+        return getValue( MethodEnergyStatisticsSample::getGpu );
     }
 
     public DoubleStatistics getRamWattage() {
-        return samples.stream()
-                .flatMap( sample -> Arrays.stream( sample.getRam() ) ).collect( DoubleStatistics.collector() );
+        return getValue( MethodEnergyStatisticsSample::getRam );
     }
 
     public DoubleStatistics getOtherWattage() {
-        return samples.stream()
-                .flatMap( sample -> Arrays.stream( sample.getOther() ) ).collect( DoubleStatistics.collector() );
+        return getValue( MethodEnergyStatisticsSample::getOther );
     }
 
     public DoubleStatistics getDuration() {
-        return  samples.stream().map(MethodEnergyStatisticsSample::getDuration).collect( DoubleStatistics.collector() );
+        return samples.values().stream()
+                .flatMap( Collection::stream )
+                .map( MethodEnergyStatisticsSample::getDuration )
+                .collect( DoubleStatistics.collector() );
     }
 
-
-    public void addSample( long durationMilliseconds, Double[] cpu, Double[] gpu, Double[] ram, Double[] other ) {
-        this.samples.add( new MethodEnergyStatisticsSample( durationMilliseconds / 1000.0, cpu, gpu, ram, other ) );
+    public void addSample( LocalDateTime recorded, long durationMilliseconds, Double[] cpu, Double[] gpu, Double[] ram, Double[] other ) {
+        this.samples.computeIfAbsent( recorded, localDateTime -> new HashSet<>() );
+        this.samples.get(recorded).add( new MethodEnergyStatisticsSample( durationMilliseconds / 1000.0, cpu, gpu, ram, other ) );
     }
-
 
     public Double getTotal() {
         return this.getCpuWattage().getAverage() + this.getGpuWattage().getAverage() + this.getOtherWattage().getAverage() + this.getRamWattage().getAverage();

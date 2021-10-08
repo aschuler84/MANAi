@@ -12,10 +12,10 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbarPosition;
 import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
-import com.intellij.openapi.fileEditor.FileEditorManagerListener;
+import com.intellij.openapi.fileEditor.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
+import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
@@ -69,11 +69,12 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
 
 
     private void updateModel( PsiJavaFile file, List<ManaEnergyExperimentModel> data ) {
-
-        Map<MethodEnergyStatistics, Set<MethodEnergyStatisticsSample>> values =
-                data.stream().flatMap( v -> v.getMethodEnergyStatistics().entrySet().stream() ).collect( Collectors.toMap(
-                        (Map.Entry<PsiMethod, MethodEnergyStatistics> entry ) -> entry.getValue(),
-                        (Map.Entry<PsiMethod, MethodEnergyStatistics> entry ) -> entry.getValue().getSamples() ) );
+        Map<MethodEnergyStatistics, Set<MethodEnergyStatisticsSample>> values = data.stream().flatMap( v -> v.getMethodEnergyStatistics().entrySet().stream() )
+                .collect( Collectors.toMap(
+                        Map.Entry::getValue,
+                        (Map.Entry<PsiMethod, MethodEnergyStatistics> entry ) ->
+                                entry.getValue().getSamples().values().stream().flatMap(Collection::stream).collect(Collectors.toSet())
+                ) );
 
         DefaultMutableTreeNode root = new DefaultMutableTreeNode( file.getClasses()[0] );
         for( var stats: values.entrySet()) {
@@ -222,7 +223,11 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
             DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("root");
             DefaultMutableTreeNode groupA = new DefaultMutableTreeNode( energyStatistics );
 
-            energyStatistics.getSamples().forEach( n -> groupA.add( new DefaultMutableTreeNode( n ) ) );
+            energyStatistics.getSamples()
+                    .values()
+                    .stream()
+                    .flatMap(Collection::stream)
+                    .forEach( n -> groupA.add( new DefaultMutableTreeNode( n ) ) );
 
             rootNode.add( groupA );
 
@@ -341,6 +346,22 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
         initTable();
         toolWindow.getComponent().setBorder( JBUI.Borders.empty() );
         toolWindow.getComponent().add( createBaseComponent() );
+
+
+        FileEditor editor = FileEditorManager.getInstance(project).getSelectedEditor();
+        if( editor != null ) {
+            VirtualFile file = editor.getFile();
+            if( file != null  ) {
+                PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
+                if (psiFile instanceof PsiJavaFile) {
+                    PsiJavaFile javaFile = (PsiJavaFile) psiFile;
+                    ManaProjectService service = ServiceManager.getService(project, ManaProjectService.class);
+                    updateModel(javaFile, service.findStatisticsFor(javaFile));
+                } else {
+                    methodTree.getEmptyText().setText("Select a class file to display recorded energy data");
+                }
+            }
+        }
     }
 
     private void initTable() {
@@ -350,9 +371,22 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
     }
 
     private class FileEditorSelectionChangedListener implements FileEditorManagerListener {
+
+        @Override
+        public void fileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
+            Project project = source.getProject();
+            PsiFile psiFile = PsiManager.getInstance(project).findFile( file );
+            if( psiFile instanceof PsiJavaFile ) {
+                PsiJavaFile javaFile = (PsiJavaFile) psiFile;
+                ManaProjectService service = ServiceManager.getService(project, ManaProjectService.class);
+                updateModel( javaFile, service.findStatisticsFor( javaFile ));
+            } else {
+                methodTree.getEmptyText().setText("Select a class file to display recorded energy data");
+            }
+        }
+
         @Override
         public void selectionChanged(@NotNull FileEditorManagerEvent event) {
-            if( methodTree != null ) {
                 if( event.getNewFile() != null ) {
                     Project project = event.getManager().getProject();
                     PsiFile file = PsiManager.getInstance(project).findFile( event.getNewFile() );
@@ -360,7 +394,6 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory {
                         PsiJavaFile javaFile = (PsiJavaFile) file;
                         ManaProjectService service = ServiceManager.getService(project, ManaProjectService.class);
                         updateModel( javaFile, service.findStatisticsFor( javaFile ));
-                    }
                 } else {
                     methodTree.getEmptyText().setText("Select a class file to display recorded energy data");
                 }

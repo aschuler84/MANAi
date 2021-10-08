@@ -6,6 +6,8 @@ import at.mana.idea.domain.MethodEnergyStatistics;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.intellij.execution.Executor;
+import com.intellij.execution.ui.RunContentDescriptor;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
@@ -15,8 +17,10 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
 import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.util.ClassUtil;
 import com.intellij.ui.JBColor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.io.File;
@@ -53,7 +57,7 @@ public class ManaProjectServiceImpl implements ManaProjectService {
     public void after(@NotNull List<? extends VFileEvent> events) {
         for( VFileEvent event : events ) {
             if( event.getFile() != null &&
-                    event.getFile().getName().endsWith( MANA_NAME_SUFFIX ) ) {
+                    event.getFile().getParent().getName().endsWith( MANA_NAME_SUFFIX ) ) {
                 // search if a mana file has changed - if so overwrite the stats
                 if( isValidManaFile( event.getFile() ) ) {
                     VirtualFile folder = event.getFile().getParent();
@@ -62,9 +66,15 @@ public class ManaProjectServiceImpl implements ManaProjectService {
                                 .atZone(ZoneId.systemDefault())
                                 .toLocalDateTime();
 
+                        // whenever a file is changed -> look at the currently opened editor
+                        // if the currently open class has new data available - parse it and
+
+
+
                         String className = event.getFile().getName().substring(0, event.getFile().getName().lastIndexOf('_')).replace("_", ".");
                         PsiClass clazz = JavaPsiFacade.getInstance(project).findClass(className, GlobalSearchScope.projectScope(project));
                         String methodName = event.getFile().getName().substring( event.getFile().getName().indexOf( '_' ), event.getFile().getName().lastIndexOf('_') );
+
                         if (clazz != null) {
                             PsiMethod method = Arrays.stream(clazz.getMethods()).filter( psiMethod -> psiMethod.getName().equals( methodName ) ).findFirst().get();
                             energyStatsModel.computeIfAbsent(clazz, c -> new ManaEnergyExperimentModel());
@@ -109,11 +119,8 @@ public class ManaProjectServiceImpl implements ManaProjectService {
     private void computeStatistics(ManaEnergyExperimentModel model, LocalDateTime recorded, PsiMethod method, VirtualFile f) {
         try {
             JsonObject jsonTree = (JsonObject) JsonParser.parseReader(new FileReader(f.getPath()));
-            //{
-            //    "data":[{"id":"","power-core":"", "power-gpu":"", "power-other":"", "power-ram":""}]
-            //}
             JsonArray dataArray = jsonTree.get( "data" ).getAsJsonArray();// reading one file
-            Double duration = jsonTree.get("duration").getAsDouble();
+            double duration = jsonTree.get("duration").getAsDouble();
             Double[][] energyData = StreamSupport.stream(
                     dataArray.spliterator(), true ).map(data -> {
                 JsonObject entry = data.getAsJsonObject();
@@ -130,8 +137,8 @@ public class ManaProjectServiceImpl implements ManaProjectService {
                         };
             } ).toArray( Double[][]::new );
             energyData = transpose().apply( energyData );
-            model.getMethodEnergyStatistics().computeIfAbsent( method, psiMethod -> new MethodEnergyStatistics(recorded, method) );
-            model.getMethodEnergyStatistics().get( method ).addSample( (long) (duration * 1000), energyData[0],energyData[1], energyData[2], energyData[3] );
+            model.getMethodEnergyStatistics().computeIfAbsent( method, psiMethod -> new MethodEnergyStatistics(method) );
+            model.getMethodEnergyStatistics().get( method ).addSample( recorded, (long) (duration * 1000), energyData[0],energyData[1], energyData[2], energyData[3] );
         } catch( IOException e) {
             logger.error( e );
         }
@@ -175,6 +182,7 @@ public class ManaProjectServiceImpl implements ManaProjectService {
                         String className = file.getName().substring(0, file.getName().lastIndexOf('_')).replace("_", ".");
                         PsiClass clazz = JavaPsiFacade.getInstance(project).findClass(className.substring(0,className.lastIndexOf('.')), GlobalSearchScope.projectScope(project));
                         String methodName = file.getName().substring( file.getName().indexOf( '_' ), file.getName().lastIndexOf('_') ).substring(1);
+
                         if (clazz != null) {
                             PsiMethod method = Arrays.stream(clazz.getMethods()).filter( psiMethod -> psiMethod.getName().equals( methodName ) ).findFirst().get();
                             energyStatsModel.computeIfAbsent(clazz, c -> new ManaEnergyExperimentModel());
@@ -205,6 +213,8 @@ public class ManaProjectServiceImpl implements ManaProjectService {
  */
     }
 
-
-
+    @Override
+    public void consume(Set<String> strings) {
+        System.out.printf("");
+    }
 }

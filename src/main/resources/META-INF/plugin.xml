@@ -39,11 +39,14 @@
                     anchor="bottom"
                     factoryClass="at.mana.idea.component.ManaMethodToolWindowFactory" />
 
-        <fileEditorProvider implementation="at.mana.idea.component.ManaTraceFileEditorProvider" />
+        <!-- uncomment for special editor for mana files -->
+        <!--<fileEditorProvider implementation="at.mana.idea.component.ManaTraceFileEditorProvider" />-->
 
         <configurationType implementation="at.mana.idea.configuration.ManaRaplConfigurationType"/>
 
         <editor.linePainter implementation="at.mana.idea.editor.ManaLineEditorPainter" />
+        
+        <runConfigurationProducer implementation="at.mana.idea.configuration.ManaRaplRunConfigurationProducer"/>
 
     </extensions>
 

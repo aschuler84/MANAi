@@ -1,6 +1,8 @@
 package at.mana.idea;
 
 import at.mana.idea.service.ManaProjectService;
+import com.intellij.execution.ui.RunContentManager;
+import com.intellij.openapi.command.CommandListener;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;

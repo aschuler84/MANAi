@@ -27,10 +27,11 @@ import java.util.Collection;
 import java.util.List;
 
 public class ManaLineEditorPainter extends EditorLinePainter {
+
     @Override
     public @Nullable Collection<LineExtensionInfo> getLineExtensions(@NotNull Project project, @NotNull VirtualFile file, int lineNumber) {
         final Document doc = FileDocumentManager.getInstance().getDocument(file);
-        ManaProjectService service = ServiceManager.getService(project,  ManaProjectService.class);
+        ManaProjectService service = ServiceManager.getService(project, ManaProjectService.class);
 
         if (doc == null || service == null ) {
             return null;
@@ -44,14 +45,15 @@ public class ManaLineEditorPainter extends EditorLinePainter {
             statistics.forEach( model -> {
                 model.getMethodEnergyStatistics().forEach( (k,v)-> {
                     if( doc.getLineNumber( k.getTextOffset() ) == lineNumber ) {
-                        String output = String.format( " %.2f|%.2f|%.2f|%.2f", v.getCpuWattage().getAverage(), v.getGpuWattage().getAverage(), v.getRamWattage().getAverage(), v.getOtherWattage().getAverage() );
-                        lines.add( new LineExtensionInfo( output, JBColor.decode("0x54F756"), EffectType.BOXED, JBColor.YELLOW, Font.ITALIC) );
+                        // TOOD: describe in Joule -> only print joules with Standard deviation
+                        String output = String.format( "🔋 %.2f|%.2f|%.2f|%.2f", v.getCpuWattage().getAverage(), v.getGpuWattage().getAverage(), v.getRamWattage().getAverage(), v.getOtherWattage().getAverage() );
+                        lines.add( new LineExtensionInfo( output, JBColor.decode("0x54F756"), EffectType.ROUNDED_BOX, JBColor.RED, Font.ITALIC) );
                     }
                 });
             } );
             return lines;
-
         }
         return null;
     }
+
 }

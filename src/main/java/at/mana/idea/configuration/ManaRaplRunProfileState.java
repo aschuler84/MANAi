@@ -1,5 +1,6 @@
 package at.mana.idea.configuration;
 
+import at.mana.idea.service.ManaProjectService;
 import at.mana.idea.service.impl.ManaProjectServiceImpl;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.CommandLineState;
@@ -12,6 +13,7 @@ import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.Application;
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.util.EnvironmentUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -51,6 +53,8 @@ public class ManaRaplRunProfileState extends CommandLineState {
         ProcessHandlerFactory factory = ProcessHandlerFactory.getInstance();
         OSProcessHandler processHandler = factory.createColoredProcessHandler(commandLine);
         ProcessTerminatedListener.attach(processHandler);
+        ManaProjectService service = ServiceManager.getService(this.getEnvironment().getProject(),  ManaProjectService.class);
+        processHandler.addProcessListener( service );
         return processHandler;
     }
 }

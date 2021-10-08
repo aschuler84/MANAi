@@ -57,14 +57,15 @@ public class ManaLineEditorPainter extends EditorLinePainter {
                     if (doc.getLineNumber(k.getTextOffset()) == lineNumber) {
                         // compute max consumption in this class
                         // print relative contribution per each method as chart -> color coded
-
+                        List<LineExtensionInfo> histogram = createHistogram( v );
                         Optional<MethodEnergyStatistics> oM = v.stream().max(Comparator.comparing(MethodEnergyStatistics::getRecorded));
                         if (oM.isPresent()) {
                             String line = "      \u2502";
                             String energyConsumption = String.format( "\u251C %.3fJ", oM.get().getEnergyConsumption().getAverage() );
-                            lines.add(new LineExtensionInfo(line, JBColor.decode("0x999999"), EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
-                            lines.add(new LineExtensionInfo("\u2581\u2582\u2583\u2584\u2585\u2586\u2587\u2588", JBColor.decode("0x1b8a5a"), EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
-                            lines.add(new LineExtensionInfo("\u2502 \u2502",JBColor.decode("0x999999"), EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
+
+                            lines.addAll(histogram);
+
+                            lines.add(new LineExtensionInfo("    \u2502",JBColor.decode("0x999999"), EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
                             lines.add( createInLineChart( oM.get().getEnergyConsumption().getAverage()/total ) );
                             lines.add(new LineExtensionInfo(energyConsumption, JBColor.decode("0x999999"), EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
                         }
@@ -90,5 +91,59 @@ public class ManaLineEditorPainter extends EditorLinePainter {
         } );
         return new LineExtensionInfo(chart.toString(), colors[index], EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN);
     }
+
+    private List<LineExtensionInfo> createHistogram( List<MethodEnergyStatistics> statistics ) {
+        final int max = 10;
+        double[] bins = new double[max];
+        String[] elements = new String[]{
+                "\u2581",
+                "\u2582",
+                "\u2583",
+                "\u2584",
+                "\u2585",
+                "\u2586",
+                "\u2587",
+                "\u2588",
+        };
+        statistics.sort( Comparator.comparing( MethodEnergyStatistics::getRecorded ) );
+        int binSize = statistics.size() / max;
+        if( binSize == 0 ) {
+            // reduce the number of bins
+            bins = new double[statistics.size() % max ];
+            binSize = 1;
+        }
+        int offset = 0;
+        double maxV = 0;
+        double sum = 0;
+        for(int i = 0; i< bins.length; i++) {
+            if( i + 1 == bins.length && offset+binSize < bins.length )
+                binSize += bins.length - offset + binSize;
+            bins[i] = statistics.subList( offset, offset+binSize ).stream().mapToDouble( m -> m.getEnergyConsumption().getAverage() ).average().orElse(0.0);
+            sum += bins[i];
+            maxV = Math.max( bins[i], maxV );
+            offset = offset + binSize;
+        };
+
+        // for every entry in bins -> divide entry by sum and multiply result with 8
+        List<LineExtensionInfo> lines = new ArrayList<>();
+
+
+        for(double entry : bins) {
+            int index = (int) ( (elements.length - 1) * (entry / maxV));
+            lines.add( new LineExtensionInfo( elements[index], colors[0], EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN) );
+        }
+
+        if( lines.size() < max )
+            IntStream.range( 0, max - lines.size() ).forEach( i -> lines.add(0, new LineExtensionInfo( " ", colors[0], EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN) ) );
+
+        lines.add(0,new LineExtensionInfo("      \u2502", JBColor.decode("0x999999"), EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
+        lines.add(new LineExtensionInfo("\u251C ",JBColor.decode("0x999999"), EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
+        lines.add(new LineExtensionInfo(sum + "" ,JBColor.decode("0x999999"), EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
+
+
+        return lines;
+    }
+
+
 
 }

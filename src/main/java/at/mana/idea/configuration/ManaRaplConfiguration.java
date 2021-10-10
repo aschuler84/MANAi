@@ -13,8 +13,18 @@ import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.util.NlsSafe;
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.psi.*;
+import com.intellij.psi.search.FilenameIndex;
+import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.util.PsiClassUtil;
+import com.intellij.psi.xml.XmlElement;
+import com.intellij.psi.xml.XmlFile;
+import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.EnvironmentUtil;
+import com.intellij.xml.util.XmlUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -99,8 +109,12 @@ public class ManaRaplConfiguration extends RunConfigurationBase<ManaRaplConfigur
 
     @Override
     public void checkConfiguration() throws RuntimeConfigurationException {
-        if( findMavenHome( "M2_HOME") == null ) throw new RuntimeConfigurationException("M2_HOME environment variable not specified!");
-        if( findRaplExecutablePath( "RAAAAPL_HOME" ) == null ) throw new RuntimeConfigurationException("RAPL_HOME environment variable not specified!");
+        if( findMavenHome( ManaRaplConfigurationUtil.M2_HOME_KEY) == null ) throw new RuntimeConfigurationException("M2_HOME environment variable not specified!");
+        if( findRaplExecutablePath( ManaRaplConfigurationUtil.RAPL_HOME_KEY ) == null ) throw new RuntimeConfigurationException("RAPL_HOME environment variable not specified!");
+
+        // Todo: Implement check if plugin is set ...
+        //if( !ManaRaplConfigurationUtil.verifyMavenManaPluginAvailable( this.getProject() ) ) { throw  new RuntimeConfigurationException( "No Maven Plugin found!" ); }
+
     }
 
 }

@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
+import com.intellij.psi.xml.XmlFile;
 import com.intellij.testFramework.TestFrameworkUtil;
 import com.intellij.testIntegration.TestFramework;
 import com.intellij.ui.EditorNotificationPanel;
@@ -32,8 +33,7 @@ public class ManaEditorNotifcationProvider extends EditorNotifications.Provider<
         if( psiFile instanceof PsiJavaFile) {
             PsiJavaFile clazz = (PsiJavaFile) psiFile;
             if( clazz.getName().contains( "Test" ) ) {
-
-                if( ManaRaplConfigurationUtil.findExecutablePath( "RAPL_HOME", "execute_rapl_idea" ) == null ) {
+                if( ManaRaplConfigurationUtil.findExecutablePath( ManaRaplConfigurationUtil.RAPL_HOME_KEY, ManaRaplConfigurationUtil.RAPL_EXECUTABLE_NAME ) == null ) {
                     EditorNotificationPanel banner = new EditorNotificationPanel(new JBColor(new Color(237, 180, 180), new Color(237, 180, 180)));
                     banner.text("Please specify the RAPL_HOME environment variable");
                     banner.createActionLabel("Configure environment variable", () -> {
@@ -41,6 +41,17 @@ public class ManaEditorNotifcationProvider extends EditorNotifications.Provider<
                     });
                     return banner;
                 }
+            }
+        } else if( psiFile instanceof XmlFile) {
+            XmlFile xmlFile = (XmlFile) psiFile;
+            if( xmlFile.getName().equals( "pom.xml" )
+                  && !ManaRaplConfigurationUtil.verifyMavenManaPluginAvailable( project, xmlFile )  ) {
+                EditorNotificationPanel banner = new EditorNotificationPanel(new JBColor(new Color(237, 180, 180), new Color(237, 180, 180)));
+                banner.text("To use Mana RAPL, please include the Mana maven instrument plugin in you pom.xml");
+                banner.createActionLabel("Help", () -> {
+                    // TODO: Open URL to documentation
+                });
+                return banner;
             }
         }
         return null;

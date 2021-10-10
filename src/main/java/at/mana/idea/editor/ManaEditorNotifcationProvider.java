@@ -33,7 +33,7 @@ public class ManaEditorNotifcationProvider extends EditorNotifications.Provider<
             PsiJavaFile clazz = (PsiJavaFile) psiFile;
             if( clazz.getName().contains( "Test" ) ) {
 
-                if( ManaRaplConfigurationUtil.findExecutablePath( "RAAPL_HOME", "execute_rapl_idea" ) == null ) {
+                if( ManaRaplConfigurationUtil.findExecutablePath( "RAPL_HOME", "execute_rapl_idea" ) == null ) {
                     EditorNotificationPanel banner = new EditorNotificationPanel(new JBColor(new Color(237, 180, 180), new Color(237, 180, 180)));
                     banner.text("Please specify the RAPL_HOME environment variable");
                     banner.createActionLabel("Configure environment variable", () -> {

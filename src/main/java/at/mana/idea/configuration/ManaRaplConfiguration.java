@@ -38,14 +38,6 @@ public class ManaRaplConfiguration extends RunConfigurationBase<ManaRaplConfigur
         return (ManaRaplConfigurationOptions) super.getOptions();
     }
 
-    public String getRaplExecutable() {
-        return getOptions().getRaplExecutable();
-    }
-
-    public void setRaplExecutable( String raplExecutable ) {
-        getOptions().setRaplExecutable( raplExecutable );
-    }
-
     public int getNoOfSamples() {
         return getOptions().getNoOfSamples();
     }
@@ -91,11 +83,11 @@ public class ManaRaplConfiguration extends RunConfigurationBase<ManaRaplConfigur
     }
 
     public String findRaplExecutablePath(String key) {
-        return ManaRaplConfigurationUtil.findExecutablePath( key, getRaplExecutable() );
+        return ManaRaplConfigurationUtil.findExecutablePath( key, ManaRaplConfigurationUtil.RAPL_EXECUTABLE_NAME );
     }
 
     public String findMavenHome( String key ) {
-        return ManaRaplConfigurationUtil.findExecutablePath( key, "mvn" );
+        return ManaRaplConfigurationUtil.findExecutablePath( key, ManaRaplConfigurationUtil.MAVEN_EXECUTABLE_NAME );
     }
 
     private void notifyError( String content ) throws ExecutionException {

@@ -46,7 +46,7 @@ public class ManaRaplRunProfileState extends CommandLineState {
         if( mavenHome == null ) throw new ExecutionException(MVN_FAIL_MESSAGE);
 
 
-        GeneralCommandLine commandLine = new GeneralCommandLine(configuration.getRaplExecutable())
+        GeneralCommandLine commandLine = new GeneralCommandLine(ManaRaplConfigurationUtil.RAPL_EXECUTABLE_NAME)
                 .withExePath( raplPath )
                 .withEnvironment( M2_HOME_KEY, mavenHome )
                 .withEnvironment( RAPL_HOME_KEY, raplPath );

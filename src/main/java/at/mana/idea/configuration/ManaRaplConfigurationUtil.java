@@ -7,6 +7,9 @@ import java.io.File;
 
 public class ManaRaplConfigurationUtil {
 
+    public static final String RAPL_EXECUTABLE_NAME = "execute_rapl_idea";
+    public static final String MAVEN_EXECUTABLE_NAME = "mvn";
+
     public static String findExecutablePath(String key, String executableName ) {
         var raplHome = EnvironmentUtil.getValue(key);
         if( raplHome == null ) {

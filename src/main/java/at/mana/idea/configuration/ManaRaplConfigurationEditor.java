@@ -2,6 +2,7 @@ package at.mana.idea.configuration;
 
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
+import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.DumbAware;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,8 +36,13 @@ public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplConfigur
 
     @Override
     protected void applyEditorTo(@NotNull ManaRaplConfiguration s) throws ConfigurationException {
-        s.setNoOfSamples(  (int) this.spinnerSamplesRecorded.getValue() ) ;
+        s.setNoOfSamples( (int) this.spinnerSamplesRecorded.getValue() ) ;
         s.setSamplingRate( this.slideroNoSamples.getValue() );
+        // TODO: verify configuration - highlight if something is missing via ConfigurationException
+        //throw new ConfigurationException( "Unable to store configuration" );
+        //s.checkConfiguration();
+        // For Banner implementation
+        //ShowSettingsUtil.getInstance().showSettingsDialog( s.getProject(), "Path Variables" );
     }
 
     @Override

@@ -8,6 +8,7 @@ public class ManaRaplConfigurationOptions extends RunConfigurationOptions {
     //private final StoredProperty<String> myScriptName = string("").provideDelegate(this, "outputfolder");
     private final StoredProperty<Integer> noSamplesProperty = property(10).provideDelegate( this, "noOfSamples" );
     private final StoredProperty<Integer> samplingRateProperty = property(50).provideDelegate(this,"samplingRate" );
+    private final StoredProperty<String> raplExecutable = string( "execute_rapl_idea" ).provideDelegate( this, "raplExecutable" );
 
     public int getNoOfSamples() {
         return noSamplesProperty.getValue(this);
@@ -25,4 +26,11 @@ public class ManaRaplConfigurationOptions extends RunConfigurationOptions {
         this.samplingRateProperty.setValue( this, samplingRate );
     }
 
+    public String getRaplExecutable() {
+        return this.raplExecutable.getValue( this );
+    }
+
+    public void setRaplExecutable(String raplExecutable) {
+        this.raplExecutable.setValue( this, raplExecutable );
+    }
 }

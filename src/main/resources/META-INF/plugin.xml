@@ -48,6 +48,9 @@
         
         <runConfigurationProducer implementation="at.mana.idea.configuration.ManaRaplRunConfigurationProducer"/>
 
+        <editorNotificationProvider implementation="at.mana.idea.editor.ManaEditorNotifcationProvider" />
+
+
     </extensions>
 
     <actions>

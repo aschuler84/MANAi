@@ -24,10 +24,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.Date;
+import static at.mana.idea.configuration.ManaRaplConfigurationUtil.M2_HOME_KEY;
+import static at.mana.idea.configuration.ManaRaplConfigurationUtil.RAPL_HOME_KEY;
 
 public class ManaRaplRunProfileState extends CommandLineState {
-    private static final String M2_HOME_KEY = "M2_HOME";
-    private static final String RAPL_HOME_KEY = "RAPL_HOME";
+
     private static final String MVN_FAIL_MESSAGE = "Could not execute Mana RAPL profiler, unable to find maven installation. Did you properly set M2_HOME environment variable?";
     private static final String RAPL_FAIL_MESSAGE = "Could not execute Mana RAPL profiler, unable to find RAPL installation. Did you properly set RAPL_HOME environment variable?";
     private static final String MVN_COMMAND_PHASE = "clean test";

@@ -3,6 +3,7 @@ package at.mana.idea.editor;
 import at.mana.idea.domain.MethodEnergyStatistics;
 import at.mana.idea.model.ManaEnergyExperimentModel;
 import at.mana.idea.service.ManaProjectService;
+import com.google.common.util.concurrent.AtomicDouble;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorLinePainter;
@@ -24,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class ManaLineEditorPainter extends EditorLinePainter {
@@ -61,8 +63,10 @@ public class ManaLineEditorPainter extends EditorLinePainter {
             ManaEnergyExperimentModel statistics = service.findStatisticsFor( javaFile );
             if( statistics != null ) {
             final List<LineExtensionInfo> lines = new ArrayList<>();
-            double total = statistics.getMethodEnergyStatistics().values().stream().flatMap(Collection::stream)
-                    .mapToDouble( value -> value.getEnergyConsumption().getAverage() ).sum();
+            AtomicDouble total = new AtomicDouble(0);
+            statistics.getMethodEnergyStatistics().forEach((key, value) -> total.addAndGet(value.stream().mapToDouble(m -> m.getEnergyConsumption().getAverage()).average().orElse(0.0)));
+            //double total = statistics.getMethodEnergyStatistics().values().stream().flatMap(Collection::stream)
+            //        .mapToDouble( value -> value.getEnergyConsumption().getAverage() ).sum();
                 statistics.getMethodEnergyStatistics().forEach((k, v) -> {
                     if (doc.getLineNumber(k.getTextOffset()) == lineNumber) {
                         // compute max consumption in this class
@@ -76,7 +80,7 @@ public class ManaLineEditorPainter extends EditorLinePainter {
                             lines.addAll(histogram);
 
                             lines.add(new LineExtensionInfo("    \u2502",JBColor.decode("0x999999"), EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
-                            lines.add( createInLineChart( oM.get().getEnergyConsumption().getAverage()/total ) );
+                            lines.add( createInLineChart( oM.get().getEnergyConsumption().getAverage()/total.get() ) );
                             lines.add(new LineExtensionInfo(energyConsumption, JBColor.decode("0x999999"), EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
                         }
                     }

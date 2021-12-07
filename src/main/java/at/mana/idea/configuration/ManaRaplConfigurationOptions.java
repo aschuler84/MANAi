@@ -1,9 +1,10 @@
 package at.mana.idea.configuration;
 
+import com.intellij.execution.application.JvmMainMethodRunConfigurationOptions;
 import com.intellij.execution.configurations.RunConfigurationOptions;
 import com.intellij.openapi.components.StoredProperty;
 
-public class ManaRaplConfigurationOptions extends RunConfigurationOptions {
+public class ManaRaplConfigurationOptions extends JvmMainMethodRunConfigurationOptions {
 
     private final StoredProperty<Integer> noSamplesProperty = property(10).provideDelegate( this, "noOfSamples" );
     private final StoredProperty<Integer> samplingRateProperty = property(50).provideDelegate(this,"samplingRate" );

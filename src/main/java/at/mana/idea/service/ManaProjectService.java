@@ -14,8 +14,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public interface ManaProjectService extends BulkFileListener, ProcessListener {
+
     static ManaProjectService getInstance(@NotNull Project project) {
-        return ServiceManager.getService(project, ManaProjectService.class);
+        return project.getService( ManaProjectService.class);
     }
 
     MethodEnergyStatistics findStatisticsForMethod(PsiMethod method, VirtualFile file );
@@ -27,4 +28,6 @@ public interface ManaProjectService extends BulkFileListener, ProcessListener {
     List<VirtualFile> findAvailableManaFiles();
 
     void init();
+
+    public void runDataAcquireSocket( @NotNull Project project );
 }

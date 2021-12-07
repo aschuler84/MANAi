@@ -1,5 +1,6 @@
 package at.mana.idea.service.impl;
 
+import at.mana.core.util.StringUtil;
 import at.mana.idea.model.ManaEnergyExperimentModel;
 import at.mana.idea.service.EnergyDataNotifierEvent;
 import at.mana.idea.service.ManaEnergyDataNotifier;
@@ -8,31 +9,28 @@ import at.mana.idea.domain.MethodEnergyStatistics;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.intellij.execution.Executor;
 import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
-import com.intellij.execution.ui.RunContentDescriptor;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
 import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.util.ClassUtil;
-import com.intellij.ui.JBColor;
-import com.intellij.util.messages.MessageBusConnection;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.awt.*;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -166,7 +164,7 @@ public class ManaProjectServiceImpl extends ProcessAdapter implements ManaProjec
                         model.getMethodEnergyStatistics().get( method ).add( m );
                         return m;
                     } );
-            methodEnergyStatistics.addSample( (long) (duration * 1000), energyData[0],energyData[1], energyData[2], energyData[3] );
+            methodEnergyStatistics.addSample( (long) duration, energyData[0],energyData[1], energyData[2], energyData[3] );
         } catch( IOException e) {
             logger.error( e );
         }
@@ -204,13 +202,9 @@ public class ManaProjectServiceImpl extends ProcessAdapter implements ManaProjec
                             .toLocalDateTime();
                     for (VirtualFile file : folder.getChildren()) {
                         if (!file.getName().endsWith(MANA_NAME_SUFFIX)) continue;
-
-                        //at.mana.ManaInstrumentTest_testAlgorithmsSort_1619982618133.mana
-
                         String className = file.getName().substring(0, file.getName().lastIndexOf('_')).replace("_", ".");
                         PsiClass clazz = JavaPsiFacade.getInstance(project).findClass(className.substring(0,className.lastIndexOf('.')), GlobalSearchScope.projectScope(project));
                         String methodName = file.getName().substring( file.getName().indexOf( '_' ), file.getName().lastIndexOf('_') ).substring(1);
-
                         if (clazz != null) {
                             PsiMethod method = Arrays.stream(clazz.getMethods()).filter( psiMethod -> psiMethod.getName().equals( methodName ) ).findFirst().get();
                             energyStatsModel.computeIfAbsent(clazz, c -> new ManaEnergyExperimentModel());
@@ -233,8 +227,57 @@ public class ManaProjectServiceImpl extends ProcessAdapter implements ManaProjec
 
     @Override
     public void processTerminated(@NotNull ProcessEvent event) {
-        if( event.getExitCode() == 0 )  // only refresh if execution was successful
-            ApplicationManager.getApplication().invokeLater(this::init);
+
+        if( indicator != null ) {
+            indicator.stop();
+        }
+
+        //if( event.getExitCode() == 0 )  // only refresh if execution was successful
+        //    ApplicationManager.getApplication().invokeLater(this::init);
+
     }
+
+    private BackgroundableProcessIndicator indicator;
+
+    @Override
+    public void runDataAcquireSocket( @NotNull Project project ) {
+        if( indicator != null && indicator.isRunning() ) {
+            throw new RuntimeException( "Only one RAPL Measurement allowed at the same time." );
+        }
+        var task = new Task.Backgroundable( project, "Mana Acquire Data" ){
+            @SneakyThrows
+            @Override
+            public void run(@NotNull ProgressIndicator indicator) {
+                ServerSocket serverSocket = new ServerSocket(9999);  // TODO: make port configurable
+                List<String> jsonMeasurements = new ArrayList<>();
+                int read;
+                while(!indicator.isCanceled() && indicator.isRunning() ) {
+                    StringBuilder builder = new StringBuilder();
+                    serverSocket.setSoTimeout(10000);
+                    try {
+                        Socket socket = serverSocket.accept();
+                        BufferedReader socketReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        while ((read = socketReader.read()) != -1 && read != '\0') {
+                            builder.append((char) read);
+                        }
+                        socketReader.close();
+                        socket.close();
+                        System.out.println(StringUtil.coloredString().yellow().withText("data received: ").build() + builder.toString());
+                        jsonMeasurements.add( builder.toString() );
+                    } catch (SocketTimeoutException e) {
+                        // no client acquired conncetion - trying again
+                        System.out.println( "No client available, trying again..." );
+                    }
+                }
+                jsonMeasurements.forEach( System.out::println );
+                System.out.println( "Closing background task..." );
+            }
+
+        };
+        indicator = new BackgroundableProcessIndicator( project, task );
+        ProgressManager.getInstance().runProcessWithProgressAsynchronously( task, indicator );
+    }
+
+
 
 }

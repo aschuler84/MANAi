@@ -39,7 +39,7 @@ public class ManaRaplRunProfileState extends CommandLineState {
 
     @Override
     protected @NotNull ProcessHandler startProcess() throws ExecutionException {
-        ManaProjectService service = ServiceManager.getService(this.getEnvironment().getProject(),  ManaProjectService.class);
+        ManaProjectService service = this.getEnvironment().getProject().getService( ManaProjectService.class );
         ManaRaplConfiguration configuration = (ManaRaplConfiguration) this.getEnvironment().getRunProfile();
         final var raplPath = configuration.findRaplExecutablePath( RAPL_HOME_KEY);
         if( raplPath == null ) throw new ExecutionException( RAPL_FAIL_MESSAGE );
@@ -48,7 +48,7 @@ public class ManaRaplRunProfileState extends CommandLineState {
 
 
         GeneralCommandLine commandLine = new GeneralCommandLine(ManaRaplConfigurationUtil.RAPL_EXECUTABLE_NAME)
-                .withExePath( raplPath )
+                .withExePath( raplPath + File.separator +  ManaRaplConfigurationUtil.RAPL_EXECUTABLE_NAME )
                 .withEnvironment( M2_HOME_KEY, mavenHome )
                 .withEnvironment( RAPL_HOME_KEY, raplPath );
         //GeneralCommandLine commandLine = new GeneralCommandLine("/Users/andreasschuler/Dropbox/Dokumente/Dissertation/repository/testsuiteoptimizer/exec/src/main/resources/rapl/execute_rapl_idea");

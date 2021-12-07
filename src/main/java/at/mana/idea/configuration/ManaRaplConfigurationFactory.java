@@ -23,7 +23,8 @@ public class ManaRaplConfigurationFactory extends ConfigurationFactory {
 
     @Override
     public @NotNull RunConfiguration createTemplateConfiguration(@NotNull Project project) {
-        return new ManaRaplConfiguration(project, this, "Mana");
+        //return new ManaRaplConfiguration(project, this, "Mana");
+        return new ManaRaplJarConfiguration("Mana", project, this);
     }
 
     @Override

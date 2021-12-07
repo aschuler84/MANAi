@@ -17,7 +17,6 @@ import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.ui.JBColor;
 import org.apache.batik.css.engine.value.css2.FontStyleManager;
-import org.eclipse.xtext.xbase.lib.IntegerRange;
 import org.intellij.lang.annotations.JdkConstants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -103,7 +102,7 @@ public class ManaLineEditorPainter extends EditorLinePainter {
                 chart.append( " " );
             }
         } );
-        return new LineExtensionInfo(chart.toString(), colors[index], EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN);
+        return new LineExtensionInfo(chart.toString(), colors[Math.min(index, 4)], EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN);
     }
 
     private List<LineExtensionInfo> createHistogram( List<MethodEnergyStatistics> statistics ) {

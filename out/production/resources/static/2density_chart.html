@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+    <!-- Bootstrap CSS -->
+    <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <style>
+        html, body {
+            height:100%;
+        }
+
+        body, div, li {
+            background-color: #3c3f41;
+            color: #FFF;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="chart_target" style="width: 100%; min-height: 100%;">
+        <div class="spinner-grow" id="time_series_spinner" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+</body>
+
+<script crossorigin="anonymous" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+<script crossorigin="anonymous" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script crossorigin="anonymous" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<script>
+    
+var data = [];
+
+function normal() {
+    var x = 0,
+        y = 0,
+        rds, c;
+    do {
+        x = Math.random() * 2 - 1;
+        y = Math.random() * 2 - 1;
+        rds = x * x + y * y;
+    } while (rds == 0 || rds > 1);
+    c = Math.sqrt(-2 * Math.log(rds) / rds); // Box-Muller transform
+    return x * c; // throw away extra sample y * c
+}
+
+function updatePlot( newData ) {
+
+    var N = 2000,
+        a = -1,
+        b = 1.2;
+
+    var step = (b - a) / (N - 1);
+    var t = new Array(N), x = new Array(N), y = new Array(N);
+
+    for(var i = 0; i < N; i++){
+        t[i] = a + step * i;
+        x[i] = (Math.pow(t[i], 3)) + (0.3 * normal() );
+        y[i] = (Math.pow(t[i], 6)) + (0.3 * normal() );
+    }
+
+    var trace1 = {
+        x: x,
+        y: y,
+        mode: 'markers',
+        name: 'points',
+        marker: {
+            color: 'rgb(15, 174, 247)',
+            size: 2,
+            opacity: 0.4
+        },
+        type: 'scatter'
+    };
+    var trace2 = {
+        x: x,
+        y: y,
+        name: 'density',
+        ncontours: 20,
+        colorscale: 'YlGnBu',
+        reversescale: true,
+        showscale: false,
+        type: 'histogram2dcontour'
+    };
+    var trace3 = {
+        x: x,
+        name: 'x density',
+        marker: {color: 'rgb(15, 174, 247)'},
+        yaxis: 'y2',
+        type: 'histogram'
+    };
+    var trace4 = {
+        y: y,
+        name: 'y density',
+        marker: {color: 'rgb(15, 174, 247)'},
+        xaxis: 'x2',
+        type: 'histogram'
+    };
+    var data = [trace1, trace2, trace3, trace4];
+    var layout = {
+        font: {
+            color: '#FFF'
+        },
+        showlegend: false,
+        autosize: true,
+        margin: {l: 40, r: 15, b: 40, t: 15},
+        plot_bgcolor: '#3c3f41',
+        paper_bgcolor: '#3c3f41',
+        hovermode: 'closest',
+        bargap: 0,
+        xaxis: {
+            domain: [0, 0.85],
+            showgrid: false,
+            zeroline: false,
+            zerolinecolor: '#FFF',
+            zerolinewidth: 1,
+            linecolor: '#FFF',
+            linewidth: 1
+        },
+        yaxis: {
+            domain: [0, 0.85],
+            showgrid: false,
+            zeroline: false,
+            zerolinecolor: '#FFF',
+            zerolinewidth: 1,
+            linecolor: '#FFF',
+            linewidth: 1
+        },
+        xaxis2: {
+            domain: [0.85, 1],
+            showgrid: false,
+            zeroline: false,
+            zerolinecolor: '#FFF',
+            zerolinewidth: 1,
+            linecolor: '#FFF',
+            linewidth: 1
+        },
+        yaxis2: {
+            domain: [0.85, 1],
+            showgrid: false,
+            zeroline: false,
+            zerolinecolor: '#FFF',
+            zerolinewidth: 1,
+            linecolor: '#FFF',
+            linewidth: 1
+        }
+    };
+
+    Plotly.newPlot('chart_target', data, layout,{ showTips: false,displayModeBar:false,responsive:true } ).then( function() {
+        $('#time_series_spinner').hide();
+    });
+}
+
+// initially show empty plot
+updatePlot([])
+
+</script>
+</html>

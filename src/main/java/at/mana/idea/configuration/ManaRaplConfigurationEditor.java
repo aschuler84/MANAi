@@ -11,7 +11,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.event.ComponentAdapter;
 
-public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplConfiguration> implements DumbAware {
+public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfiguration> implements DumbAware {
     private JPanel panel1;
     private JTabbedPane tabbedPane1;
     private JSpinner spinnerSamplesRecorded;
@@ -28,14 +28,14 @@ public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplConfigur
     }
 
     @Override
-    protected void resetEditorFrom(@NotNull ManaRaplConfiguration s) {
+    protected void resetEditorFrom(@NotNull ManaRaplJarConfiguration s) {
         this.slideroNoSamples.setValue( s.getSamplingRate() );
         this.txtNoSamples.setText( s.getSamplingRate() + "" );
         this.spinnerSamplesRecorded.setValue( s.getNoOfSamples() );
     }
 
     @Override
-    protected void applyEditorTo(@NotNull ManaRaplConfiguration s) throws ConfigurationException {
+    protected void applyEditorTo(@NotNull ManaRaplJarConfiguration s) throws ConfigurationException {
         s.setNoOfSamples( (int) this.spinnerSamplesRecorded.getValue() ) ;
         s.setSamplingRate( this.slideroNoSamples.getValue() );
     }

@@ -1,0 +1,14 @@
+ebean:
+  dbSchema: mana  # use this schema rather than public
+  migration:
+    run: true       # run database migrations on startup
+  db:
+    ddl:
+      generate: true
+      createOnly: true
+
+datasource:
+  db:
+    username: sa
+    password: sa
+    url: jdbc:h2:file:./mana

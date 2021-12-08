@@ -1,15 +1,18 @@
 package at.mana.idea;
 
+import at.mana.idea.model.Measurement;
 import at.mana.idea.service.ManaProjectService;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupActivity;
-import com.intellij.openapi.vcs.update.UpdatedFilesListener;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.messages.MessageBusConnection;
+import io.ebean.DB;
+import io.ebean.Database;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Set;
 
 
@@ -27,6 +30,12 @@ public class ManaPluginStartup implements StartupActivity
         // the project service should be informed whenever files are changed
         connection.subscribe(VirtualFileManager.VFS_CHANGES, service );
         // initially build model from all mana files
+
+        List<Measurement> measurements =
+                DB.getDefault().find(Measurement.class)
+                        .findList();
+
+        System.out.println();
     }
 
 }

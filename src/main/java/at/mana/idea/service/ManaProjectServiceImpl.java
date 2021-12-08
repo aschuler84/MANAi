@@ -1,17 +1,14 @@
-package at.mana.idea.service.impl;
+package at.mana.idea.service;
 
 import at.mana.core.util.StringUtil;
 import at.mana.idea.model.ManaEnergyExperimentModel;
-import at.mana.idea.service.EnergyDataNotifierEvent;
-import at.mana.idea.service.ManaEnergyDataNotifier;
-import at.mana.idea.service.ManaProjectService;
 import at.mana.idea.domain.MethodEnergyStatistics;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
-import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -26,6 +23,7 @@ import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -33,7 +31,6 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -249,12 +246,13 @@ public class ManaProjectServiceImpl extends ProcessAdapter implements ManaProjec
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 ServerSocket serverSocket = new ServerSocket(9999);  // TODO: make port configurable
-                List<String> jsonMeasurements = new ArrayList<>();
+                List<String> measurements = new ArrayList<>();
                 int read;
                 while(!indicator.isCanceled() && indicator.isRunning() ) {
                     StringBuilder builder = new StringBuilder();
                     serverSocket.setSoTimeout(10000);
                     try {
+                        indicator.setText( "Waiting for client connection..." );
                         Socket socket = serverSocket.accept();
                         BufferedReader socketReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                         while ((read = socketReader.read()) != -1 && read != '\0') {
@@ -262,22 +260,24 @@ public class ManaProjectServiceImpl extends ProcessAdapter implements ManaProjec
                         }
                         socketReader.close();
                         socket.close();
-                        System.out.println(StringUtil.coloredString().yellow().withText("data received: ").build() + builder.toString());
-                        jsonMeasurements.add( builder.toString() );
+                        logger.debug(StringUtil.coloredString().yellow().withText("data received: ").build() + builder.toString());
+                        indicator.setText( "Receiving data ..." );
+                        measurements.add( builder.toString() );
                     } catch (SocketTimeoutException e) {
-                        // no client acquired conncetion - trying again
-                        System.out.println( "No client available, trying again..." );
+                        // no client acquired connection - trying again
+                        logger.debug( "No client available, trying again..." );
                     }
                 }
-                jsonMeasurements.forEach( System.out::println );
-                System.out.println( "Closing background task..." );
+                // fire event
+                // build enrich model with data from measurements
+                ManaEnergyDataNotifier publisher = project.getMessageBus()
+                        .syncPublisher(ManaEnergyDataNotifier.MANA_ENERGY_DATA_NOTIFIER_TOPIC);
+                publisher.update( new EnergyDataNotifierEvent( project, null ));
             }
 
         };
         indicator = new BackgroundableProcessIndicator( project, task );
         ProgressManager.getInstance().runProcessWithProgressAsynchronously( task, indicator );
     }
-
-
 
 }

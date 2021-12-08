@@ -1,18 +1,10 @@
 package at.mana.idea.configuration;
 
-import at.mana.idea.service.ManaProjectService;
-import at.mana.idea.service.ManaProjectServiceImpl;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.CommandLineState;
-import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.process.*;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import org.jetbrains.annotations.NotNull;
-
-import java.io.File;
-import java.util.Date;
-import static at.mana.idea.configuration.ManaRaplConfigurationUtil.M2_HOME_KEY;
-import static at.mana.idea.configuration.ManaRaplConfigurationUtil.RAPL_HOME_KEY;
 
 public class ManaRaplRunProfileState extends CommandLineState {
 

@@ -1,7 +1,9 @@
 package at.mana.idea;
 
-import at.mana.idea.service.ManaProjectService;
-import at.mana.idea.domain.MethodEnergyStatistics;
+import at.mana.idea.service.ManaService;
+import at.mana.idea.model.MethodEnergyModel;
+import at.mana.idea.service.StorageService;
+import at.mana.idea.service.StorageServiceImpl;
 import com.intellij.lang.annotation.*;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
@@ -20,9 +22,9 @@ public class ManaMethodEnergyAnnotator implements Annotator {
         }
 
         Project project = element.getProject();
-        ManaProjectService service = ServiceManager.getService(project,  ManaProjectService.class);
+        StorageService service = StorageService.getInstance(project);
         PsiMethod method = (PsiMethod) element;
-        MethodEnergyStatistics statistics = service.findStatisticsForMethod( method, element.getContainingFile().getVirtualFile() );
+        MethodEnergyModel statistics = service.findDataFor( method, element.getContainingFile().getVirtualFile() );
         if( statistics == null ) {
             return;
         }

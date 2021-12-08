@@ -1,4 +1,4 @@
-package at.mana.idea.domain;
+package at.mana.idea.model;
 
 import com.intellij.psi.PsiMethod;
 import com.intellij.ui.JBColor;
@@ -7,38 +7,22 @@ import at.mana.idea.util.DoubleStatistics;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.awt.*;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter
-public class MethodEnergyStatistics {
+public class MethodEnergyModel {
 
-    private PsiMethod method;
     private LocalDateTime recorded;
-    //private DoubleStatistics coreWattage;
-    //private DoubleStatistics gpuWattage;
-    //private DoubleStatistics otherWattage;
-    //private DoubleStatistics ramWattage;
-    private Double durationMillis;
     private JBColor heatColor = new JBColor(JBColor.decode("0xD8F0E8"),JBColor.decode("0xD8F0E8"));
+    private Set<MethodEnergySampleModel> samples = new HashSet<>();
 
-    private Set<MethodEnergyStatisticsSample> samples = new HashSet<>(); 
 
-
-    public MethodEnergyStatistics( LocalDateTime recorded, PsiMethod method ) {
-        //coreWattage = Arrays.stream(core).collect(DoubleStatistics.collector());
-        //gpuWattage = Arrays.stream(gpu).collect(DoubleStatistics.collector());
-        //otherWattage = Arrays.stream(other).collect(DoubleStatistics.collector());
-        //ramWattage = Arrays.stream(ram).collect(DoubleStatistics.collector());
-        //this.durationMillis = durationMilliseconds;
+    public MethodEnergyModel(LocalDateTime recorded ) {
         this.recorded = recorded;
-        this.method = method;
     }
 
     public DoubleStatistics getCpuWattage() {
@@ -62,15 +46,15 @@ public class MethodEnergyStatistics {
     }
 
     public DoubleStatistics getDuration() {
-        return  samples.stream().map(MethodEnergyStatisticsSample::getDuration).collect( DoubleStatistics.collector() );
+        return  samples.stream().map(MethodEnergySampleModel::getDuration).collect( DoubleStatistics.collector() );
     }
 
     public DoubleStatistics getEnergyConsumption() {
-        return samples.stream().map(MethodEnergyStatisticsSample::getEnergyConsumption).collect( DoubleStatistics.collector() );
+        return samples.stream().map(MethodEnergySampleModel::getEnergyConsumption).collect( DoubleStatistics.collector() );
     }
 
     public void addSample( long durationMilliseconds, Double[] cpu, Double[] gpu, Double[] ram, Double[] other ) {
-        this.samples.add( new MethodEnergyStatisticsSample( durationMilliseconds / 1000.0, cpu, gpu, ram, other ) );
+        this.samples.add( new MethodEnergySampleModel( durationMilliseconds / 1000.0, cpu, gpu, ram, other ) );
     }
 
 

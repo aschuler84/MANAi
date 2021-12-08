@@ -1,10 +1,9 @@
 package at.mana.idea.editor;
 
-import at.mana.idea.domain.MethodEnergyStatistics;
+import at.mana.idea.model.MethodEnergyModel;
 import at.mana.idea.model.ManaEnergyExperimentModel;
-import at.mana.idea.service.ManaProjectService;
+import at.mana.idea.service.StorageService;
 import com.google.common.util.concurrent.AtomicDouble;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorLinePainter;
 import com.intellij.openapi.editor.LineExtensionInfo;
@@ -16,15 +15,12 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.ui.JBColor;
-import org.apache.batik.css.engine.value.css2.FontStyleManager;
-import org.intellij.lang.annotations.JdkConstants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.util.*;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class ManaLineEditorPainter extends EditorLinePainter {
@@ -50,7 +46,7 @@ public class ManaLineEditorPainter extends EditorLinePainter {
     @Override
     public @Nullable Collection<LineExtensionInfo> getLineExtensions(@NotNull Project project, @NotNull VirtualFile file, int lineNumber) {
         final Document doc = FileDocumentManager.getInstance().getDocument(file);
-        ManaProjectService service = ServiceManager.getService(project, ManaProjectService.class);
+        StorageService service = StorageService.getInstance(project);
 
         if (doc == null || service == null ) {
             return null;
@@ -59,7 +55,7 @@ public class ManaLineEditorPainter extends EditorLinePainter {
         PsiFile psiFile = PsiManager.getInstance(project).findFile( file );
         if( psiFile instanceof PsiJavaFile) {
             PsiJavaFile javaFile = (PsiJavaFile) psiFile;
-            ManaEnergyExperimentModel statistics = service.findStatisticsFor( javaFile );
+            ManaEnergyExperimentModel statistics = service.findDataFor( javaFile );
             if( statistics != null ) {
             final List<LineExtensionInfo> lines = new ArrayList<>();
             AtomicDouble total = new AtomicDouble(0);
@@ -71,7 +67,7 @@ public class ManaLineEditorPainter extends EditorLinePainter {
                         // compute max consumption in this class
                         // print relative contribution per each method as chart -> color coded
                         List<LineExtensionInfo> histogram = createHistogram( v );
-                        Optional<MethodEnergyStatistics> oM = v.stream().max(Comparator.comparing(MethodEnergyStatistics::getRecorded));
+                        Optional<MethodEnergyModel> oM = v.stream().max(Comparator.comparing(MethodEnergyModel::getRecorded));
                         if (oM.isPresent()) {
                             String line = "      \u2502";
                             String energyConsumption = String.format( "\u251C %.3fJ", oM.get().getEnergyConsumption().getAverage() );
@@ -105,7 +101,7 @@ public class ManaLineEditorPainter extends EditorLinePainter {
         return new LineExtensionInfo(chart.toString(), colors[Math.min(index, 4)], EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN);
     }
 
-    private List<LineExtensionInfo> createHistogram( List<MethodEnergyStatistics> statistics ) {
+    private List<LineExtensionInfo> createHistogram( List<MethodEnergyModel> statistics ) {
         final int max = 5;
         double[] bins = new double[max];
         String[] elements = new String[]{
@@ -118,7 +114,7 @@ public class ManaLineEditorPainter extends EditorLinePainter {
                 "\u2587",
                 "\u2588",
         };
-        statistics.sort( Comparator.comparing( MethodEnergyStatistics::getRecorded ) );
+        statistics.sort( Comparator.comparing( MethodEnergyModel::getRecorded ) );
         int binSize = statistics.size() / max;
         if( binSize == 0 ) {
             // reduce the number of bins

@@ -1,5 +1,5 @@
 <idea-plugin>
-    <id>org.example.mana-idea</id>
+    <id>at.mana.mana-idea</id>
     <name>Mana</name>
     <vendor email="andreas.schu.84@gmail.com" url="">Andreas S.</vendor>
 
@@ -16,7 +16,7 @@
         <postStartupActivity implementation="at.mana.idea.ManaPluginStartup"/>
 
         <projectService serviceInterface="at.mana.idea.service.ManaProjectService"
-                        serviceImplementation="at.mana.idea.service.impl.ManaProjectServiceImpl"/>
+                        serviceImplementation="at.mana.idea.service.ManaProjectServiceImpl"/>
 
         <applicationService serviceInterface="at.mana.idea.service.VisualisationService"
                 serviceImplementation="at.mana.idea.service.impl.VisualizationServiceImpl"/>

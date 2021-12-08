@@ -1,5 +1,6 @@
 package at.mana.idea.configuration;
 
+import at.mana.idea.model.Measurement;
 import at.mana.idea.service.ManaProjectService;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.Executor;
@@ -17,11 +18,13 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
+import io.ebean.DB;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.util.List;
 
 public class ManaRaplJarConfiguration extends ApplicationConfiguration {
 

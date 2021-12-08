@@ -1,25 +1,12 @@
 package at.mana.idea.configuration;
 
 import at.mana.idea.service.ManaProjectService;
-import at.mana.idea.service.impl.ManaProjectServiceImpl;
+import at.mana.idea.service.ManaProjectServiceImpl;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.CommandLineState;
 import com.intellij.execution.configurations.GeneralCommandLine;
-import com.intellij.execution.configurations.PathEnvironmentVariableUtil;
-import com.intellij.execution.configurations.RunProfileState;
-import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.process.*;
 import com.intellij.execution.runners.ExecutionEnvironment;
-import com.intellij.execution.ui.ConsoleView;
-import com.intellij.icons.AllIcons;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationType;
-import com.intellij.notification.Notifications;
-import com.intellij.openapi.Disposable;
-import com.intellij.openapi.application.Application;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.options.ShowSettingsUtil;
-import com.intellij.util.EnvironmentUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -39,8 +26,8 @@ public class ManaRaplRunProfileState extends CommandLineState {
 
     @Override
     protected @NotNull ProcessHandler startProcess() throws ExecutionException {
-        ManaProjectService service = this.getEnvironment().getProject().getService( ManaProjectService.class );
-        ManaRaplConfiguration configuration = (ManaRaplConfiguration) this.getEnvironment().getRunProfile();
+        /*ManaProjectService service = this.getEnvironment().getProject().getService( ManaProjectService.class );
+        ManaRaplJarConfiguration configuration = (ManaRaplJarConfiguration) this.getEnvironment().getRunProfile();
         final var raplPath = configuration.findRaplExecutablePath( RAPL_HOME_KEY);
         if( raplPath == null ) throw new ExecutionException( RAPL_FAIL_MESSAGE );
         final var mavenHome = configuration.findMavenHome( M2_HOME_KEY );
@@ -62,7 +49,8 @@ public class ManaRaplRunProfileState extends CommandLineState {
         OSProcessHandler processHandler = factory.createColoredProcessHandler(commandLine);
         ProcessTerminatedListener.attach(processHandler);
         processHandler.addProcessListener( service );
-        return processHandler;
+        return processHandler;*/
+        return null;
     }
 
 

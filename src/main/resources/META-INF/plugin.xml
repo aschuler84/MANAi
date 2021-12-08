@@ -15,11 +15,14 @@
     <extensions defaultExtensionNs="com.intellij">
         <postStartupActivity implementation="at.mana.idea.ManaPluginStartup"/>
 
-        <projectService serviceInterface="at.mana.idea.service.ManaProjectService"
-                        serviceImplementation="at.mana.idea.service.ManaProjectServiceImpl"/>
+        <projectService serviceInterface="at.mana.idea.service.ManaService"
+                        serviceImplementation="at.mana.idea.service.ManaServiceImpl"/>
 
-        <applicationService serviceInterface="at.mana.idea.service.VisualisationService"
-                serviceImplementation="at.mana.idea.service.impl.VisualizationServiceImpl"/>
+        <projectService serviceInterface="at.mana.idea.service.DataAcquisitionService"
+                        serviceImplementation="at.mana.idea.service.DataAcquisitionServiceImpl"/>
+
+        <projectService serviceInterface="at.mana.idea.service.StorageService"
+                        serviceImplementation="at.mana.idea.service.StorageServiceImpl"/>
 
         <codeInsight.lineMarkerProvider language="JAVA"
                                         implementationClass="at.mana.idea.ManaMethodMarkerProvider"/>
@@ -29,18 +32,10 @@
 
         <programRunner implementation="at.mana.idea.runner.ManaRaplProgramRunner" />
 
-        <!--<toolWindow id="ManaOveriew"
-                    icon="AllIcons.Debugger.ThreadStates.Socket"
-                    anchor="left"
-                    factoryClass="at.mana.idea.component.ManaToolWindowFactory" />-->
-
         <toolWindow id="Mana"
                     icon="AllIcons.Debugger.ThreadStates.Socket"
                     anchor="bottom"
                     factoryClass="at.mana.idea.component.ManaMethodToolWindowFactory" />
-
-        <!-- uncomment for special editor for mana files -->
-        <!--<fileEditorProvider implementation="at.mana.idea.component.ManaTraceFileEditorProvider" />-->
 
         <configurationType implementation="at.mana.idea.configuration.ManaRaplConfigurationType"/>
 
@@ -54,10 +49,5 @@
     </extensions>
 
     <actions>
-        <!-- Add your actions here -->
-        <!--<action id="at.mana.idea.component.InitializeManaProject"
-                class="at.mana.idea.component.InitializeManaProject"
-                icon="AllIcons.Actions.NewFolder"
-                text="Initialize Mana Project" description="Initialize Mana Project"/>-->
     </actions>
 </idea-plugin>

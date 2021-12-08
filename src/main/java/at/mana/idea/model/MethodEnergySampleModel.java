@@ -1,4 +1,4 @@
-package at.mana.idea.domain;
+package at.mana.idea.model;
 
 import at.mana.idea.util.DoubleStatistics;
 import lombok.AllArgsConstructor;
@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 @Getter
 @Setter
-public class MethodEnergyStatisticsSample {
+public class MethodEnergySampleModel {
     
     private double duration;
     private double energyConsumption;
@@ -18,7 +18,7 @@ public class MethodEnergyStatisticsSample {
     private Double[] ram;
     private Double[] other;
 
-    public MethodEnergyStatisticsSample(double duration, Double[] cpu, Double[] gpu, Double[] ram, Double[] other) {
+    public MethodEnergySampleModel(double duration, Double[] cpu, Double[] gpu, Double[] ram, Double[] other) {
         this.duration = duration;
         this.cpu = cpu;
         this.gpu = gpu;

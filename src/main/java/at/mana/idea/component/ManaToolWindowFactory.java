@@ -6,9 +6,8 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
 
-import at.mana.idea.service.ManaProjectService;
+import at.mana.idea.service.ManaService;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbarPosition;
@@ -20,10 +19,8 @@ import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.AnActionButton;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.components.labels.LinkLabel;
-import com.intellij.ui.table.TableView;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.ui.ColumnInfo;
-import com.intellij.util.ui.ListTableModel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,7 +31,7 @@ public class ManaToolWindowFactory implements ToolWindowFactory {
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-        ManaProjectService service = ServiceManager.getService(project,  ManaProjectService.class);
+        ManaService service = ServiceManager.getService(project,  ManaService.class);
         //TableView<VirtualFile> manaFileList = new TableView<>(  );
 
         DefaultMutableTreeNode root = new DefaultMutableTreeNode( "mana" );

@@ -15,7 +15,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <postStartupActivity implementation="at.mana.idea.ManaPluginStartup"/>
 
-        <projectService serviceInterface="at.mana.idea.service.ManaProjectService"
+        <projectService serviceInterface="at.mana.idea.service.ManaService"
                         serviceImplementation="at.mana.idea.service.impl.ManaProjectServiceImpl"/>
 
         <applicationService serviceInterface="at.mana.idea.service.VisualisationService"

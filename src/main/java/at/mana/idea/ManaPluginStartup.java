@@ -1,20 +1,10 @@
 package at.mana.idea;
 
-import at.mana.idea.model.Measurement;
-import at.mana.idea.service.ManaProjectService;
-import com.intellij.openapi.components.ServiceManager;
+import at.mana.idea.util.HibernateUtil;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupActivity;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.util.messages.MessageBusConnection;
-import io.ebean.DB;
-import io.ebean.Database;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
-import java.util.Set;
-
 
 public class ManaPluginStartup implements StartupActivity
 {
@@ -24,18 +14,42 @@ public class ManaPluginStartup implements StartupActivity
 
     @Override
     public void runActivity(@NotNull Project project) {
-        ManaProjectService service = ServiceManager.getService(project,  ManaProjectService.class);
-        service.init();
-        MessageBusConnection connection = project.getMessageBus().connect();
+
+        /*try(Session session = HibernateUtil.getSessionFactory().openSession()) {
+
+
+
+            var tx = session.beginTransaction();
+            session.getCriteriaBuilder().createQuery(Measurement.class).getOrderList();
+            Descriptor descriptor = new Descriptor();
+            descriptor.setHash("12345");
+            descriptor.setClassName("className");
+            descriptor.setMethodName("methodName");
+            var ident = session.save( descriptor );
+            Descriptor des = session.get( Descriptor.class, ident );
+            System.out.println( des.getClassName() + " " + des.getMethodName() );
+            tx.commit();
+        }*/
+
+        HibernateUtil.getSessionFactory();
+
+        /*HibernateUtil.executeInTransaction( session -> {
+            Descriptor descriptor = new Descriptor();
+            descriptor.setHash("12345");
+            descriptor.setClassName("className");
+            descriptor.setMethodName("methodName");
+            session.save( descriptor );
+        } );*/
+
+
+        //ManaProjectService service = ServiceManager.getService(project,  ManaProjectService.class);
+        //service.init();
+        //MessageBusConnection connection = project.getMessageBus().connect();
         // the project service should be informed whenever files are changed
-        connection.subscribe(VirtualFileManager.VFS_CHANGES, service );
+        //connection.subscribe(VirtualFileManager.VFS_CHANGES, service );
         // initially build model from all mana files
 
-        List<Measurement> measurements =
-                DB.getDefault().find(Measurement.class)
-                        .findList();
 
-        System.out.println();
     }
 
 }

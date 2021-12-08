@@ -1,7 +1,7 @@
 package at.mana.idea.configuration;
 
-import at.mana.idea.model.Measurement;
-import at.mana.idea.service.ManaProjectService;
+import at.mana.idea.service.DataAcquisitionService;
+import at.mana.idea.service.ManaService;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.Executor;
 import com.intellij.execution.application.ApplicationConfiguration;
@@ -12,19 +12,12 @@ import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.target.LanguageRuntimeType;
 import com.intellij.execution.util.JavaParametersUtil;
 import com.intellij.openapi.options.SettingsEditor;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
-import io.ebean.DB;
-import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.List;
 
 public class ManaRaplJarConfiguration extends ApplicationConfiguration {
 
@@ -122,9 +115,9 @@ public class ManaRaplJarConfiguration extends ApplicationConfiguration {
             @Override
             protected OSProcessHandler startProcess() throws ExecutionException {
                 final OSProcessHandler handler = super.startProcess();
-                ManaProjectService service = this.getEnvironment().getProject().getService( ManaProjectService.class );
-                handler.addProcessListener(service);
-                service.runDataAcquireSocket( this.getEnvironment().getProject() );
+                DataAcquisitionService service = DataAcquisitionService.getInstance( this.getEnvironment().getProject() );
+                handler.addProcessListener( service );
+                service.startDataAcquisition( this.getEnvironment().getProject() );
                 return handler;
             }
         };

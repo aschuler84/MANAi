@@ -1,34 +1,21 @@
 package at.mana.idea.service;
 
-import at.mana.core.util.StringUtil;
 import at.mana.idea.model.ManaEnergyExperimentModel;
-import at.mana.idea.domain.MethodEnergyStatistics;
+import at.mana.idea.model.MethodEnergyModel;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.intellij.execution.process.ProcessAdapter;
-import com.intellij.execution.process.ProcessEvent;
-import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
 import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
-import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -41,7 +28,7 @@ import java.util.stream.StreamSupport;
 import static at.mana.idea.util.MatrixOperations.transpose;
 
 @Service
-public class ManaProjectServiceImpl extends ProcessAdapter implements ManaProjectService {
+public class ManaServiceImpl implements ManaService {
 
     private final static String MANA_NAME_SUFFIX = ".mana";
     private VirtualFile selectedManaTraceFile;
@@ -49,15 +36,15 @@ public class ManaProjectServiceImpl extends ProcessAdapter implements ManaProjec
     private Map<PsiClass,ManaEnergyExperimentModel> energyStatsModel = new HashMap<>();
 
     public static final SimpleDateFormat FOLDER_DATE = new SimpleDateFormat("ddMMyyyyHHmmss");
-    private static final Logger logger = Logger.getInstance( ManaProjectServiceImpl.class );
+    private static final Logger logger = Logger.getInstance( ManaServiceImpl.class );
 
-    public ManaProjectServiceImpl(Project project) {
+    public ManaServiceImpl(Project project) {
         this.project = project;
     }
 
     @Override
     public void before(@NotNull List<? extends VFileEvent> events) {
-        ManaProjectService.super.before(events);
+        ManaService.super.before(events);
     }
 
     @Override  // executed whenever a file is changed
@@ -103,34 +90,6 @@ public class ManaProjectServiceImpl extends ProcessAdapter implements ManaProjec
                 && file.getParent().getName().equals(MANA_NAME_SUFFIX);
     }
 
-
-    /**
-     * Returns the most recent collected energy readings for a given method
-     * @param method the method for which the energy stats should be returned
-     * @param file the file in which the method is contained
-     * @return the most recent energy statistics for the given method
-     */
-    @Override
-    public MethodEnergyStatistics findStatisticsForMethod(PsiMethod method, VirtualFile file ) {
-        PsiClass clazz = method.getContainingClass();
-
-        if( method.getNameIdentifier() != null ) {
-            String methodName = method.getNameIdentifier().getText();
-            if (clazz != null) {
-                    ManaEnergyExperimentModel model = energyStatsModel.get(clazz);
-                    if( model != null && model.getMethodEnergyStatistics().containsKey( method ) ) {
-                        return model.getMethodEnergyStatistics().get(method)
-                                .stream().max(Comparator.comparing(MethodEnergyStatistics::getRecorded)).orElse(null);
-                    }
-            }
-        }
-        return null;
-    }
-
-    public ManaEnergyExperimentModel findStatisticsFor( PsiJavaFile file ) {
-        return Arrays.stream( file.getClasses() ).map( c -> energyStatsModel.get(c) ).filter( Objects::nonNull ).findFirst().orElse(null);
-    }
-
     private void computeStatistics(ManaEnergyExperimentModel model, LocalDateTime recorded, PsiMethod method, VirtualFile f) {
         try {
             JsonObject jsonTree = (JsonObject) JsonParser.parseReader(new FileReader(f.getPath()));
@@ -152,16 +111,16 @@ public class ManaProjectServiceImpl extends ProcessAdapter implements ManaProjec
                         };
             } ).toArray( Double[][]::new );
             energyData = transpose().apply( energyData );
-            model.getMethodEnergyStatistics().computeIfAbsent( method, p -> new ArrayList<MethodEnergyStatistics>() );
+            model.getMethodEnergyStatistics().computeIfAbsent( method, p -> new ArrayList<MethodEnergyModel>() );
 
             // try to find a method stats that fits the current date
-            MethodEnergyStatistics methodEnergyStatistics = model.getMethodEnergyStatistics().get(method)
+            MethodEnergyModel methodEnergyModel = model.getMethodEnergyStatistics().get(method)
                     .stream().filter( m -> m.getRecorded().equals( recorded ) ).findFirst().orElseGet( () -> {
-                        var m = new MethodEnergyStatistics( recorded, method );
+                        var m = new MethodEnergyModel( recorded );
                         model.getMethodEnergyStatistics().get( method ).add( m );
                         return m;
                     } );
-            methodEnergyStatistics.addSample( (long) duration, energyData[0],energyData[1], energyData[2], energyData[3] );
+            methodEnergyModel.addSample( (long) duration, energyData[0],energyData[1], energyData[2], energyData[3] );
         } catch( IOException e) {
             logger.error( e );
         }
@@ -210,7 +169,7 @@ public class ManaProjectServiceImpl extends ProcessAdapter implements ManaProjec
                         }
                     }
                 } catch( ParseException e ) {
-                    logger.warn( "Could process folder " + folder.getName(), e );
+                    logger.warn( "Could not process folder " + folder.getName(), e );
                 }
             }
         }
@@ -222,62 +181,5 @@ public class ManaProjectServiceImpl extends ProcessAdapter implements ManaProjec
         publisher.update( new EnergyDataNotifierEvent( project, null ));
     }
 
-    @Override
-    public void processTerminated(@NotNull ProcessEvent event) {
-
-        if( indicator != null ) {
-            indicator.stop();
-        }
-
-        //if( event.getExitCode() == 0 )  // only refresh if execution was successful
-        //    ApplicationManager.getApplication().invokeLater(this::init);
-
-    }
-
-    private BackgroundableProcessIndicator indicator;
-
-    @Override
-    public void runDataAcquireSocket( @NotNull Project project ) {
-        if( indicator != null && indicator.isRunning() ) {
-            throw new RuntimeException( "Only one RAPL Measurement allowed at the same time." );
-        }
-        var task = new Task.Backgroundable( project, "Mana Acquire Data" ){
-            @SneakyThrows
-            @Override
-            public void run(@NotNull ProgressIndicator indicator) {
-                ServerSocket serverSocket = new ServerSocket(9999);  // TODO: make port configurable
-                List<String> measurements = new ArrayList<>();
-                int read;
-                while(!indicator.isCanceled() && indicator.isRunning() ) {
-                    StringBuilder builder = new StringBuilder();
-                    serverSocket.setSoTimeout(10000);
-                    try {
-                        indicator.setText( "Waiting for client connection..." );
-                        Socket socket = serverSocket.accept();
-                        BufferedReader socketReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                        while ((read = socketReader.read()) != -1 && read != '\0') {
-                            builder.append((char) read);
-                        }
-                        socketReader.close();
-                        socket.close();
-                        logger.debug(StringUtil.coloredString().yellow().withText("data received: ").build() + builder.toString());
-                        indicator.setText( "Receiving data ..." );
-                        measurements.add( builder.toString() );
-                    } catch (SocketTimeoutException e) {
-                        // no client acquired connection - trying again
-                        logger.debug( "No client available, trying again..." );
-                    }
-                }
-                // fire event
-                // build enrich model with data from measurements
-                ManaEnergyDataNotifier publisher = project.getMessageBus()
-                        .syncPublisher(ManaEnergyDataNotifier.MANA_ENERGY_DATA_NOTIFIER_TOPIC);
-                publisher.update( new EnergyDataNotifierEvent( project, null ));
-            }
-
-        };
-        indicator = new BackgroundableProcessIndicator( project, task );
-        ProgressManager.getInstance().runProcessWithProgressAsynchronously( task, indicator );
-    }
 
 }

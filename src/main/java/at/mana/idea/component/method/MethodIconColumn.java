@@ -1,6 +1,6 @@
 package at.mana.idea.component.method;
 
-import at.mana.idea.domain.MethodEnergyStatistics;
+import at.mana.idea.model.MethodEnergyModel;
 import com.intellij.icons.AllIcons;
 import com.intellij.util.ui.ColumnInfo;
 
@@ -9,14 +9,14 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 
-public class MethodIconColumn extends ColumnInfo<MethodEnergyStatistics, String> {
+public class MethodIconColumn extends ColumnInfo<MethodEnergyModel, String> {
 
     public MethodIconColumn() {
         super(" ");
     }
 
     @Override
-    public String valueOf(MethodEnergyStatistics item) {
+    public String valueOf(MethodEnergyModel item) {
         return null;
     }
 
@@ -27,7 +27,7 @@ public class MethodIconColumn extends ColumnInfo<MethodEnergyStatistics, String>
 
 
     @Override
-    public TableCellRenderer getRenderer(final MethodEnergyStatistics item) {
+    public TableCellRenderer getRenderer(final MethodEnergyModel item) {
         return new DefaultTableCellRenderer(){
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {

@@ -1,7 +1,8 @@
 package at.mana.idea;
 
-import at.mana.idea.service.ManaProjectService;
-import at.mana.idea.domain.MethodEnergyStatistics;
+import at.mana.idea.service.ManaService;
+import at.mana.idea.model.MethodEnergyModel;
+import at.mana.idea.service.StorageService;
 import com.intellij.codeInsight.daemon.RelatedItemLineMarkerInfo;
 import com.intellij.codeInsight.daemon.RelatedItemLineMarkerProvider;
 import com.intellij.codeInsight.navigation.NavigationGutterIconBuilder;
@@ -38,14 +39,14 @@ public class ManaMethodMarkerProvider extends RelatedItemLineMarkerProvider {
     @Override
     protected void collectNavigationMarkers(@NotNull PsiElement element, @NotNull Collection<? super RelatedItemLineMarkerInfo<?>> result) {
         Project project = element.getProject();
-        ManaProjectService service = ServiceManager.getService(project,  ManaProjectService.class);
+        StorageService service =StorageService.getInstance(project);
         // This must be an element with a literal expression as a parent
         if ( !( element.getParent() instanceof PsiMethod && element instanceof PsiIdentifier ) ) {
             return;
         }
 
         PsiMethod method = (PsiMethod) element.getParent();
-        MethodEnergyStatistics statistics = service.findStatisticsForMethod( method, element.getContainingFile().getVirtualFile() );
+        MethodEnergyModel statistics = service.findDataFor( method, element.getContainingFile().getVirtualFile() );
         if( statistics == null ) {
             return;
         }

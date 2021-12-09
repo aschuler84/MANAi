@@ -38,7 +38,6 @@ public class ManaRaplConfigurationUtil {
         if( files.length == 0 ) {
             return false;
         } else {
-            // TODO implementation wrong...
             for( var file : files ) {
                 if( file instanceof XmlFile) {
                     var xmlFile = (XmlFile) file;

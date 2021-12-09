@@ -25,7 +25,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static at.mana.idea.util.MatrixOperations.transpose;
+import static at.mana.core.util.MatrixHelper.transpose;
+import static at.mana.core.util.MatrixHelper.transposeDbl;
 
 @Service
 public class ManaServiceImpl implements ManaService {
@@ -63,8 +64,6 @@ public class ManaServiceImpl implements ManaService {
                         // whenever a file is changed -> look at the currently opened editor
                         // if the currently open class has new data available - parse it and
 
-
-
                         String className = event.getFile().getName().substring(0, event.getFile().getName().lastIndexOf('_')).replace("_", ".");
                         PsiClass clazz = JavaPsiFacade.getInstance(project).findClass(className, GlobalSearchScope.projectScope(project));
                         String methodName = event.getFile().getName().substring( event.getFile().getName().indexOf( '_' ), event.getFile().getName().lastIndexOf('_') );
@@ -99,7 +98,7 @@ public class ManaServiceImpl implements ManaService {
                     dataArray.spliterator(), true ).map(data -> {
                 JsonObject entry = data.getAsJsonObject();
                 return
-                        new Double[]{
+                        new double[]{
                                 entry.get("power-core").getAsDouble(),
                                 entry.get("power-gpu").getAsDouble(),
                                 entry.get("power-other" ).getAsDouble(),
@@ -110,7 +109,7 @@ public class ManaServiceImpl implements ManaService {
                                         + entry.get("power-ram" ).getAsDouble()
                         };
             } ).toArray( Double[][]::new );
-            energyData = transpose().apply( energyData );
+            energyData = transposeDbl().apply( energyData );
             model.getMethodEnergyStatistics().computeIfAbsent( method, p -> new ArrayList<MethodEnergyModel>() );
 
             // try to find a method stats that fits the current date

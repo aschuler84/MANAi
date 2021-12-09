@@ -1,9 +1,8 @@
 package at.mana.idea.model;
 
-import com.intellij.psi.PsiMethod;
+import at.mana.core.util.DoubleStatistics;
 import com.intellij.ui.JBColor;
 
-import at.mana.idea.util.DoubleStatistics;
 import lombok.Getter;
 import lombok.Setter;
 

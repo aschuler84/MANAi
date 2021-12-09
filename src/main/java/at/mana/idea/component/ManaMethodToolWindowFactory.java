@@ -10,7 +10,7 @@ import at.mana.idea.service.EnergyDataNotifierEvent;
 import at.mana.idea.service.ManaEnergyDataNotifier;
 import at.mana.idea.service.ManaService;
 import at.mana.idea.service.StorageService;
-import at.mana.idea.util.DoubleStatistics;
+import at.mana.core.util.DoubleStatistics;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionToolbarPosition;
 import com.intellij.openapi.components.ServiceManager;

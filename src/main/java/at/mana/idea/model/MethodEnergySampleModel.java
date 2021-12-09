@@ -1,7 +1,6 @@
 package at.mana.idea.model;
 
-import at.mana.idea.util.DoubleStatistics;
-import lombok.AllArgsConstructor;
+import at.mana.core.util.DoubleStatistics;
 import lombok.Getter;
 import lombok.Setter;
 

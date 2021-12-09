@@ -27,7 +27,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static at.mana.idea.util.MatrixOperations.transpose;
+import static at.mana.core.util.MatrixHelper.transpose;
+import static at.mana.core.util.MatrixHelper.transposeDbl;
 
 @Service
 public class StorageServiceImpl implements StorageService {
@@ -84,7 +85,7 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public void processAndStore(List<String> measurements) { // jeder eintrag ist einer methode zuordenbar
+    public void processAndStore(List<String> measurements) {
         if (measurements != null && !measurements.isEmpty()) {
             HibernateUtil.executeInTransaction(session -> {
                 for (var measurement : measurements) {
@@ -94,13 +95,13 @@ public class StorageServiceImpl implements StorageService {
                         String hash = jsonTree.get("hash").getAsString();
                         String method = jsonTree.get("methodName").getAsString();
                         String clazz = jsonTree.get("className").getAsString();
-                        String methodParams = jsonTree.get("methodParams").getAsString();
+                        String methodDescriptor = jsonTree.get("methodDescriptor").getAsString();
                         long duration = jsonTree.get("duration").getAsLong();
                         long samplingRate = jsonTree.get("samplingRate").getAsLong();
 
                         // try to find method descriptor in database
                         MemberDescriptor descriptor = findOrDefault(hash, new MemberDescriptor(
-                                hash, method, methodParams, clazz
+                                hash, method, methodDescriptor, clazz
                         ));
 
                         Double[][] energyData = StreamSupport.stream(
@@ -108,17 +109,17 @@ public class StorageServiceImpl implements StorageService {
                             JsonObject entry = data.getAsJsonObject();
                             return
                                     new Double[]{
-                                            entry.get("power-core").getAsDouble(),
-                                            entry.get("power-gpu").getAsDouble(),
-                                            entry.get("power-other").getAsDouble(),
-                                            entry.get("power-ram").getAsDouble(),
-                                            entry.get("power-core").getAsDouble()
-                                                    + entry.get("power-gpu").getAsDouble()
-                                                    + entry.get("power-other").getAsDouble()
-                                                    + entry.get("power-ram").getAsDouble()
+                                            entry.get("powerCore").getAsDouble(),
+                                            entry.get("powerGpu").getAsDouble(),
+                                            entry.get("powerOther").getAsDouble(),
+                                            entry.get("powerRam").getAsDouble(),
+                                            entry.get("powerCore").getAsDouble()
+                                                    + entry.get("powerGpu").getAsDouble()
+                                                    + entry.get("powerOther").getAsDouble()
+                                                    + entry.get("powerRam").getAsDouble()
                                     };
                         }).toArray(Double[][]::new);
-                        energyData = transpose().apply(energyData);
+                        energyData = transposeDbl().apply(energyData);
 
                         Measurement m = new Measurement();
                         //m.setRecorded();  // TODO set proper recorded date

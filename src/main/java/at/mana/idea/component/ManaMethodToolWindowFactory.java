@@ -10,6 +10,7 @@ import at.mana.idea.service.EnergyDataNotifierEvent;
 import at.mana.idea.service.ManaEnergyDataNotifier;
 import at.mana.idea.service.StorageService;
 import at.mana.core.util.DoubleStatistics;
+import at.mana.idea.util.DateUtil;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionToolbarPosition;
 import com.intellij.openapi.application.ApplicationManager;
@@ -113,7 +114,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
         if( this.columns == null ) {
             columns = new ColumnInfo[]
                     {
-                            new TreeTableColumn<String>("Record", TreeTableModel.class, node ->node.getUserObject().toString() ),
+                            new TreeTableColumn<String>("Recorded", TreeTableModel.class, node ->node.getUserObject().toString() ),
                             new TreeTableColumn<DoubleStatistics>("Duration", DoubleStatistics.class, node -> {
                                 if( node.getUserObject() instanceof MethodEnergyModel) {
                                     MethodEnergyModel statistics = (MethodEnergyModel) node.getUserObject();
@@ -266,7 +267,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
                             DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
                             if (node.getUserObject() instanceof MethodEnergyModel) {
                                 MethodEnergyModel data = (MethodEnergyModel) node.getUserObject();
-                                append(data.getStartDateTime().format( DateTimeFormatter.ISO_DATE_TIME ));
+                                append(data.getStartDateTime().format( DateUtil.Formatter ));
                                 setIcon(AllIcons.Actions.ProfileBlue);
                             } else if (node.getUserObject() instanceof MethodEnergySampleModel) {
                                 MethodEnergySampleModel data = (MethodEnergySampleModel) node.getUserObject();

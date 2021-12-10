@@ -10,6 +10,7 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiMethod;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,14 +18,15 @@ public class ManaMethodEnergyAnnotator implements Annotator {
 
     @Override
     public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
-        if ( !( element instanceof PsiMethod ) ) {
+        if ( !( element instanceof PsiMethod ) &&
+             !( element.getContainingFile() instanceof PsiJavaFile )   ) {
             return;
         }
 
         Project project = element.getProject();
         StorageService service = StorageService.getInstance(project);
         PsiMethod method = (PsiMethod) element;
-        MethodEnergyModel statistics = service.findDataFor( method, element.getContainingFile().getVirtualFile() );
+        MethodEnergyModel statistics = service.findDataFor( method, (PsiJavaFile) element.getContainingFile() );
         if( statistics == null ) {
             return;
         }

@@ -11,6 +11,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiIdentifier;
+import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiMethod;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,12 +42,13 @@ public class ManaMethodMarkerProvider extends RelatedItemLineMarkerProvider {
         Project project = element.getProject();
         StorageService service =StorageService.getInstance(project);
         // This must be an element with a literal expression as a parent
-        if ( !( element.getParent() instanceof PsiMethod && element instanceof PsiIdentifier ) ) {
+        if ( !( element.getParent() instanceof PsiMethod && element instanceof PsiIdentifier )
+            &&  !(element.getContainingFile() instanceof PsiJavaFile)) {
             return;
         }
 
         PsiMethod method = (PsiMethod) element.getParent();
-        MethodEnergyModel statistics = service.findDataFor( method, element.getContainingFile().getVirtualFile() );
+        MethodEnergyModel statistics = service.findDataFor( method, (PsiJavaFile) element.getContainingFile() );
         if( statistics == null ) {
             return;
         }

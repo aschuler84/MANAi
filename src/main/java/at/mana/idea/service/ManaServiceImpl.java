@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static at.mana.core.util.MatrixHelper.transpose;
 import static at.mana.core.util.MatrixHelper.transposeDbl;
 
 @Service
@@ -114,12 +113,12 @@ public class ManaServiceImpl implements ManaService {
 
             // try to find a method stats that fits the current date
             MethodEnergyModel methodEnergyModel = model.getMethodEnergyStatistics().get(method)
-                    .stream().filter( m -> m.getRecorded().equals( recorded ) ).findFirst().orElseGet( () -> {
-                        var m = new MethodEnergyModel( recorded );
+                    .stream().filter( m -> m.getStartDateTime().equals( recorded ) ).findFirst().orElseGet( () -> {
+                        var m = new MethodEnergyModel(  );
                         model.getMethodEnergyStatistics().get( method ).add( m );
                         return m;
                     } );
-            methodEnergyModel.addSample( (long) duration, energyData[0],energyData[1], energyData[2], energyData[3] );
+            methodEnergyModel.addSample( (long) duration, energyData[0],energyData[1], energyData[2], energyData[3], null, null );
         } catch( IOException e) {
             logger.error( e );
         }

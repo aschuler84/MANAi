@@ -53,7 +53,7 @@ public class ManaLineEditorPainter extends EditorLinePainter {
         }
 
         PsiFile psiFile = PsiManager.getInstance(project).findFile( file );
-        if( psiFile instanceof PsiJavaFile) {
+        if( psiFile instanceof PsiJavaFile && !psiFile.getFileType().getDefaultExtension().endsWith("class") ) {
             PsiJavaFile javaFile = (PsiJavaFile) psiFile;
             ManaEnergyExperimentModel statistics = service.findDataFor( javaFile );
             if( statistics != null ) {
@@ -67,7 +67,7 @@ public class ManaLineEditorPainter extends EditorLinePainter {
                         // compute max consumption in this class
                         // print relative contribution per each method as chart -> color coded
                         List<LineExtensionInfo> histogram = createHistogram( v );
-                        Optional<MethodEnergyModel> oM = v.stream().max(Comparator.comparing(MethodEnergyModel::getRecorded));
+                        Optional<MethodEnergyModel> oM = v.stream().max(Comparator.comparing(MethodEnergyModel::getStartDateTime));
                         if (oM.isPresent()) {
                             String line = "      \u2502";
                             String energyConsumption = String.format( "\u251C %.3fJ", oM.get().getEnergyConsumption().getAverage() );
@@ -114,7 +114,7 @@ public class ManaLineEditorPainter extends EditorLinePainter {
                 "\u2587",
                 "\u2588",
         };
-        statistics.sort( Comparator.comparing( MethodEnergyModel::getRecorded ) );
+        statistics.sort( Comparator.comparing( MethodEnergyModel::getStartDateTime ) );
         int binSize = statistics.size() / max;
         if( binSize == 0 ) {
             // reduce the number of bins

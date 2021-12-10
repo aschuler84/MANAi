@@ -18,7 +18,7 @@ public interface StorageService {
 
     public ManaEnergyExperimentModel findDataFor(PsiJavaFile file );
 
-    public MethodEnergyModel findDataFor(PsiMethod method, VirtualFile file);
+    public MethodEnergyModel findDataFor(PsiMethod method, PsiJavaFile file);
 
     void processAndStore( List<String> measurements);
 }

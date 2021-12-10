@@ -8,12 +8,10 @@ import at.mana.idea.model.MethodEnergySampleModel;
 import at.mana.idea.model.ManaEnergyExperimentModel;
 import at.mana.idea.service.EnergyDataNotifierEvent;
 import at.mana.idea.service.ManaEnergyDataNotifier;
-import at.mana.idea.service.ManaService;
 import at.mana.idea.service.StorageService;
 import at.mana.core.util.DoubleStatistics;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionToolbarPosition;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.fileEditor.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
@@ -183,7 +181,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
     protected void bind( List<MethodEnergyModel> energyStatistics ) {
 
         MethodEnergyModel statistics =
-                energyStatistics.stream().max( Comparator.comparing( MethodEnergyModel::getRecorded ) ).orElse(null);
+                energyStatistics.stream().max( Comparator.comparing( MethodEnergyModel::getStartDateTime) ).orElse(null);
         if( statistics != null ) {
             String[] legend = new String[]{
                     String.format("CPU Power %.2f Watt", statistics.getCpuWattage().getAverage()),
@@ -267,7 +265,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
                             DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
                             if (node.getUserObject() instanceof MethodEnergyModel) {
                                 MethodEnergyModel data = (MethodEnergyModel) node.getUserObject();
-                                append(data.getRecorded().format( DateTimeFormatter.ISO_DATE_TIME ));
+                                append(data.getStartDateTime().format( DateTimeFormatter.ISO_DATE_TIME ));
                                 setIcon(AllIcons.Actions.ProfileBlue);
                             } else if (node.getUserObject() instanceof MethodEnergySampleModel) {
                                 MethodEnergySampleModel data = (MethodEnergySampleModel) node.getUserObject();

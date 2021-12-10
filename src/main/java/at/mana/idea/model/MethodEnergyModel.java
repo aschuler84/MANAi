@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,13 +16,25 @@ import java.util.Set;
 @Setter
 public class MethodEnergyModel {
 
-    private LocalDateTime recorded;
-    private JBColor heatColor = new JBColor(JBColor.decode("0xD8F0E8"),JBColor.decode("0xD8F0E8"));
+    private JBColor heatColor = new JBColor(
+            JBColor.decode("0xD8F0E8"),
+            JBColor.decode("0x073c0a"));
     private Set<MethodEnergySampleModel> samples = new HashSet<>();
 
 
-    public MethodEnergyModel(LocalDateTime recorded ) {
-        this.recorded = recorded;
+    public MethodEnergyModel() {
+    }
+
+    public LocalDateTime getStartDateTime() {
+        return this.getSamples() != null ? this.getSamples().stream().min(
+                Comparator.comparing( MethodEnergySampleModel::getStartTime ) )
+                .map( MethodEnergySampleModel::getStartTime ).orElse(null) : null;
+    }
+
+    public LocalDateTime getEndDateTime() {
+        return this.getSamples() != null ? this.getSamples().stream().max(
+                Comparator.comparing( MethodEnergySampleModel::getEndTime ) )
+                .map( MethodEnergySampleModel::getStartTime ).orElse(null) : null;
     }
 
     public DoubleStatistics getCpuWattage() {
@@ -52,8 +65,8 @@ public class MethodEnergyModel {
         return samples.stream().map(MethodEnergySampleModel::getEnergyConsumption).collect( DoubleStatistics.collector() );
     }
 
-    public void addSample( long durationMilliseconds, Double[] cpu, Double[] gpu, Double[] ram, Double[] other ) {
-        this.samples.add( new MethodEnergySampleModel( durationMilliseconds / 1000.0, cpu, gpu, ram, other ) );
+    public void addSample( long durationMilliseconds, Double[] cpu, Double[] gpu, Double[] ram, Double[] other, LocalDateTime startDateTime, LocalDateTime endDateTime ) {
+        this.samples.add( new MethodEnergySampleModel( durationMilliseconds / 1000.0, cpu, gpu, ram, other, startDateTime, endDateTime ) );
     }
 
 

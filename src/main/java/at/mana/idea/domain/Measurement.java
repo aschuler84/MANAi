@@ -20,21 +20,11 @@ public class Measurement  {
     @GeneratedValue
     private Long id;
 
-    private LocalDateTime recorded;
-
-    private Long duration;
-
     @ManyToOne( fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     private MemberDescriptor descriptor;
 
-    @ElementCollection
-    private List<Double> powerCore;
-    @ElementCollection
-    private List<Double> powerGpu;
-    @ElementCollection
-    private List<Double> powerRam;
-    @ElementCollection
-    private List<Double> powerOther;
+    @OneToMany( fetch = FetchType.LAZY, cascade =  CascadeType.ALL, mappedBy = "measurement")
+    private Set<Sample> samples = new HashSet<>();
 
 
 }

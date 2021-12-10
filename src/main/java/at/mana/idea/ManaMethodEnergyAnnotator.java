@@ -18,7 +18,7 @@ public class ManaMethodEnergyAnnotator implements Annotator {
 
     @Override
     public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
-        if ( !( element instanceof PsiMethod ) &&
+        if ( !( element instanceof PsiMethod ) ||
              !( element.getContainingFile() instanceof PsiJavaFile )   ) {
             return;
         }

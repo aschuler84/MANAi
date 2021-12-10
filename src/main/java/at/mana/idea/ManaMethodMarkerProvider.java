@@ -43,7 +43,7 @@ public class ManaMethodMarkerProvider extends RelatedItemLineMarkerProvider {
         StorageService service =StorageService.getInstance(project);
         // This must be an element with a literal expression as a parent
         if ( !( element.getParent() instanceof PsiMethod && element instanceof PsiIdentifier )
-            &&  !(element.getContainingFile() instanceof PsiJavaFile)) {
+            ||  !(element.getContainingFile() instanceof PsiJavaFile)) {
             return;
         }
 

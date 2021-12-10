@@ -11,10 +11,9 @@ repositories {
     mavenCentral()
 }
 
-apply plugin: 'maven'
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
     implementation 'org.hibernate:hibernate-core:5.3.7.Final'
     implementation 'com.h2database:h2:1.4.200'
     implementation group: 'at.mana', name: 'template', version: "1.0-SNAPSHOT"

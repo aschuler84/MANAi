@@ -12,6 +12,7 @@ import at.mana.idea.service.StorageService;
 import at.mana.core.util.DoubleStatistics;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionToolbarPosition;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
@@ -331,6 +332,8 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
         initTable();
         toolWindow.getComponent().setBorder( JBUI.Borders.empty() );
         toolWindow.getComponent().add( createBaseComponent() );
+        // execute in background
+        fillWindowFromModel( project );
     }
 
     private void initTable() {
@@ -341,15 +344,18 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
 
     @Override
     public void update(EnergyDataNotifierEvent event) {
-        // TODO: instead of reading the files in the project - query the database
-        FileEditor editor = FileEditorManager.getInstance(event.getProject()).getSelectedEditor();
+        ApplicationManager.getApplication().invokeLater( () -> fillWindowFromModel(event.getProject() ) );
+    }
+
+    private void fillWindowFromModel( Project project ) {
+        FileEditor editor = FileEditorManager.getInstance(project).getSelectedEditor();
         if( editor != null ) {
             VirtualFile file = editor.getFile();
             if( file != null  ) {
-                PsiFile psiFile = PsiManager.getInstance(event.getProject()).findFile(file);
+                PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
                 if (psiFile instanceof PsiJavaFile) {
                     PsiJavaFile javaFile = (PsiJavaFile) psiFile;
-                    StorageService service = StorageService.getInstance(event.getProject());
+                    StorageService service = StorageService.getInstance(project);
                     updateModel(javaFile, service.findDataFor(javaFile));
                 } else {
                     methodTree.getEmptyText().setText("Select a class file to display recorded energy data");

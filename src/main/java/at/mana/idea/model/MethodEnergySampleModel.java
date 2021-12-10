@@ -28,7 +28,7 @@ public class MethodEnergySampleModel {
         this.other = other;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.energyConsumption = this.duration * ( getCpuWattage().getAverage() + getGpuWattage().getAverage() + getRamWattage().getAverage() + getOtherWattage().getAverage() );
+        this.energyConsumption = (this.duration /1000.0) * ( getCpuWattage().getAverage() + getGpuWattage().getAverage() + getRamWattage().getAverage() + getOtherWattage().getAverage() );
     }
 
     public DoubleStatistics getCpuWattage() {

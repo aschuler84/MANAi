@@ -12,6 +12,7 @@ import at.mana.idea.service.ManaService;
 import at.mana.idea.model.MethodEnergyModel;
 import at.mana.idea.service.StorageService;
 import at.mana.idea.service.StorageServiceImpl;
+import at.mana.idea.util.ColorUtil;
 import com.intellij.lang.annotation.*;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
@@ -44,7 +45,7 @@ public class ManaMethodEnergyAnnotator implements Annotator {
                 .range(method.getBody().getTextRange());
         // Force the text attributes to Simple syntax bad character
         TextAttributes textAttributes = new TextAttributes();
-        textAttributes.setBackgroundColor( statistics.getHeatColor() );
+        textAttributes.setBackgroundColor(ColorUtil.LINE_MARKER_DATA_AVAILABLE);
         TextAttributesKey key = TextAttributesKey.createTextAttributesKey("manaAnnotator", textAttributes);
         builder.textAttributes( key ).create();
     }

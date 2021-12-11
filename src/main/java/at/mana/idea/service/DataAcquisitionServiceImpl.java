@@ -9,6 +9,7 @@
 package at.mana.idea.service;
 
 import at.mana.core.util.StringUtil;
+import at.mana.idea.util.I18nUtil;
 import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
 import com.intellij.openapi.components.Service;
@@ -45,9 +46,9 @@ public class DataAcquisitionServiceImpl extends ProcessAdapter implements DataAc
     @Override
     public void startDataAcquisition( @NotNull Project project ) {
         if( indicator != null && indicator.isRunning() ) {
-            throw new RuntimeException( "Only one RAPL Measurement allowed at the same time." );
+            throw new RuntimeException(I18nUtil.LITERALS.getString("dataacquisition.mana.exception"));
         }
-        var task = new Task.Backgroundable( project, "Mana Acquire Data" ){
+        var task = new Task.Backgroundable( project, I18nUtil.LITERALS.getString("dataacquisition.mana.title") ){
             @SneakyThrows
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
@@ -58,7 +59,7 @@ public class DataAcquisitionServiceImpl extends ProcessAdapter implements DataAc
                     StringBuilder builder = new StringBuilder();
                     serverSocket.setSoTimeout(10000);
                     try {
-                        indicator.setText( "Waiting for client connection..." );
+                        indicator.setText( I18nUtil.LITERALS.getString("dataacquisition.mana.status.waiting") );
                         Socket socket = serverSocket.accept();
                         BufferedReader socketReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                         while ((read = socketReader.read()) != -1 && read != '\0') {
@@ -67,11 +68,10 @@ public class DataAcquisitionServiceImpl extends ProcessAdapter implements DataAc
                         socketReader.close();
                         socket.close();
                         logger.debug(StringUtil.coloredString().yellow().withText("data received: ").build() + builder.toString());
-                        indicator.setText( "Receiving data ..." );
+                        indicator.setText( I18nUtil.LITERALS.getString("dataacquisition.mana.status.received") );
                         measurements.add( builder.toString() );
-                    } catch (SocketTimeoutException e) {
-                        // no client acquired connection - trying again
-                        logger.debug( "No client available, trying again..." );
+                    } catch (SocketTimeoutException ignore) {
+                        // exception is ignored - required to verify if process is still running
                     }
                 }
                 StorageService service = StorageService.getInstance(project);

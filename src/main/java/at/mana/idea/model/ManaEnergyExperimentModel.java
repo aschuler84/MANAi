@@ -8,7 +8,6 @@
  */
 package at.mana.idea.model;
 
-import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiMethod;
 

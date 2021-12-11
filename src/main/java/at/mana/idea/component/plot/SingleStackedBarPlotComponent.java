@@ -8,6 +8,7 @@
  */
 package at.mana.idea.component.plot;
 
+import at.mana.idea.util.ColorUtil;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.JBUI;
 
@@ -20,14 +21,7 @@ public class SingleStackedBarPlotComponent extends JPanel {
 
     private Insets insets = JBUI.insets(20);
     private SingleStackedBarPlotModel model;
-    private final Color[] colors = new Color[] {
-            new JBColor(new Color(255, 143, 143), new Color(255, 143, 143)),
-            new JBColor(new Color(255,173,138), new Color(255,173,138)),
-            new JBColor(new Color(154,197,166), new Color(154,197,166)),
-            new JBColor(new Color(120,184,174), new Color(120,184,174)),
-            new JBColor(new Color(138,153,212), new Color(138,153,212)),
-
-    };
+    private final Color[] colors = ColorUtil.HEAT_MAP_COLORS_DEFAULT;
 
     public SingleStackedBarPlotComponent() {
         this.setOpaque( true );

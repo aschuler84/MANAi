@@ -11,6 +11,7 @@ package at.mana.idea.editor;
 import at.mana.idea.model.MethodEnergyModel;
 import at.mana.idea.model.ManaEnergyExperimentModel;
 import at.mana.idea.service.StorageService;
+import at.mana.idea.util.ColorUtil;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorLinePainter;
@@ -33,23 +34,7 @@ import java.util.stream.IntStream;
 
 public class ManaLineEditorPainter extends EditorLinePainter {
 
-    private final Color[] colors = new Color[] {
-            new JBColor(new Color(138,153,212), new Color(138,153,212)),
-            new JBColor(new Color(120,184,174), new Color(120,184,174)),
-            new JBColor(new Color(154,197,166), new Color(154,197,166)),
-            new JBColor(new Color(255,173,138), new Color(255,173,138)),
-            new JBColor(new Color(255, 143, 143), new Color(255, 143, 143)),
-    };
-    private final Color[] ylgnbu = new Color[] {
-            new JBColor(new Color(255,255,217), new Color(255,255,217)),
-            new JBColor(new Color(237,248,177), new Color(237,248,177)),
-            new JBColor(new Color(199,233,180), new Color(199,233,180)),
-            new JBColor(new Color(127,205,187), new Color(127,205,187)),
-            new JBColor(new Color(65, 182, 196), new Color(65, 182, 196)),
-            new JBColor(new Color(29, 145, 192), new Color(29, 145, 192)),
-            new JBColor(new Color(34, 94, 168), new Color(34, 94, 168)),
-            new JBColor(new Color(37, 52, 148), new Color(37, 52, 148)),
-    };
+
 
     @Override
     public @Nullable Collection<LineExtensionInfo> getLineExtensions(@NotNull Project project, @NotNull VirtualFile file, int lineNumber) {
@@ -82,9 +67,9 @@ public class ManaLineEditorPainter extends EditorLinePainter {
 
                             lines.addAll(histogram);
 
-                            lines.add(new LineExtensionInfo("    \u2502",JBColor.decode("0x999999"), EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
+                            lines.add(new LineExtensionInfo("    \u2502",ColorUtil.INLINE_TEXT, EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
                             lines.add( createInLineChart( oM.get().getEnergyConsumption().getAverage()/total.get() ) );
-                            lines.add(new LineExtensionInfo(energyConsumption, JBColor.decode("0x999999"), EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
+                            lines.add(new LineExtensionInfo(energyConsumption, ColorUtil.INLINE_TEXT, EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
                         }
                     }
                 });
@@ -106,7 +91,11 @@ public class ManaLineEditorPainter extends EditorLinePainter {
                 chart.append( " " );
             }
         } );
-        return new LineExtensionInfo(chart.toString(), colors[Math.min(index, 4)], EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN);
+        return new LineExtensionInfo(chart.toString(),
+                ColorUtil.HEAT_MAP_COLORS_DEFAULT[Math.min(index, ColorUtil.HEAT_MAP_COLORS_DEFAULT.length)],
+                EffectType.ROUNDED_BOX,
+                JBColor.RED,
+                Font.PLAIN);
     }
 
     private List<LineExtensionInfo> createHistogram( List<MethodEnergyModel> statistics ) {
@@ -147,15 +136,15 @@ public class ManaLineEditorPainter extends EditorLinePainter {
 
         for(double entry : bins) {
             int index = (int) ( (elements.length - 1) * (entry / maxV));
-            lines.add( new LineExtensionInfo( elements[index], ylgnbu[index], EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN) );
+            lines.add( new LineExtensionInfo( elements[index], ColorUtil.HEATMAP_COLORS_YLGNBU[index], EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN) );
         }
 
         if( lines.size() < max )
-            IntStream.range( 0, max - lines.size() ).forEach( i -> lines.add(0, new LineExtensionInfo( " ", colors[0], EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN) ) );
+            IntStream.range( 0, max - lines.size() ).forEach( i -> lines.add(0, new LineExtensionInfo( " ", ColorUtil.HEAT_MAP_COLORS_DEFAULT[0], EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN) ) );
 
-        lines.add(0,new LineExtensionInfo("      \u2502", JBColor.decode("0x999999"), EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
-        lines.add(new LineExtensionInfo("\u251C ",JBColor.decode("0x999999"), EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
-        lines.add(new LineExtensionInfo(String.format( "%.3fJ", sum/(1.0*bins.length))  ,JBColor.decode("0x999999"), EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
+        lines.add(0,new LineExtensionInfo("      \u2502", ColorUtil.INLINE_TEXT, EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
+        lines.add(new LineExtensionInfo("\u251C ", ColorUtil.INLINE_TEXT, EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
+        lines.add(new LineExtensionInfo(String.format( "%.3fJ", sum/(1.0*bins.length)), ColorUtil.INLINE_TEXT, EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
 
 
         return lines;

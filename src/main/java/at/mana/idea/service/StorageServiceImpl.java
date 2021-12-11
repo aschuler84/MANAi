@@ -16,6 +16,7 @@ import at.mana.idea.domain.Sample;
 import at.mana.idea.model.ManaEnergyExperimentModel;
 import at.mana.idea.model.MethodEnergyModel;
 import at.mana.idea.model.MethodEnergySampleModel;
+import at.mana.idea.util.DateUtil;
 import at.mana.idea.util.HibernateUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -43,7 +44,7 @@ import static at.mana.core.util.MatrixHelper.transposeDbl;
 public class StorageServiceImpl implements StorageService {
 
     private final Map<PsiJavaFile, ManaEnergyExperimentModel> model = new HashMap<>();
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
+
 
     @Override
     public ManaEnergyExperimentModel findDataFor(PsiJavaFile file) {
@@ -87,7 +88,7 @@ public class StorageServiceImpl implements StorageService {
         if( model.get(file) == null ) {
             findDataFor( file ); // try loading data if file currently not present
         }
-        if( model.get(file) != null ) {
+        if( model.get(file) != null && model.get(file).getMethodEnergyStatistics().get(method) != null ) {
             Optional<MethodEnergyModel> m = model.get(file).getMethodEnergyStatistics().get(method)
                     .stream().min(Comparator.comparing(MethodEnergyModel::getStartDateTime));
             return m.orElse(null);
@@ -108,8 +109,8 @@ public class StorageServiceImpl implements StorageService {
                         String method = json.get("methodName").getAsString();
                         String clazz = json.get("className").getAsString();
                         String methodDescriptor = json.get("methodDescriptor").getAsString();
-                        LocalDateTime startDateTime = LocalDateTime.parse( json.get("startTime").getAsString(), formatter);
-                        LocalDateTime endDateTime = LocalDateTime.parse( json.get("endTime").getAsString(), formatter);
+                        LocalDateTime startDateTime = LocalDateTime.parse( json.get("startTime").getAsString(), DateUtil.Formatter);
+                        LocalDateTime endDateTime = LocalDateTime.parse( json.get("endTime").getAsString(), DateUtil.Formatter);
                         long duration = json.get("duration").getAsLong();
                         long samplingRate = json.get("samplingRate").getAsLong();
 

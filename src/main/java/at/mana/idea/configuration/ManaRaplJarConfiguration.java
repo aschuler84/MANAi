@@ -9,7 +9,7 @@
 package at.mana.idea.configuration;
 
 import at.mana.idea.service.DataAcquisitionService;
-import at.mana.idea.service.ManaService;
+import at.mana.idea.util.I18nUtil;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.Executor;
 import com.intellij.execution.application.ApplicationConfiguration;
@@ -18,6 +18,7 @@ import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.process.OSProcessHandler;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.target.LanguageRuntimeType;
+import com.intellij.execution.target.TargetEnvironmentConfiguration;
 import com.intellij.execution.util.JavaParametersUtil;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
@@ -25,12 +26,12 @@ import com.intellij.openapi.util.io.FileUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
+import static at.mana.idea.configuration.ManaRaplConfigurationUtil.*;
 
 public class ManaRaplJarConfiguration extends ApplicationConfiguration {
 
-    private String outputFolder;
     private String jarPath;
+    private int connectionPort;
 
     protected ManaRaplJarConfiguration(String name, @NotNull Project project, @NotNull ConfigurationFactory factory) {
         super(name, project, factory);
@@ -64,15 +65,12 @@ public class ManaRaplJarConfiguration extends ApplicationConfiguration {
         getOptions().setSamplingRate( samplingRate );
     }
 
-    public void setOutputFolder(String outputFolder) {
-        this.outputFolder = outputFolder;
+    public int getConnectionPort() {
+        return getOptions().getConnectionPort();
     }
 
-    public String getOutputFolder() {
-        if( this.outputFolder == null ) {
-            this.outputFolder = getProject().getBasePath() + File.separator + ".mana";
-        }
-        return this.outputFolder;
+    public void setConnectionPort(int connectionPort) {
+        getOptions().setConnectionPort( connectionPort );
     }
 
     @Override
@@ -86,21 +84,22 @@ public class ManaRaplJarConfiguration extends ApplicationConfiguration {
         return false;
     }
 
+    public String findMavenHome( String key ) {
+        return ManaRaplConfigurationUtil.findExecutablePath( key, "mvn" );
+    }
+
     @Override
     public void checkConfiguration() throws RuntimeConfigurationException {
-        /*JavaParametersUtil.checkAlternativeJRE(this);
-        final String className = getMainClassName();
-        if (className == null || className.length() == 0) {
-            throw new RuntimeConfigurationError(ExecutionBundle.message("no.main.class.specified.error.text"));
+        if( findMavenHome( ManaRaplConfigurationUtil.M2_HOME_KEY) == null )
+            throw new RuntimeConfigurationException(I18nUtil.LITERALS.getString("configuration.maven.exception"));
+
+        if( !verifyMavenManaPluginAvailable( this.getProject() ) ) {
+            throw  new RuntimeConfigurationException( I18nUtil.LITERALS.getString("configuration.mana.exception") ); }
+
+        if( !isPortAvailable( this.getConnectionPort() ) ) {
+            throw  new RuntimeConfigurationException(
+                    String.format( I18nUtil.LITERALS.getString("configuration.port.exception") ,getConnectionPort()) );
         }
-        if (getScratchFileUrl() == null) {
-            throw new RuntimeConfigurationError(JavaCompilerBundle.message("error.no.scratch.file.associated.with.configuration"));
-        }
-        if (getScratchVirtualFile() == null) {
-            throw new RuntimeConfigurationError(JavaCompilerBundle.message("error.associated.scratch.file.not.found"));
-        }
-        ProgramParametersUtil.checkWorkingDirectoryExist(this, getProject(), getConfigurationModule().getModule());
-        JavaRunConfigurationExtensionManager.checkConfigurationIsValid(this); */
     }
 
     @Override
@@ -122,6 +121,10 @@ public class ManaRaplJarConfiguration extends ApplicationConfiguration {
             @NotNull
             @Override
             protected OSProcessHandler startProcess() throws ExecutionException {
+                if( !ManaRaplConfigurationUtil.verifyMavenManaPluginAvailable( this.getEnvironment().getProject() ) ) {
+                    throw  new ExecutionException( I18nUtil.LITERALS.getString("configuration.mana.exception") );
+                }
+
                 final OSProcessHandler handler = super.startProcess();
                 DataAcquisitionService service = DataAcquisitionService.getInstance( this.getEnvironment().getProject() );
                 handler.addProcessListener( service );
@@ -144,5 +147,10 @@ public class ManaRaplJarConfiguration extends ApplicationConfiguration {
     @Override
     public String getDefaultTargetName() {
         return null;
+    }
+
+    @Override
+    public boolean canRunOn(@NotNull TargetEnvironmentConfiguration target) {
+        return super.canRunOn(target) && ManaRaplConfigurationUtil.verifyMavenManaPluginAvailable( this.getProject() );
     }
 }

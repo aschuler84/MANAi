@@ -20,6 +20,8 @@ import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.target.LanguageRuntimeType;
 import com.intellij.execution.target.TargetEnvironmentConfiguration;
 import com.intellij.execution.util.JavaParametersUtil;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
@@ -93,8 +95,9 @@ public class ManaRaplJarConfiguration extends ApplicationConfiguration {
         if( findMavenHome( ManaRaplConfigurationUtil.M2_HOME_KEY) == null )
             throw new RuntimeConfigurationException(I18nUtil.LITERALS.getString("configuration.maven.exception"));
 
-        if( !verifyMavenManaPluginAvailable( this.getProject() ) ) {
-            throw  new RuntimeConfigurationException( I18nUtil.LITERALS.getString("configuration.mana.exception") ); }
+        if (!verifyMavenManaPluginAvailable(this.getProject())) {
+            throw new RuntimeConfigurationException(I18nUtil.LITERALS.getString("configuration.mana.exception"));
+        }
 
         if( !isPortAvailable( this.getConnectionPort() ) ) {
             throw  new RuntimeConfigurationException(
@@ -121,8 +124,9 @@ public class ManaRaplJarConfiguration extends ApplicationConfiguration {
             @NotNull
             @Override
             protected OSProcessHandler startProcess() throws ExecutionException {
-                if( !ManaRaplConfigurationUtil.verifyMavenManaPluginAvailable( this.getEnvironment().getProject() ) ) {
-                    throw  new ExecutionException( I18nUtil.LITERALS.getString("configuration.mana.exception") );
+
+                if (!ManaRaplConfigurationUtil.verifyMavenManaPluginAvailable(this.getEnvironment().getProject())) {
+                    throw new ExecutionException(I18nUtil.LITERALS.getString("configuration.mana.exception"));
                 }
 
                 final OSProcessHandler handler = super.startProcess();

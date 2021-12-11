@@ -32,7 +32,7 @@
         <programRunner implementation="at.mana.idea.runner.ManaRaplProgramRunner" />
 
         <toolWindow id="Mana"
-                    icon="AllIcons.Debugger.ThreadStates.Socket"
+                    icon="/icons/logo_13.svg"
                     anchor="bottom"
                     factoryClass="at.mana.idea.component.ManaMethodToolWindowFactory" />
 

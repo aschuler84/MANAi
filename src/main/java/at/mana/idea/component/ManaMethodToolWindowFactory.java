@@ -349,7 +349,6 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
     private void initTable() {
         methodTree.getEmptyText().setShowAboveCenter(true);
         methodTree.getEmptyText().setText(I18nUtil.LITERALS.getString("methodtoolwindow.ui.table.empty.title"));
-        //methodTree.getEmptyText().getComponent().add( new LinkLabel<String>("Initialize mana", AllIcons.Ide.Link));
     }
 
     @Override

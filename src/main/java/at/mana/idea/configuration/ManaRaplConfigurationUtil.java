@@ -10,6 +10,7 @@ package at.mana.idea.configuration;
 
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil;
 import com.intellij.execution.configurations.RuntimeConfigurationException;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.search.FilenameIndex;
@@ -43,32 +44,34 @@ public class ManaRaplConfigurationUtil {
         return null;
     }
 
-    public static boolean verifyMavenManaPluginAvailable( Project project ) {
-        PsiFile[] files = FilenameIndex.getFilesByName(project, "pom.xml", GlobalSearchScope.projectScope(project));
-        if( files.length == 0 ) {
-            return false;
-        } else {
-            for( var file : files ) {
-                if( file instanceof XmlFile) {
-                    var xmlFile = (XmlFile) file;
-                    var rootElement = xmlFile.getRootTag();
+    public static boolean verifyMavenManaPluginAvailable( Project project ) {  //Requires read action
+        return ReadAction.compute( () -> {
+            PsiFile[] files = FilenameIndex.getFilesByName(project, "pom.xml", GlobalSearchScope.projectScope(project));
+            if (files.length == 0) {
+                return false;
+            } else {
+                for (var file : files) {
+                    if (file instanceof XmlFile) {
+                        var xmlFile = (XmlFile) file;
+                        var rootElement = xmlFile.getRootTag();
 
-                    return !XmlUtil.processXmlElements( rootElement, element -> {
-                        if( element instanceof XmlTag) {
-                            var xmlElement = (XmlTag) element;
-                            if( xmlElement.getName().equals( "plugin" ) ) {
-                                var groupId = xmlElement.getSubTagText( "groupId" );
-                                var artifactId = xmlElement.getSubTagText( "artifactId" );
-                                return !("at.mana".equals( groupId ) && "instrument-maven-plugin".equals(artifactId ));
+                        return !XmlUtil.processXmlElements(rootElement, element -> {
+                            if (element instanceof XmlTag) {
+                                var xmlElement = (XmlTag) element;
+                                if (xmlElement.getName().equals("plugin")) {
+                                    var groupId = xmlElement.getSubTagText("groupId");
+                                    var artifactId = xmlElement.getSubTagText("artifactId");
+                                    return !("at.mana".equals(groupId) && "instrument-maven-plugin".equals(artifactId));
+                                }
                             }
-                        }
-                        return true;
-                    }, true );
+                            return true;
+                        }, true);
 
+                    }
                 }
             }
-        }
-        return false;
+            return false;
+        });
     }
 
     public static boolean verifyMavenManaPluginAvailable( Project project, XmlFile pomFile ) {

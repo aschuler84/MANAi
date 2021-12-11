@@ -7,5 +7,6 @@ import javax.swing.*;
 public class Icons {
 
     public static final Icon LOGO =  IconLoader.getIcon( "/icons/logo.svg", Icons.class );
+    public static final Icon LOGO_GUTTER =  IconLoader.getIcon( "/icons/logo_13.svg", Icons.class );
 
 }

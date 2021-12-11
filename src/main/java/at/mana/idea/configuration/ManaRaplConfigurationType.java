@@ -8,6 +8,7 @@
  */
 package at.mana.idea.configuration;
 
+import at.mana.idea.Icons;
 import com.intellij.execution.configurations.ConfigurationFactory;
 import com.intellij.execution.configurations.ConfigurationType;
 import com.intellij.icons.AllIcons;
@@ -32,7 +33,7 @@ public class ManaRaplConfigurationType implements ConfigurationType {
 
     @Override
     public Icon getIcon() {
-        return AllIcons.Debugger.ThreadStates.Socket;
+        return Icons.LOGO;
     }
 
     @Override

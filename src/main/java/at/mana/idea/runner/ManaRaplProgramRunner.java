@@ -33,20 +33,6 @@ public class ManaRaplProgramRunner extends GenericProgramRunner<ManaRaplProgramR
         return profile instanceof ManaRaplJarConfiguration;
     }
 
-
-    /*@Override
-    public void execute(@NotNull ExecutionEnvironment environment) throws ExecutionException {
-        //Notification notification = new Notification("ManaNotificationGroup", AllIcons.Debugger.ThreadStates.Socket, NotificationType.INFORMATION);
-        //notification.setContent( "Mann RAPL Executor started" );
-        //Notifications.Bus.notify(notification);
-        Objects.requireNonNull( environment.getState() );
-        ExecutionResult result = environment.getState().execute( environment.getExecutor(),this );
-        new RunContentBuilder(result, environment).showRunContent(environment.getContentToReuse());
-        //System.out.println( result );
-        //ToolWindow toolWindow = ToolWindowManager.getInstance(environment.getProject()).getToolWindow("Run");
-        //toolWindow.getContentManager().getFactory().createContent(result.getExecutionConsole().getComponent(), "Console", true);
-    }*/
-
     @Nullable
     @Override
     protected RunContentDescriptor doExecute(@NotNull RunProfileState state, @NotNull ExecutionEnvironment environment) throws ExecutionException {

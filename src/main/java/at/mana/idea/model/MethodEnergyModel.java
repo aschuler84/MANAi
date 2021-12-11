@@ -24,11 +24,7 @@ import java.util.Set;
 @Setter
 public class MethodEnergyModel {
 
-    private JBColor heatColor = new JBColor(
-            JBColor.decode("0xD8F0E8"),
-            JBColor.decode("0x073c0a"));
     private Set<MethodEnergySampleModel> samples = new HashSet<>();
-
 
     public MethodEnergyModel() {
     }

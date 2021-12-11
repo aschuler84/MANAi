@@ -14,6 +14,7 @@ import com.intellij.openapi.components.StoredProperty;
 
 public class ManaRaplConfigurationOptions extends JvmMainMethodRunConfigurationOptions {
 
+    private final StoredProperty<Integer> connectionPort = property(10).provideDelegate( this, "connectionPort" );
     private final StoredProperty<Integer> noSamplesProperty = property(10).provideDelegate( this, "noOfSamples" );
     private final StoredProperty<Integer> samplingRateProperty = property(50).provideDelegate(this,"samplingRate" );
 
@@ -31,6 +32,14 @@ public class ManaRaplConfigurationOptions extends JvmMainMethodRunConfigurationO
 
     public void setSamplingRate( int samplingRate ) {
         this.samplingRateProperty.setValue( this, samplingRate );
+    }
+
+    public int getConnectionPort(  ) {
+        return connectionPort.getValue( this );
+    }
+
+    public void setConnectionPort(int connectionPort ) {
+        this.connectionPort.setValue( this, connectionPort );
     }
 
 }

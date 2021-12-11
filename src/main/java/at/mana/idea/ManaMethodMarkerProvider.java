@@ -68,7 +68,7 @@ public class ManaMethodMarkerProvider extends RelatedItemLineMarkerProvider {
             return;
         }*/
         NavigationGutterIconBuilder<PsiElement> builder =
-                NavigationGutterIconBuilder.create(IconLoader.getIcon( "/icons/energy_16.png" ))
+                NavigationGutterIconBuilder.create( Icons.LOGO )
                         .setTargets( element )
                         .setTooltipText("Wattage: "
                                 + df2.format(statistics.getCpuWattage().getAverage() )

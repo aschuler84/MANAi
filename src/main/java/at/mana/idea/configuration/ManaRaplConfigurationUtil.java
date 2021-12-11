@@ -20,6 +20,8 @@ import com.intellij.util.EnvironmentUtil;
 import com.intellij.xml.util.XmlUtil;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.ServerSocket;
 
 public class ManaRaplConfigurationUtil {
 
@@ -82,6 +84,15 @@ public class ManaRaplConfigurationUtil {
             }
             return true;
         }, true );
+    }
+
+    public static boolean isPortAvailable(int port) {
+        try (ServerSocket ss = new ServerSocket(port)) {
+            ss.setReuseAddress(true);
+            return true;
+        } catch (IOException ignored) {
+        }
+        return false;
     }
 
 }

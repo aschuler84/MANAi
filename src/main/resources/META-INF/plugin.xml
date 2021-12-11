@@ -2,7 +2,6 @@
     <id>at.mana.mana-idea</id>
     <name>Mana</name>
     <vendor email="andreas.schu.84@gmail.com" url="">Andreas S.</vendor>
-
     <description><![CDATA[
     Mana energy consumption plugin displays contents
     of .mana-files and allows to inspect code with

@@ -12,14 +12,25 @@ import com.intellij.execution.actions.ConfigurationContext;
 import com.intellij.execution.actions.LazyRunConfigurationProducer;
 import com.intellij.execution.configurations.ConfigurationFactory;
 import com.intellij.openapi.util.Ref;
+import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiJavaFile;
 import org.jetbrains.annotations.NotNull;
 
 public class ManaRaplRunConfigurationProducer extends LazyRunConfigurationProducer<ManaRaplJarConfiguration> {
 
     @Override
-    protected boolean setupConfigurationFromContext(@NotNull ManaRaplJarConfiguration configuration, @NotNull ConfigurationContext context, @NotNull Ref<PsiElement> sourceElement) {
-        return true;
+    protected boolean setupConfigurationFromContext( @NotNull ManaRaplJarConfiguration configuration,
+                                                    @NotNull ConfigurationContext context,
+                                                    @NotNull Ref<PsiElement> sourceElement) {
+        if( sourceElement.get().getContainingFile() instanceof PsiJavaFile
+                && sourceElement.get() instanceof PsiClass ){
+            PsiClass clazz = (PsiClass) sourceElement.get();
+            configuration.setSelectedClass( clazz );
+            configuration.setName( clazz.getName() );
+            return true;
+        }
+        return false;
     }
 
     @Override

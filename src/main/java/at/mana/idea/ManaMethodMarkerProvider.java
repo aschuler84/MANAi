@@ -14,6 +14,7 @@ import at.mana.idea.service.StorageService;
 import com.intellij.codeInsight.daemon.RelatedItemLineMarkerInfo;
 import com.intellij.codeInsight.daemon.RelatedItemLineMarkerProvider;
 import com.intellij.codeInsight.navigation.NavigationGutterIconBuilder;
+import com.intellij.openapi.actionSystem.UpdateInBackground;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.IconLoader;
@@ -41,7 +42,7 @@ import java.util.Collection;
  * \TODO: Change the icon in accordance IntelliJ Icon guideline
  *
  */
-public class ManaMethodMarkerProvider extends RelatedItemLineMarkerProvider {
+public class ManaMethodMarkerProvider extends RelatedItemLineMarkerProvider implements UpdateInBackground {
 
     private static DecimalFormat df2 = new DecimalFormat("#.##");
 
@@ -68,7 +69,7 @@ public class ManaMethodMarkerProvider extends RelatedItemLineMarkerProvider {
             return;
         }*/
         NavigationGutterIconBuilder<PsiElement> builder =
-                NavigationGutterIconBuilder.create( Icons.LOGO_GUTTER )
+                NavigationGutterIconBuilder.create( Icons.LOGO_EMPTY_BG_GUTTER )
                         .setTargets( element )
                         .setTooltipText("Wattage: "
                                 + df2.format(statistics.getCpuWattage().getAverage() )

@@ -13,6 +13,7 @@ import at.mana.idea.model.ManaEnergyExperimentModel;
 import at.mana.idea.service.StorageService;
 import at.mana.idea.util.ColorUtil;
 import com.google.common.util.concurrent.AtomicDouble;
+import com.intellij.openapi.actionSystem.UpdateInBackground;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorLinePainter;
 import com.intellij.openapi.editor.LineExtensionInfo;
@@ -32,7 +33,7 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.IntStream;
 
-public class ManaLineEditorPainter extends EditorLinePainter {
+public class ManaLineEditorPainter extends EditorLinePainter implements UpdateInBackground {
 
 
 

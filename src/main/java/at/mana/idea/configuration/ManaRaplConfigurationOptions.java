@@ -11,12 +11,14 @@ package at.mana.idea.configuration;
 import com.intellij.execution.application.JvmMainMethodRunConfigurationOptions;
 import com.intellij.execution.configurations.RunConfigurationOptions;
 import com.intellij.openapi.components.StoredProperty;
+import com.intellij.psi.PsiClass;
 
 public class ManaRaplConfigurationOptions extends JvmMainMethodRunConfigurationOptions {
 
     private final StoredProperty<Integer> connectionPort = property(10).provideDelegate( this, "connectionPort" );
     private final StoredProperty<Integer> noSamplesProperty = property(10).provideDelegate( this, "noOfSamples" );
     private final StoredProperty<Integer> samplingRateProperty = property(50).provideDelegate(this,"samplingRate" );
+    private final StoredProperty<String> clazz = string(null).provideDelegate(this,"class" );
 
     public int getNoOfSamples() {
         return noSamplesProperty.getValue(this);
@@ -41,5 +43,9 @@ public class ManaRaplConfigurationOptions extends JvmMainMethodRunConfigurationO
     public void setConnectionPort(int connectionPort ) {
         this.connectionPort.setValue( this, connectionPort );
     }
+
+    public void setSelectedClass( String selectedClazz ){ clazz.setValue( this, selectedClazz ); }
+
+    public String getSelectedClass( ) { return clazz.getValue( this ); }
 
 }

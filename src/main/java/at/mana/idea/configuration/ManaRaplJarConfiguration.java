@@ -25,6 +25,10 @@ import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.search.GlobalSearchScope;
+import org.apache.commons.lang.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,7 +37,7 @@ import static at.mana.idea.configuration.ManaRaplConfigurationUtil.*;
 public class ManaRaplJarConfiguration extends ApplicationConfiguration {
 
     private String jarPath;
-    private int connectionPort;
+    private PsiClass selectedClass;
 
     protected ManaRaplJarConfiguration(String name, @NotNull Project project, @NotNull ConfigurationFactory factory) {
         super(name, project, factory);
@@ -44,7 +48,6 @@ public class ManaRaplJarConfiguration extends ApplicationConfiguration {
         // TODO: resolve path relative to plugin home directory
         jarPath = "/Users/andreasschuler/.m2/repository/at/mana/cli/1.0-SNAPSHOT/cli-1.0-SNAPSHOT-exec.jar";
     }
-
 
     @Override
     protected @NotNull ManaRaplConfigurationOptions getOptions() {
@@ -75,11 +78,22 @@ public class ManaRaplJarConfiguration extends ApplicationConfiguration {
         getOptions().setConnectionPort( connectionPort );
     }
 
-    @Override
-    public @NotNull SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
-        return new ManaRaplConfigurationEditor();
+    public PsiClass getSelectedClass() {
+        String className = getOptions().getSelectedClass();
+        if( className != null )
+            JavaPsiFacade.getInstance(this.getProject()).findClass(className, GlobalSearchScope.projectScope(getProject()));
+        return null;
     }
 
+    public void setSelectedClass( PsiClass selectedClass ){
+        this.selectedClass = selectedClass;
+        getOptions().setSelectedClass( selectedClass.getQualifiedName() );
+    }
+
+    @Override
+    public @NotNull SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
+        return new ManaRaplConfigurationEditor( this.getProject() );
+    }
 
     @Override
     public boolean isBuildProjectOnEmptyModuleList() {

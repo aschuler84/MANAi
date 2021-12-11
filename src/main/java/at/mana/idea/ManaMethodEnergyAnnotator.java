@@ -14,6 +14,7 @@ import at.mana.idea.service.StorageService;
 import at.mana.idea.service.StorageServiceImpl;
 import at.mana.idea.util.ColorUtil;
 import com.intellij.lang.annotation.*;
+import com.intellij.openapi.actionSystem.UpdateInBackground;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.TextAttributes;
@@ -23,7 +24,7 @@ import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiMethod;
 import org.jetbrains.annotations.NotNull;
 
-public class ManaMethodEnergyAnnotator implements Annotator {
+public class ManaMethodEnergyAnnotator implements Annotator, UpdateInBackground {
 
     @Override
     public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {

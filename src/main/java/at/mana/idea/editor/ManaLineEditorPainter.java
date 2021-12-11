@@ -14,6 +14,7 @@ import at.mana.idea.service.StorageService;
 import at.mana.idea.util.ColorUtil;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.intellij.openapi.actionSystem.UpdateInBackground;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorLinePainter;
 import com.intellij.openapi.editor.LineExtensionInfo;
@@ -49,7 +50,7 @@ public class ManaLineEditorPainter extends EditorLinePainter implements UpdateIn
         PsiFile psiFile = PsiManager.getInstance(project).findFile( file );
         if( psiFile instanceof PsiJavaFile && !psiFile.getFileType().getDefaultExtension().endsWith("class") ) {
             PsiJavaFile javaFile = (PsiJavaFile) psiFile;
-            ManaEnergyExperimentModel statistics = service.findDataFor( javaFile );
+            ManaEnergyExperimentModel statistics =  ReadAction.compute( () ->  service.findDataFor( javaFile ) );
             if( statistics != null ) {
             final List<LineExtensionInfo> lines = new ArrayList<>();
             AtomicDouble total = new AtomicDouble(0);

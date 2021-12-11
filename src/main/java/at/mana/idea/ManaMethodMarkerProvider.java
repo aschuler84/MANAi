@@ -15,6 +15,7 @@ import com.intellij.codeInsight.daemon.RelatedItemLineMarkerInfo;
 import com.intellij.codeInsight.daemon.RelatedItemLineMarkerProvider;
 import com.intellij.codeInsight.navigation.NavigationGutterIconBuilder;
 import com.intellij.openapi.actionSystem.UpdateInBackground;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.IconLoader;
@@ -57,7 +58,7 @@ public class ManaMethodMarkerProvider extends RelatedItemLineMarkerProvider impl
         }
 
         PsiMethod method = (PsiMethod) element.getParent();
-        MethodEnergyModel statistics = service.findDataFor( method, (PsiJavaFile) element.getContainingFile() );
+        MethodEnergyModel statistics =  ReadAction.compute( () ->  service.findDataFor( method, (PsiJavaFile) element.getContainingFile() ) );
         if( statistics == null ) {
             return;
         }

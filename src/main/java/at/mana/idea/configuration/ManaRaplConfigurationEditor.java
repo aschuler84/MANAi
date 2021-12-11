@@ -21,20 +21,21 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.ui.ComboBox;
+import com.intellij.openapi.ui.ComponentValidator;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.components.fields.ExtendableTextComponent;
 import com.intellij.ui.components.fields.ExtendableTextField;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import javax.swing.event.*;
+import java.awt.event.*;
 
 public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfiguration> implements DumbAware {
     private JPanel panel1;
@@ -49,7 +50,7 @@ public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfi
     private static final String CLASS_KEY = "configuration.ui.class.title";
     private static final String PROJECT_KEY = "configuration.ui.project.title";
 
-    private Project project;
+    private final Project project;
     private PsiClass selectedClass;
 
     private static final String[] cmbContent = new String[]{
@@ -86,6 +87,13 @@ public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfi
                 }
             }
         });
+
+        txtClass.getDocument().addDocumentListener(new DocumentAdapter() {
+            @Override
+            protected void textChanged(@NotNull DocumentEvent e) {
+                ComponentValidator.getInstance(txtClass).ifPresent(ComponentValidator::revalidate);
+            }
+        });
     }
 
     @Override
@@ -113,6 +121,22 @@ public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfi
     // Custom component create
     private void createUIComponents() {
        txtClass = new ExtendableTextField();
+        new ComponentValidator(project).withValidator(() -> {
+
+            if(StringUtil.isEmptyOrSpaces( txtClass.getText() ) ) {
+                return new ValidationInfo( "Invalid class name", txtClass );
+            }
+
+            if( I18nUtil.LITERALS.getString(PROJECT_KEY).equals( cmbMember.getSelectedItem() ) ) {
+                PsiClass psiClass = JavaPsiFacade.getInstance(project).findClass(txtClass.getName(), GlobalSearchScope.projectScope(project));
+                return psiClass != null ? null: new ValidationInfo("Invalid class name", txtClass);
+            }
+
+            return null;
+        }).installOn(txtClass);
+
+
+
        cmbMember = new ComboBox<String>();
        cmbMember.setModel( new DefaultComboBoxModel<String>( cmbContent ) );
        cmbMember.setEditable(false);
@@ -133,4 +157,9 @@ public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfi
                         });
         return this.browseExtension;
     }
+
+
+
+
+
 }

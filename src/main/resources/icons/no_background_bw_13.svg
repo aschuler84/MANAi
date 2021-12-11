@@ -6,19 +6,19 @@
      style="background-color: rgb(255, 255, 255);">
     <defs/>
     <g>
-        <path  mask="url(#cut)" d="M 50 103 L 70.15 58 L 109.85 58 L 130 103 Z" fill="#035899" stroke="none" pointer-events="all"/>
-        <rect x="55" y="13" width="70" height="45" rx="6.75" ry="6.75" fill="#035899" stroke="none"
+        <path  mask="url(#cut)" d="M 50 103 L 70.15 58 L 109.85 58 L 130 103 Z" fill="#A9A9A9" stroke="none" pointer-events="all"/>
+        <rect x="55" y="13" width="70" height="45" rx="6.75" ry="6.75" fill="#A9A9A9" stroke="none"
               transform="rotate(-90,90,35.5)" pointer-events="all"/>
-        <rect x="60" y="33" width="60" height="30" rx="12" ry="12" fill="#035899" stroke="none" pointer-events="all"/>
-        <ellipse cx="95" cy="198" rx="30" ry="30" fill="#007fff"
+        <rect x="60" y="33" width="60" height="30" rx="12" ry="12" fill="#A9A9A9" stroke="none" pointer-events="all"/>
+        <ellipse cx="95" cy="198" rx="30" ry="30" fill="#e6e6e6"
                  pointer-events="all"/>
-        <ellipse cx="65" cy="163" rx="15" ry="15" fill="#007fff"
+        <ellipse cx="65" cy="163" rx="15" ry="15" fill="#e6e6e6"
                  pointer-events="all"/>
-        <ellipse cx="80" cy="135" rx="10" ry="10" fill="#007fff"
+        <ellipse cx="80" cy="135" rx="10" ry="10" fill="#e6e6e6"
                  pointer-events="all"/>
-        <path d="M 88.69 145.66 Q 142.85 145.66 142.85 217.51 Q 142.85 289.35 88.69 289.35 Z" fill="#007fff"
+        <path d="M 88.69 145.66 Q 142.85 145.66 142.85 217.51 Q 142.85 289.35 88.69 289.35 Z" fill="#e6e6e6"
               stroke="none" transform="rotate(60,115.77,217.51)" pointer-events="all"/>
-        <ellipse mask="url(#cut)" cx="90" cy="178" rx="80" ry="80" fill="none" fill-rule="evenodd" stroke="#035899" stroke-width="19" pointer-events="all"/>
+        <ellipse mask="url(#cut)" cx="90" cy="178" rx="80" ry="80" fill="none" fill-rule="evenodd" stroke="#A9A9A9" stroke-width="19" pointer-events="all"/>
         <mask id="cut">
             <ellipse cx="90" cy="178" rx="80" ry="80" fill="none" stroke="#ffffff" stroke-width="19"/>
             <path d="M 50 103 L 70.15 58 L 109.85 58 L 130 103 Z" fill="#FFFFFF" />

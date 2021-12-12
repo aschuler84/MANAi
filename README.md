@@ -1,9 +1,9 @@
 # Mana Idea Plugin
 The Mana tool provides ease of use for energy consumption profiling on Intel PCs. Therefore, 
-Mana RAPL leverages Intels Running Average Power Limit (RAPL) to provide Feedback to developers 
+Mana RAPL leverages Intel's Running Average Power Limit (RAPL) to provide Feedback to developers 
 on the energy consumption of their applications. As such Mana RAPL is designed as Intellij IDEA 
-plugin and thus allows to be integrated into a developers workflow when developing applications. 
-Currently Mana RAPL is primarily tailored to be used in connection with Java applications, 
+plugin and thus allows to be integrated into a developers' workflow when developing applications. 
+Currently, Mana RAPL is primarily tailored to be used in connection with Java applications, 
 however its modular Design allow to further extend it to other languages and development environments.
 Once Mana is installed and configured correctly, one can execute unit tests in a Java application 
 using the respective Mana command runner in IDEA. Once a unit is executed using Mana RAPL, the RAPL 
@@ -17,21 +17,21 @@ is presented in a special view.
 
 ## Usage
 
-A example of a recorded sample consists of 5 attributes. The sample below shows the Json format used to report recorded samples.
+An example of a recorded sample consists of 5 attributes. The sample below shows the Json format used to report recorded samples.
 
 ### Installing the Plugin
 
 - install maven plugin - just run mvn install
 - install MANA plugin - unzip Mana Plugin in IDEA folder → maven bash script runner - exec plugin?
 - install RAPL Command - exec plugin?
-- [ ]  Provide an Install script and plugin
+- [ ]  Provide an installation script and plugin
 
 ### Project Setup and Preliminaries
 
 - install maven plugin - just run mvn install
 - install MANA plugin - unzip Mana Plugin in IDEA folder → maven bash script runner - exec plugin?
 - install RAPL Command - exec plugin?
-- [ ]  Provide an Install script and plugin
+- [ ]  Provide an Installation script and plugin
 
 ## Architecture
 

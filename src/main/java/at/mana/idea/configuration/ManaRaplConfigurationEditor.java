@@ -84,13 +84,14 @@ public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfi
                         txtClass.setToolTipText( "Specify class to record energy data for" );
                         txtClass.setEditable(true);
                     }
+                    ComponentValidator.getInstance(txtClass).ifPresent( ComponentValidator::revalidate );
                 }
             }
         });
 
-        txtClass.getDocument().addDocumentListener(new DocumentAdapter() {
+        txtClass.addFocusListener(new FocusAdapter() {
             @Override
-            protected void textChanged(@NotNull DocumentEvent e) {
+            public void focusLost(FocusEvent e) {
                 ComponentValidator.getInstance(txtClass).ifPresent(ComponentValidator::revalidate);
             }
         });
@@ -102,15 +103,27 @@ public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfi
         this.slideroNoSamples.setValue( s.getSamplingRate() );
         this.txtNoSamples.setText( s.getSamplingRate() + "" );
         this.spinnerSamplesRecorded.setValue( s.getNoOfSamples() );
-        if( I18nUtil.LITERALS.getString(PROJECT_KEY).equals( this.cmbMember.getSelectedItem() ) )
+        if( s.getSelectedClass() != null ) {
+            this.cmbMember.setSelectedItem(  I18nUtil.LITERALS.getString(CLASS_KEY) );
+            this.selectedClass = JavaPsiFacade.getInstance(project).findClass(s.getSelectedClass().getQualifiedName(), GlobalSearchScope.projectScope(project));
+        } else {
+            this.cmbMember.setSelectedItem(  I18nUtil.LITERALS.getString(PROJECT_KEY) );
             this.txtClass.setText( projectName );
-
+        }
     }
 
     @Override
     protected void applyEditorTo(@NotNull ManaRaplJarConfiguration s) throws ConfigurationException {
         s.setNoOfSamples( (int) this.spinnerSamplesRecorded.getValue() ) ;
         s.setSamplingRate( this.slideroNoSamples.getValue() );
+        if( I18nUtil.LITERALS.getString(CLASS_KEY).equals( this.cmbMember.getSelectedItem() ) ){
+            if( selectedClass == null ) {
+                ComponentValidator.getInstance(txtClass).ifPresent( ComponentValidator::revalidate );
+                throw new ConfigurationException( "Please specify a class to record energy data for." );
+            }
+            s.setSelectedClass( selectedClass );
+        }
+
     }
 
     @Override
@@ -127,8 +140,8 @@ public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfi
                 return new ValidationInfo( "Invalid class name", txtClass );
             }
 
-            if( I18nUtil.LITERALS.getString(PROJECT_KEY).equals( cmbMember.getSelectedItem() ) ) {
-                PsiClass psiClass = JavaPsiFacade.getInstance(project).findClass(txtClass.getName(), GlobalSearchScope.projectScope(project));
+            if( I18nUtil.LITERALS.getString(CLASS_KEY).equals( cmbMember.getSelectedItem() ) ) {
+                PsiClass psiClass = JavaPsiFacade.getInstance(project).findClass(txtClass.getText(), GlobalSearchScope.projectScope(project));
                 return psiClass != null ? null: new ValidationInfo("Invalid class name", txtClass);
             }
 
@@ -154,6 +167,7 @@ public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfi
                             chooser.showDialog();
                             selectedClass = chooser.getSelected();
                             txtClass.setText( selectedClass.getQualifiedName() );
+                            ComponentValidator.getInstance(txtClass).ifPresent( ComponentValidator::revalidate );
                         });
         return this.browseExtension;
     }

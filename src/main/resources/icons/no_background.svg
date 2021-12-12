@@ -6,7 +6,6 @@
      style="background-color: rgb(255, 255, 255);">
     <defs/>
     <g>
-
         <path  mask="url(#cut)" d="M 50 103 L 70.15 58 L 109.85 58 L 130 103 Z" fill="#035899" stroke="none" pointer-events="all"/>
         <rect x="55" y="13" width="70" height="45" rx="6.75" ry="6.75" fill="#035899" stroke="none"
               transform="rotate(-90,90,35.5)" pointer-events="all"/>

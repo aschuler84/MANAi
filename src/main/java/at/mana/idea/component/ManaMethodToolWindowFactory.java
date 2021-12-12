@@ -32,7 +32,6 @@ import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.psi.*;
 import com.intellij.ui.*;
 import com.intellij.ui.components.JBPanel;
-import com.intellij.ui.components.labels.LinkLabel;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.ui.treeStructure.treetable.ListTreeTableModel;
 import com.intellij.ui.treeStructure.treetable.TreeTable;
@@ -48,9 +47,9 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 import java.awt.*;
@@ -220,6 +219,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
 
             energyStatistics.forEach( methodEnergyStatistics -> {
                 DefaultMutableTreeNode group = new DefaultMutableTreeNode( methodEnergyStatistics );
+                var i = new AtomicInteger(0);
                 methodEnergyStatistics.getSamples()
                         .forEach( n -> group.add( new DefaultMutableTreeNode( n ) ) );
                 rootNode.add( group );

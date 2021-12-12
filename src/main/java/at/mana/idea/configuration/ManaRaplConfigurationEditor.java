@@ -119,7 +119,7 @@ public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfi
         if( I18nUtil.LITERALS.getString(CLASS_KEY).equals( this.cmbMember.getSelectedItem() ) ){
             if( selectedClass == null ) {
                 ComponentValidator.getInstance(txtClass).ifPresent( ComponentValidator::revalidate );
-                throw new ConfigurationException( "Please specify a class to record energy data for." );
+                throw new ConfigurationException( "Specify a valid fully qualified class name." );
             }
             s.setSelectedClass( selectedClass );
         }
@@ -137,12 +137,12 @@ public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfi
         new ComponentValidator(project).withValidator(() -> {
 
             if(StringUtil.isEmptyOrSpaces( txtClass.getText() ) ) {
-                return new ValidationInfo( "Invalid class name", txtClass );
+                return new ValidationInfo( "Specify a valid fully qualified class name.", txtClass );
             }
 
             if( I18nUtil.LITERALS.getString(CLASS_KEY).equals( cmbMember.getSelectedItem() ) ) {
                 PsiClass psiClass = JavaPsiFacade.getInstance(project).findClass(txtClass.getText(), GlobalSearchScope.projectScope(project));
-                return psiClass != null ? null: new ValidationInfo("Invalid class name", txtClass);
+                return psiClass != null ? null: new ValidationInfo(String.format("Class %s could not be found, specify a valid class.", txtClass.getText()), txtClass);
             }
 
             return null;
@@ -163,7 +163,7 @@ public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfi
                 ExtendableTextComponent.Extension.create(AllIcons.Actions.ListFiles, AllIcons.Actions.ListFiles,
                         "Select class", () -> {
                             TreeClassChooser chooser = TreeClassChooserFactory.getInstance(project)
-                                    .createProjectScopeChooser("Select a class", null);
+                                    .createProjectScopeChooser("Select a test class", null);
                             chooser.showDialog();
                             selectedClass = chooser.getSelected();
                             txtClass.setText( selectedClass.getQualifiedName() );

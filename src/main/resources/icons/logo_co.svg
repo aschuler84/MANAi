@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="292px"
+     height="296px" viewBox="-0.5 -0.5 292 296"
+     content="&lt;mxfile host=&quot;Electron&quot; modified=&quot;2021-12-13T11:23:54.685Z&quot; agent=&quot;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/12.5.3 Chrome/78.0.3904.130 Electron/7.1.9 Safari/537.36&quot; version=&quot;12.5.3&quot; etag=&quot;pvHEy61Aeh4M-GfkOZn9&quot; type=&quot;device&quot;&gt;&lt;diagram id=&quot;gXKq6rBabj5WSaUT9f_m&quot;&gt;7ZhBj6IwGIZ/jUcJpVDguLrO7mWTTTzsuZEqzSAltY46v34LtFAsI2OAzR4GjaFvaYHn/dp+dQHXx+sPjov0F0tItvDc5LqA3xeeF/hA/pbCrRZg4NXCgdOklkArbOk7UaKr1DNNyKlzoWAsE7ToijuW52QnOhrmnF26l+1Z1r1rgQ/EErY7nNnqH5qItFYjL2z1n4QeUn1ngOK65oj1xepNTilO2MWQ4GYB15wxUZ8dr2uSlew0l7rdywe1zYNxkovPNFDc33B2Vu+mnkvc9MvKBpKrLKwuKRVkW+BdWXORzkotFcdMloA8xaeihr2nVyL7X50EZ69kzTLGq67gS3XImj3NMkPfoPIjdfU0hAty/fCNQMNJxhdhRyL4TV6iGkDgO0HdSEVXrOBfWqu8WPWbGjY1IlbhcWg6bwnKEwWxHygcBio9L8pTIQmSd1a2XBWEU3kvwk39dysOsb8DGleHZUHO8tLHUz2gXMcLQGR+p3HA18Gt+IPQtQyIXJu/H4zH7w/j5+ycJ2V8VuAGuHImsKAsl8Vl7D4LehKY3WAGumzADGeCGcwH82mUmO/UOuC7E5GFd2Hq22RRD1ndbAxZNOe0a3LVI36m6IRhl6Hn2kMd9I31RhxDMfx3i9eEyCLkBKhLDbSSCc5HThT1sDP0MfiiWfHpxMZ9mAjUNTqJCh+kBgeOEyoZzzDFwu4U2yxOAxMBmiCE4y8PenOGBq7hAZxpMta7ii8T/DsTYGiZ4PWY4E1hAhg2QSfO7BMJ8QPsnTVxBHEjnUFT5SRB5Oi9ojYhCB1kLw6B7wDUtzbApoNRdsy6MRzMUOx0UPsEYtV+yc/Vg5A3ki9Zkky1Ot8NAdCT0PQtBmCK1QD8H7vHfXUM7h7h3dE15tu0xljZemjv6vt8CfynbZHF9g+Yqs74Fwtu/gI=&lt;/diagram&gt;&lt;/mxfile&gt;"
+     style="background-color: rgb(255, 255, 255);">
+    <defs/>
+    <g>
+        <ellipse cx="144" cy="145.5" rx="142" ry="142" fill="#007fff" stroke="#ffffff" stroke-width="4" pointer-events="all"/>
+        <path mask="url(#cut)" d="M 106 116 L 126.15 71 L 165.85 71 L 186 116 Z" fill="#035899" stroke="none" pointer-events="all"/>
+        <rect x="111" y="26" width="70" height="45" rx="6.75" ry="6.75" fill="#035899" stroke="none"
+              transform="rotate(-90,146,48.5)" pointer-events="all"/>
+        <rect x="116" y="46" width="60" height="30" rx="12" ry="12" fill="#035899" stroke="none" pointer-events="all"/>
+        <ellipse cx="151" cy="211" rx="25" ry="25" fill="#1F51FF"
+                 pointer-events="all"/>
+        <ellipse cx="121" cy="176" rx="12" ry="12" fill="#1F51FF"
+                 pointer-events="all"/>
+        <ellipse cx="136" cy="148" rx="8" ry="8" fill="#1F51FF"
+                 pointer-events="all"/>
+        <path d="M 144.69 158.66 Q 198.85 158.66 198.85 230.51 Q 198.85 302.35 144.69 302.35 Z" fill="#1F51FF"
+              stroke="none" transform="rotate(60,171.77,230.51)" pointer-events="all"/>
+        <ellipse mask="url(#cut)" cx="146" cy="191" rx="80" ry="80" fill="none" stroke="#035899" stroke-width="19" pointer-events="all"/>
+        <mask id="cut">
+            <path d="M 106 116 L 126.15 71 L 165.85 71 L 186 116 Z" fill="#FFFFFF" stroke="none" pointer-events="all"/>
+            <ellipse cx="146" cy="191" rx="80" ry="80" fill="none" stroke="#FFFFFF" stroke-width="19" pointer-events="all"/>
+            <path d="M 116 134 L 136 80 L 156 80 L 176 134 Z" fill="#000000" stroke="none" pointer-events="all"/>
+        </mask>
+
+    </g>
+</svg>

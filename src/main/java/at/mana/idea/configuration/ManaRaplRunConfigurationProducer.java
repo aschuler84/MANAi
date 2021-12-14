@@ -26,7 +26,7 @@ public class ManaRaplRunConfigurationProducer extends LazyRunConfigurationProduc
         if( sourceElement.get().getContainingFile() instanceof PsiJavaFile
                 && sourceElement.get() instanceof PsiClass ){
             PsiClass clazz = (PsiClass) sourceElement.get();
-            configuration.setSelectedClass( clazz );
+            configuration.setSelectedClass( clazz.getQualifiedName() );
             configuration.setName( clazz.getName() );
             return true;
         }

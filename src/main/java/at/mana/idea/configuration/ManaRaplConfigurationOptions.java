@@ -18,7 +18,7 @@ public class ManaRaplConfigurationOptions extends JvmMainMethodRunConfigurationO
     private final StoredProperty<Integer> connectionPort = property(10).provideDelegate( this, "connectionPort" );
     private final StoredProperty<Integer> noSamplesProperty = property(10).provideDelegate( this, "noOfSamples" );
     private final StoredProperty<Integer> samplingRateProperty = property(50).provideDelegate(this,"samplingRate" );
-    private final StoredProperty<String> clazz = string(null).provideDelegate(this,"class" );
+    private final StoredProperty<String> selectedClass = string(null).provideDelegate(this,"selectedClass" );
 
     public int getNoOfSamples() {
         return noSamplesProperty.getValue(this);
@@ -44,8 +44,8 @@ public class ManaRaplConfigurationOptions extends JvmMainMethodRunConfigurationO
         this.connectionPort.setValue( this, connectionPort );
     }
 
-    public void setSelectedClass( String selectedClazz ){ clazz.setValue( this, selectedClazz ); }
+    public void setSelectedClass( String selectedClass ){ this.selectedClass.setValue( this, selectedClass ); }
 
-    public String getSelectedClass( ) { return clazz.getValue( this ); }
+    public String getSelectedClass( ) { return selectedClass.getValue( this ); }
 
 }

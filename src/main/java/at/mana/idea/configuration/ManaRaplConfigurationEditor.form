@@ -56,7 +56,7 @@
                   <text resource-bundle="locale" key="configuration.ui.samplesrecorded.title"/>
                 </properties>
               </component>
-              <component id="2ec51" class="javax.swing.JSlider" binding="slideroNoSamples">
+              <component id="2ec51" class="javax.swing.JSlider" binding="sliderNoSamples">
                 <constraints>
                   <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="2" use-parent-layout="false">
                     <preferred-size width="308" height="31"/>

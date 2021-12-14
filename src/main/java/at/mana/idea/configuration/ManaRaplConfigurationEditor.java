@@ -30,12 +30,13 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.event.*;
+import java.util.Objects;
 
 public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfiguration> implements DumbAware {
     private JPanel panel1;
     private JTabbedPane tabbedPane1;
     private JSpinner spinnerSamplesRecorded;
-    private JSlider slideroNoSamples;
+    private JSlider sliderNoSamples;
     private JTextField txtNoSamples;
     private ExtendableTextField txtClass;
     private ComboBox<String> cmbMember;
@@ -56,10 +57,10 @@ public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfi
 
     public ManaRaplConfigurationEditor( Project project ) {
         this.project = project;
-        slideroNoSamples.addChangeListener(new ChangeListener() {
+        sliderNoSamples.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                txtNoSamples.setText( slideroNoSamples.getValue() + "" );
+                txtNoSamples.setText( sliderNoSamples.getValue() + "" );
             }
         });
         cmbMember.addItemListener(new ItemListener() {
@@ -75,7 +76,6 @@ public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfi
                     } else {
                         txtClass.addExtension( getBrowseExtension() );
                         txtClass.setText("");
-                        txtClass.setToolTipText( "Specify class to record energy data for" );
                         txtClass.setEditable(true);
                     }
                     ComponentValidator.getInstance(txtClass).ifPresent( ComponentValidator::revalidate );
@@ -94,28 +94,32 @@ public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfi
     @Override
     protected void resetEditorFrom(@NotNull ManaRaplJarConfiguration s) {
         projectName = s.getProject().getName();
-        this.slideroNoSamples.setValue( s.getSamplingRate() );
+        this.sliderNoSamples.setValue( s.getSamplingRate() );
         this.txtNoSamples.setText( s.getSamplingRate() + "" );
         this.spinnerSamplesRecorded.setValue( s.getNoOfSamples() );
         if( s.getSelectedClass() != null ) {
             this.cmbMember.setSelectedItem(  I18nUtil.LITERALS.getString(CLASS_KEY) );
-            this.selectedClass = JavaPsiFacade.getInstance(project).findClass(s.getSelectedClass().getQualifiedName(), GlobalSearchScope.projectScope(project));
+            this.selectedClass = s.getSelectedPsiClass();
+            this.txtClass.setText( this.selectedClass.getQualifiedName() );
         } else {
             this.cmbMember.setSelectedItem(  I18nUtil.LITERALS.getString(PROJECT_KEY) );
             this.txtClass.setText( projectName );
         }
+        ComponentValidator.getInstance(txtClass).ifPresent(ComponentValidator::revalidate);
     }
 
     @Override
     protected void applyEditorTo(@NotNull ManaRaplJarConfiguration s) throws ConfigurationException {
         s.setNoOfSamples( (int) this.spinnerSamplesRecorded.getValue() ) ;
-        s.setSamplingRate( this.slideroNoSamples.getValue() );
+        s.setSamplingRate( this.sliderNoSamples.getValue() );
         if( I18nUtil.LITERALS.getString(CLASS_KEY).equals( this.cmbMember.getSelectedItem() ) ){
             if( selectedClass == null ) {
                 ComponentValidator.getInstance(txtClass).ifPresent( ComponentValidator::revalidate );
-                throw new ConfigurationException( "Specify a valid fully qualified class name." );
+                throw new ConfigurationException( I18nUtil.LITERALS.getString("configuration.ui.config.exception") );
             }
-            s.setSelectedClass( selectedClass );
+            s.setSelectedClass( selectedClass.getQualifiedName() );
+        } else {
+            s.setSelectedClass(null);
         }
 
     }
@@ -131,17 +135,16 @@ public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfi
         new ComponentValidator(project).withValidator(() -> {
 
             if(StringUtil.isEmptyOrSpaces( txtClass.getText() ) ) {
-                return new ValidationInfo( "Specify a valid fully qualified class name.", txtClass );
+                return new ValidationInfo( I18nUtil.LITERALS.getString("configuration.ui.validation.class"), txtClass );
             }
 
             if( I18nUtil.LITERALS.getString(CLASS_KEY).equals( cmbMember.getSelectedItem() ) ) {
                 PsiClass psiClass = JavaPsiFacade.getInstance(project).findClass(txtClass.getText(), GlobalSearchScope.projectScope(project));
-                return psiClass != null ? null: new ValidationInfo(String.format("Class %s could not be found, specify a valid class.", txtClass.getText()), txtClass);
+                return psiClass != null ? null: new ValidationInfo(String.format(I18nUtil.LITERALS.getString("configuration.ui.validation.class.notfound"), txtClass.getText()), txtClass);
             }
 
             return null;
         }).installOn(txtClass);
-
 
 
        cmbMember = new ComboBox<String>();
@@ -157,7 +160,7 @@ public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfi
                 ExtendableTextComponent.Extension.create(AllIcons.Actions.ListFiles, AllIcons.Actions.ListFiles,
                         "Select class", () -> {
                             TreeClassChooser chooser = TreeClassChooserFactory.getInstance(project)
-                                    .createProjectScopeChooser("Select a test class", null);
+                                    .createProjectScopeChooser(I18nUtil.LITERALS.getString("configuration.ui.class.select.title"), null);
                             chooser.showDialog();
                             selectedClass = chooser.getSelected();
                             txtClass.setText( selectedClass.getQualifiedName() );

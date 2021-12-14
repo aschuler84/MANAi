@@ -20,15 +20,12 @@ import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.target.LanguageRuntimeType;
 import com.intellij.execution.target.TargetEnvironmentConfiguration;
 import com.intellij.execution.util.JavaParametersUtil;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.search.GlobalSearchScope;
-import org.apache.commons.lang.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -78,16 +75,19 @@ public class ManaRaplJarConfiguration extends ApplicationConfiguration {
         getOptions().setConnectionPort( connectionPort );
     }
 
-    public PsiClass getSelectedClass() {
-        String className = getOptions().getSelectedClass();
+    public String getSelectedClass() {
+        return getOptions().getSelectedClass();
+    }
+
+    public PsiClass getSelectedPsiClass() {
+        String className = getSelectedClass();
         if( className != null )
-            JavaPsiFacade.getInstance(this.getProject()).findClass(className, GlobalSearchScope.projectScope(getProject()));
+           return JavaPsiFacade.getInstance(this.getProject()).findClass(className, GlobalSearchScope.projectScope(getProject()));
         return null;
     }
 
-    public void setSelectedClass( PsiClass selectedClass ){
-        this.selectedClass = selectedClass;
-        getOptions().setSelectedClass( selectedClass.getQualifiedName() );
+    public void setSelectedClass( String selectedClass ){
+        getOptions().setSelectedClass( selectedClass );
     }
 
     @Override

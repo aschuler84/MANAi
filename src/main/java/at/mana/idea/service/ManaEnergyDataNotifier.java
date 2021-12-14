@@ -8,7 +8,6 @@
  */
 package at.mana.idea.service;
 
-import at.mana.idea.model.ManaEnergyExperimentModel;
 import com.intellij.util.messages.Topic;
 
 public interface ManaEnergyDataNotifier {

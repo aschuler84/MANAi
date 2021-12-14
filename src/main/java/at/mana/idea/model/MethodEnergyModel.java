@@ -9,7 +9,6 @@
 package at.mana.idea.model;
 
 import at.mana.core.util.DoubleStatistics;
-import com.intellij.ui.JBColor;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -114,6 +114,12 @@ public class ManaLineEditorPainter extends EditorLinePainter implements UpdateIn
                 "\u2588",
         };
         statistics.sort( Comparator.comparing( MethodEnergyModel::getStartDateTime ) );
+
+        MethodEnergyModel newest = statistics.get( statistics.size() - 1 );
+        MethodEnergyModel lowest = statistics.stream().min(
+                Comparator.comparingDouble(o -> o.getEnergyConsumption().getAverage())).get();
+
+
         int binSize = statistics.size() / max;
         if( binSize == 0 ) {
             // reduce the number of bins
@@ -131,14 +137,11 @@ public class ManaLineEditorPainter extends EditorLinePainter implements UpdateIn
             maxV = Math.max( bins[i], maxV );
             offset = offset + binSize;
         };
-
-        // for every entry in bins -> divide entry by sum and multiply result with 8
         List<LineExtensionInfo> lines = new ArrayList<>();
-
 
         for(double entry : bins) {
             int index = (int) ( (elements.length - 1) * (entry / maxV));
-            lines.add( new LineExtensionInfo( elements[index], ColorUtil.HEATMAP_COLORS_YLGNBU[index], EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN) );
+            lines.add( new LineExtensionInfo( elements[index], ColorUtil.HEATMAP_COLORS_YLGNBU[5], EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN) );
         }
 
         if( lines.size() < max )
@@ -146,8 +149,10 @@ public class ManaLineEditorPainter extends EditorLinePainter implements UpdateIn
 
         lines.add(0,new LineExtensionInfo("      \u2502", ColorUtil.INLINE_TEXT, EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
         lines.add(new LineExtensionInfo("\u251C ", ColorUtil.INLINE_TEXT, EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
-        lines.add(new LineExtensionInfo(String.format( "%.3fJ", sum/(1.0*bins.length)), ColorUtil.INLINE_TEXT, EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
 
+        //lines.add(new LineExtensionInfo(String.format( "%.3fJ", sum/(1.0*bins.length)), ColorUtil.INLINE_TEXT, EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
+        var rate = (newest.getEnergyConsumption().getAverage() - lowest.getEnergyConsumption().getAverage() ) / lowest.getEnergyConsumption().getAverage();
+        lines.add(new LineExtensionInfo(String.format( "%.2f%%", rate ), rate <= 0 ? ColorUtil.INLINE_TEXT_DECREASE : ColorUtil.INLINE_TEXT_INCREASE, EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
 
         return lines;
     }

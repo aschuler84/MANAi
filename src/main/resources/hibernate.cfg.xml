@@ -9,11 +9,11 @@
         <property name="connection.username">mana</property>
         <property name="connection.password">mana</property>
         <property name="connection.pool_size">1</property>
-        <property name="dialect">org.hibernate.dialect.H2Dialect</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.H2Dialect</property>
         <!-- Echo the SQL to stdout -->
         <property name="show_sql">false</property>
         <!-- Set the current session context -->
-        <property name="current_session_context_class">thread</property>
+        <property name="hibernate.current_session_context_class">thread</property>
         <!-- Drop and re-create the database schema on startup -->
         <property name="hibernate.hbm2ddl.auto">update</property>
         <!-- Mapping definitions -->

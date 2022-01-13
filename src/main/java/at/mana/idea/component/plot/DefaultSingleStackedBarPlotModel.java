@@ -14,12 +14,22 @@ public class DefaultSingleStackedBarPlotModel implements SingleStackedBarPlotMod
 
     private String[] legend;
     private Double[] values;
+    private String title;
 
 
     public DefaultSingleStackedBarPlotModel(String[] legend, Double[] values ) {
         if( legend.length != values.length ) {
             throw new IllegalArgumentException( "legend and values size must match" );
         }
+        this.values = values;
+        this.legend = legend;
+    }
+
+    public DefaultSingleStackedBarPlotModel(String title, String[] legend, Double[] values ) {
+        if( legend.length != values.length ) {
+            throw new IllegalArgumentException( "legend and values size must match" );
+        }
+        this.title = title;
         this.values = values;
         this.legend = legend;
     }
@@ -42,5 +52,10 @@ public class DefaultSingleStackedBarPlotModel implements SingleStackedBarPlotMod
     @Override
     public int getNoOfStacks() {
         return values.length;
+    }
+
+    @Override
+    public String getTitle() {
+        return title;
     }
 }

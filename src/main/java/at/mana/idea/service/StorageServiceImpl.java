@@ -152,9 +152,9 @@ public class StorageServiceImpl implements StorageService {
                         session.save(descriptor);
                     } );
                 }
-                invalidateModel();
                 return null;
             });
+            invalidateModel(); // invalidate after data is committed
         }
     }
 

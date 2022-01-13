@@ -16,6 +16,9 @@ public class ColorUtil {
 
     public static final JBColor INLINE_TEXT = new JBColor( JBColor.decode("0x999999"), JBColor.decode("0x999999"));
 
+    public static final JBColor INLINE_TEXT_INCREASE = new JBColor(new Color(255, 143, 143), new Color(255, 143, 143));
+    public static final JBColor INLINE_TEXT_DECREASE = new JBColor(new Color(154,197,166), new Color(154,197,166));
+
 
     public static final Color[] HEAT_MAP_COLORS_DEFAULT = new Color[] {
             new JBColor(new Color(138,153,212), new Color(138,153,212)),
@@ -23,6 +26,7 @@ public class ColorUtil {
             new JBColor(new Color(154,197,166), new Color(154,197,166)),
             new JBColor(new Color(255,173,138), new Color(255,173,138)),
             new JBColor(new Color(255, 143, 143), new Color(255, 143, 143)),
+            new JBColor(new Color(255, 143, 143), new Color(255, 143, 143))
     };
 
     public static final Color[] HEATMAP_COLORS_YLGNBU = new Color[] {

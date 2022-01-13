@@ -18,4 +18,6 @@ public interface SingleStackedBarPlotModel {
 
     int getNoOfStacks();
 
+    default String getTitle() { return null; }
+
 }

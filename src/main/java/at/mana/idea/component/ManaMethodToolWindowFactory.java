@@ -9,6 +9,7 @@
 package at.mana.idea.component;
 
 import at.mana.idea.component.plot.DefaultSingleStackedBarPlotModel;
+import at.mana.idea.component.plot.MultipleStackedBarPlotComponent;
 import at.mana.idea.component.plot.SingleStackedBarPlotComponent;
 import at.mana.idea.component.plot.SingleStackedBarPlotModel;
 import at.mana.idea.model.MethodEnergyModel;
@@ -32,12 +33,14 @@ import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.psi.*;
 import com.intellij.ui.*;
 import com.intellij.ui.components.JBPanel;
+import com.intellij.ui.components.JBTabbedPane;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.ui.treeStructure.treetable.ListTreeTableModel;
 import com.intellij.ui.treeStructure.treetable.TreeTable;
 import com.intellij.ui.treeStructure.treetable.TreeTableCellRenderer;
 import com.intellij.ui.treeStructure.treetable.TreeTableModel;
 import com.intellij.util.ui.ColumnInfo;
+import com.intellij.util.ui.JBEmptyBorder;
 import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -59,11 +62,14 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
 
     private final Tree methodTree = new Tree();
     private SingleStackedBarPlotComponent barPlotComponent;
+    private MultipleStackedBarPlotComponent multipleBarPlotComponent;
     private SingleStackedBarPlotModel barPlotModel;
+    private SingleStackedBarPlotModel[] multipleBarPlotModel;
     private JLabel lblTitle;
     private TreeTable treeTable;
     private ColumnInfo<DefaultMutableTreeNode, String>[] columns;
     private ManaEnergyExperimentModel model;
+    private JBTabbedPane tabContainer;
 
     private void updateModel( PsiJavaFile file, ManaEnergyExperimentModel data ) {
         this.model = data;
@@ -86,7 +92,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
     private JBSplitter createBaseComponent() {
         JBSplitter splitNorthSouth = new JBSplitter( false, "ManaMethodToolWindow.main.divider.proportion", 0.4f );
         splitNorthSouth.setFirstComponent( createLeftComponent() );
-        splitNorthSouth.setSecondComponent(createRightComponent());
+        splitNorthSouth.setSecondComponent( createRightComponent() );
         splitNorthSouth.setBorder(JBUI.Borders.empty());
         splitNorthSouth.setDividerWidth(1);
         splitNorthSouth.setProportion( 0.2f );
@@ -107,9 +113,10 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
                     return;
                 if( node.getUserObject() instanceof PsiClass ) {
                     PsiClass clazz = (PsiClass) node.getUserObject();
-                    // TODO: Compute totals
+                    tabContainer.setSelectedIndex(0);
                 } else if ( node.getUserObject() instanceof PsiMethod ) {
                     List<MethodEnergyModel> stats = model.getMethodEnergyStatistics().get( node.getUserObject() );
+                    tabContainer.setSelectedIndex(1);
                     bind( stats );
                 }
             }
@@ -195,12 +202,12 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
         if( statistics != null ) {
             String[] legend = new String[]{
                     String.format(I18nUtil.LITERALS.getString("methodtoolwindow.ui.chart.cpupower.title"), statistics.getCpuWattage().getAverage()),
-                    String.format(I18nUtil.LITERALS.getString("methodtoolwindow.ui.chart.gpupower.title"), statistics.getGpuWattage().getAverage()),
+                    //String.format(I18nUtil.LITERALS.getString("methodtoolwindow.ui.chart.gpupower.title"), statistics.getGpuWattage().getAverage()),
                     String.format(I18nUtil.LITERALS.getString("methodtoolwindow.ui.chart.drampower.title"), statistics.getRamWattage().getAverage()),
                     String.format(I18nUtil.LITERALS.getString("methodtoolwindow.ui.chart.otherpower.title"), statistics.getOtherWattage().getAverage())};
             Double[] values = new Double[]{
                     statistics.getCpuWattage().getAverage(),
-                    statistics.getGpuWattage().getAverage(),
+                    //statistics.getGpuWattage().getAverage(),
                     statistics.getRamWattage().getAverage(),
                     statistics.getOtherWattage().getAverage()};
             barPlotModel = new DefaultSingleStackedBarPlotModel(legend, values);
@@ -243,17 +250,35 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
         }
     }
 
-    private JPanel createRightComponent() {
+    private JComponent createRightComponent() {
         JBSplitter splitRigthDetails = new JBSplitter( false, "ManaMethodToolWindow.details.divider.proportion", 0.8f );
         splitRigthDetails.setFirstComponent( createTableSummaryComponent() );
         splitRigthDetails.setSecondComponent( createChartComponent() );
         splitRigthDetails.setBorder(JBUI.Borders.empty());
 
         JPanel panel = new JPanel();
+        panel.setLayout( new BorderLayout( ) );
+        multipleBarPlotComponent = new MultipleStackedBarPlotComponent();
+        multipleBarPlotComponent.setModel( new SingleStackedBarPlotModel[]{
+                new DefaultSingleStackedBarPlotModel("method_a", new String[]{}, new Double[]{}),
+                new DefaultSingleStackedBarPlotModel("method_b", new String[]{}, new Double[]{}),
+                new DefaultSingleStackedBarPlotModel("method_c", new String[]{}, new Double[]{}),
+                new DefaultSingleStackedBarPlotModel("method_d", new String[]{}, new Double[]{}),
+                new DefaultSingleStackedBarPlotModel("method_e", new String[]{}, new Double[]{}),
+                new DefaultSingleStackedBarPlotModel("method_f", new String[]{}, new Double[]{})
+        } );
+        panel.add( multipleBarPlotComponent, BorderLayout.CENTER );
+
+        tabContainer = new JBTabbedPane();
+        tabContainer.insertTab( "Overview", null, panel, "", 0 );
+        tabContainer.setTabComponentInsets(JBUI.insetsRight(0));
+
+        panel = new JPanel();
         panel.setLayout( new BorderLayout() );
         panel.add( splitRigthDetails, BorderLayout.CENTER );
         splitRigthDetails.setProportion( 0.8f );
-        return panel;
+        tabContainer.insertTab( "Method Data", null, panel, "", 1 );
+        return tabContainer;
     }
 
     private JComponent createTableSummaryComponent() {
@@ -294,7 +319,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
 
         };
         treeTable.setDefaultRenderer( DoubleStatistics.class, new DecimalCellRenderer() );
-
+        treeTable.setBorder(new JBEmptyBorder(0,0,0,0));
         treeTable.getTree().setShowsRootHandles(true);
         treeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         ToolbarDecorator decorator = ToolbarDecorator.createDecorator( treeTable );
@@ -468,9 +493,9 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
             if( value instanceof DoubleStatistics ) {
                 DoubleStatistics data = (DoubleStatistics) value;
                 if( data.getCount() > 1 ) {
-                    append(String.format("(\u00B1%.2f) ", data.getStandardDeviation()), new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.orange));
+                    append(String.format(Locale.ROOT, "(\u00B1%.2f) ", data.getStandardDeviation()), new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.orange));
                 }
-                append(String.format("%.3f", data.getAverage()), new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.foreground()), true);
+                append(String.format(Locale.ROOT, "%.3f", data.getAverage()), new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.foreground()), true);
             } else {
                 append( value.toString() );
             }

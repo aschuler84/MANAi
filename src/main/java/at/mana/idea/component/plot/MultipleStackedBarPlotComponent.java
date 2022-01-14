@@ -15,19 +15,23 @@ import com.intellij.util.ui.JBUI;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.font.FontRenderContext;
+import java.awt.font.GlyphVector;
 import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
+import java.util.stream.IntStream;
 
 public class MultipleStackedBarPlotComponent extends JPanel {
 
-    private Insets insets = JBUI.insets(20);
-    private SingleStackedBarPlotModel[] model;
+    private Insets insets = JBUI.insets(6);
+    private MultipleStackedBarPlotModel model;
     private final Color[] colors = ColorUtil.HEAT_MAP_COLORS_DEFAULT;
 
     public MultipleStackedBarPlotComponent() {
         this.setOpaque( true );
     }
 
-    public void setModel(SingleStackedBarPlotModel[] model) {
+    public void setModel(MultipleStackedBarPlotModel model) {
         this.model = model;
         this.invalidate();
         this.validate();
@@ -56,90 +60,131 @@ public class MultipleStackedBarPlotComponent extends JPanel {
         int drawingWidth = endX - startX;
         int drawingHeight = endY - startY;
         // next divide drawing content in 2 areas
-        int leftWidth = (int) (drawingWidth * 0.9);  // omit floating point precision
+        int leftWidth = (int) (drawingWidth * 0.8);  // omit floating point precision
         int leftHeight = drawingHeight;
         int rightWidth  = endX - leftWidth;
         int rightHeight = drawingHeight;
         int startXRight = startX + leftWidth + GAP;
 
-        if( this.model != null && this.model.length != 0 ) {
-            //graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
+        if( this.model != null && this.model.getSeries().length != 0 ) {
+            graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            int axisHeight = 20;
             int legendHeight = 20;
             int startRX = rightWidth;
-            int startRY = startY;
+            int startRY = startY + axisHeight;
             int endRX = drawingWidth;
-            int endRY = startRY + rightHeight - legendHeight;
-
-            // from > to range
-            // NumberScale.domain(  )
+            int endRY = startRY + rightHeight - ( legendHeight +  axisHeight);
 
             graphics.setColor(getBackground());
             Line2D topLine = new Line2D.Double( startRX, startRY, endRX, startRY );
-            Line2D bottomLine = new Line2D.Double( startRX, endRY, endRX, endRY);
+            Line2D bottomLine = new Line2D.Double( startRX, endRY, endRX-100, endRY);
             Line2D leftLine = new Line2D.Double( startRX, startRY, startRX, endRY );
             graphics.setColor( Color.GRAY );
-            graphics.setStroke( new BasicStroke(0.8f) );
+            graphics.setStroke( new BasicStroke(0.80f) );  // determine ratio based on largest string
             //graphics.draw( topLine );
             graphics.draw( leftLine );
             graphics.draw( bottomLine );
 
-            // get height from text
-            int fontHeight = graphics.getFontMetrics().getHeight();
-            // available height -  starts from startRy + 10 till endRy - 1
+
+
             var chartHeight = endRY - startRY + 10;
-            var barHeight = chartHeight / model.length;
+            var chartWidth = endRX - startRX - 100;
+            var barHeight = chartHeight / model.getSeries().length;
+            var halfBarHeight = barHeight / 2.0;
             var startYTick = startRY + 9 + barHeight/2;
             var endYTick = endRY - 1 - barHeight/2;
 
-            var fn = NumberScale.domain( 0.0, (double) model.length - 1 ).range( startYTick, endYTick );
+            int tickCount = 10;
 
-            for( int i = 0; i < model.length; i++ ) {
-                var yPos = fn.apply(  i );
-                g.drawString( model[i].getTitle(),
-                        startRX - 12 - graphics.getFontMetrics().stringWidth(model[i].getTitle()),
-                        yPos - graphics.getFontMetrics().getHeight() / 2 );
-                Line2D tickLine = new Line2D.Double( startRX - 6, yPos, startRX, yPos );
+            var fnY = NumberScale.domain( 0.0, (double) model.getSeries().length - 1 ).range( startYTick, endYTick );
+            var fnX = NumberScale.domain( 0.0, (double) tickCount ).range( startRX, startRX+chartWidth );
+            double percent = 100.0/tickCount;
+            IntStream.range( 0, tickCount + 1 ).forEach( e -> {
+                var d = fnX.apply( e );
+                Line2D tickLine = new Line2D.Double( d, endRY, d, endRY +16 );
                 graphics.draw( tickLine );
+                graphics.drawString( String.format( "%.2f%%",percent * e ), d + 4, endRY + 16 );
+            });
+
+            int maxNoOfStacks = 0;
+
+            Font normalFont = graphics.getFont();
+            Font smallFont = graphics.getFont().deriveFont( graphics.getFont().getSize()-4f );
+
+            for( int i = 0; i < model.getSeries().length; i++ ) {
+                var yPos = fnY.apply(  i );
+
+                graphics.drawString( model.getSeries()[i].getTitle(),
+                        startRX - 12 - graphics.getFontMetrics().stringWidth(model.getSeries()[i].getTitle()),
+                        yPos + 3 );
+                Line2D tickLine = new Line2D.Double( startRX - 6, yPos, startRX, yPos );
+                Line2D tickLineEnd = new Line2D.Double( startRX + chartWidth + 3, yPos, startRX + chartWidth + 3  + 6, yPos );
+
+                String value = String.format("%.2f J", model.getSeries()[i].getTotalValue());
+                Rectangle totalBounds = getStringBounds( graphics, value, startRX + chartWidth + 3  + 9, yPos );
+                graphics.drawString( value, startRX + chartWidth + 3  + 9, yPos + 3 );
+
+
+                graphics.draw( tickLine );
+                graphics.draw( tickLineEnd );
+                var stack = model.getSeries()[i];
+                var startStack = startRX;
+                maxNoOfStacks = Math.max( maxNoOfStacks, stack.getNoOfStacks() );
+
+                for( int j = 0; j < stack.getNoOfStacks(); j++ ) {
+                    graphics.setColor( colors[ j % colors.length ] );
+                    double ratio = stack.getValueFor( j ) / stack.getTotalValue();
+                    int stackWidth = (int) Double.max(1,chartWidth * ratio );
+                    if( j == stack.getNoOfStacks() - 1 ) {
+                        var diff = (startRX + chartWidth) - (startStack  + 1 + stackWidth);
+                        Rectangle2D bar = new Rectangle2D.Double(startStack + 1, yPos - halfBarHeight + 3, stackWidth + diff, barHeight - 6);
+                        graphics.fill( bar );
+                    }
+                    else {
+                        Rectangle2D bar = new Rectangle2D.Double(startStack + 1, yPos - halfBarHeight + 3, stackWidth, barHeight - 6);
+                        graphics.fill( bar );
+                    }
+
+                    graphics.setFont(smallFont);
+                    Rectangle stringBounds = getStringBounds( graphics, stack.getValueFor(j) + "", startStack + 6, (int) (yPos) + 3 );
+                    if( stringBounds.height < barHeight - 4 ) {
+                        //graphics.setColor( Color.WHITE );
+                        //graphics.drawString( "" + stack.getValueFor( j ), startStack + stackWidth - stringBounds.width, (int) (yPos) + 4  );
+                        graphics.setColor( colors[ j % colors.length ].darker() );
+                        graphics.drawString( "" + stack.getValueFor( j ), startStack + stackWidth - stringBounds.width - 1, (int) (yPos) + 3  );
+                    }
+                    graphics.setFont(normalFont);
+                    startStack = startStack + stackWidth;
+                }
+                graphics.setColor( Color.GRAY );
             }
 
-
-            /* for( int i = 0; i < model.getNoOfStacks(); i++ ) {
-                // draw each block as a fraction of the available space
-                double ratio = model.getValueFor( i ) / model.getTotalValue();
-                int stackHeight = (int) Double.max(1,leftHeight * ratio);
+            double startRXL = startRX + chartWidth/4.0;
+            double lastStringWidth = 0.0;
+            for( int i=0; i < model.getLegendSize(); i++ ){  // TODO: Provide Legend via Model
+                float x = (float) startRXL;
+                float y = (float) (startRY - legendHeight/2.0);
+                float w = 10, h = 10;
+                Rectangle2D legend = new Rectangle2D.Double( x , y , w, 10 );
+                Rectangle bounds = getStringBounds( graphics, model.getLegendFor(i) + "", x + 6, y );
                 graphics.setColor( colors[ i % colors.length ] );
-                if( i == model.getNoOfStacks() - 1 ) {
-                    stackHeight = Integer.max(startPosY - startY, stackHeight);
-                    graphics.fillRect(startX, startPosY - stackHeight, leftWidth, stackHeight);
-                } else {
-                    graphics.fillRect(startX, startPosY - stackHeight, leftWidth, stackHeight);
-                }
-                // startPosY draw a line to respective text
-                graphics.setColor( JBColor.foreground() );
-                String legend = model.getLegendFor( i);
-                graphics.drawString( legend, 6 + startXRight, startPosYLeft + ( ( ( model.getNoOfStacks() - 1) - i ) * (graphics.getFontMetrics().getHeight() + 10) ) );
-                int stringWidth = graphics.getFontMetrics().stringWidth( legend );
-                graphics.setColor( colors[ i % colors.length ] );
-                graphics.setStroke( new BasicStroke(0.8f,
-                        BasicStroke.CAP_BUTT,
-                        BasicStroke.JOIN_ROUND,
-                        1.0f,
-                        new float[]{ 2f, 0f, 2f },
-                        2f) );
-                graphics.drawLine(  startXRight, 3 + startPosYLeft + ( ( ( model.getNoOfStacks() - 1) - i ) * (graphics.getFontMetrics().getHeight() + 10) ), startXRight+ stringWidth, 3 + startPosYLeft + ( ( ( model.getNoOfStacks() - 1) - i ) * (graphics.getFontMetrics().getHeight() + 10) ) );
-                graphics.drawLine( startX + leftWidth, startPosY, startXRight, 3 + startPosYLeft + ( ( ( model.getNoOfStacks() - 1) - i ) * (graphics.getFontMetrics().getHeight() + 10) ) );
-                startPosY = startPosY - stackHeight;
-                //startPosYLeft = startPosYLeft + graphics.getFontMetrics().getHeight() + 10;
-                graphics.setColor( Color.GRAY );
-                graphics.setStroke( new BasicStroke(0.8f) );
-                graphics.draw( topLine );
-                graphics.draw( bottomLine ); */
-            //}
+                graphics.fill( legend );
+                graphics.setColor(Color.GRAY);
+                graphics.drawString( model.getLegendFor(i), x + w + 3, y + bounds.height / 2 );
+                startRXL = startRXL + 20 + bounds.width;
+            }
+            graphics.setColor( Color.GRAY );
         } else {
             // TODO: print empty text
         }
         graphics.dispose();
     }
 
+    private Rectangle getStringBounds(Graphics2D g2, String str, float x, float y)
+    {
+        FontRenderContext frc = g2.getFontRenderContext();
+        GlyphVector gv = g2.getFont().createGlyphVector(frc, str);
+        return gv.getPixelBounds(null, x, y);
+    }
 }

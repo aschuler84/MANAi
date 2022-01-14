@@ -8,10 +8,7 @@
  */
 package at.mana.idea.component;
 
-import at.mana.idea.component.plot.DefaultSingleStackedBarPlotModel;
-import at.mana.idea.component.plot.MultipleStackedBarPlotComponent;
-import at.mana.idea.component.plot.SingleStackedBarPlotComponent;
-import at.mana.idea.component.plot.SingleStackedBarPlotModel;
+import at.mana.idea.component.plot.*;
 import at.mana.idea.model.MethodEnergyModel;
 import at.mana.idea.model.MethodEnergySampleModel;
 import at.mana.idea.model.ManaEnergyExperimentModel;
@@ -64,7 +61,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
     private SingleStackedBarPlotComponent barPlotComponent;
     private MultipleStackedBarPlotComponent multipleBarPlotComponent;
     private SingleStackedBarPlotModel barPlotModel;
-    private SingleStackedBarPlotModel[] multipleBarPlotModel;
+    private MultipleStackedBarPlotModel multipleBarPlotModel;
     private JLabel lblTitle;
     private TreeTable treeTable;
     private ColumnInfo<DefaultMutableTreeNode, String>[] columns;
@@ -81,6 +78,30 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
                 root.add(node);
             }
             methodTree.setModel(new DefaultTreeModel(root));
+
+            // update model for overview chart
+            List<SingleStackedBarPlotModel> series = new ArrayList<>();
+            model.getMethodEnergyStatistics().forEach( (k,v) -> {
+                MethodEnergyModel statistics =
+                        v.stream().max( Comparator.comparing( MethodEnergyModel::getStartDateTime) ).orElse(null);
+                if( statistics != null ){
+                    String[] legend = new String[]{
+                            String.format(I18nUtil.LITERALS.getString("methodtoolwindow.ui.chart.cpupower.title"), statistics.getCpuWattage().getAverage()),
+                            //String.format(I18nUtil.LITERALS.getString("methodtoolwindow.ui.chart.gpupower.title"), statistics.getGpuWattage().getAverage()),
+                            String.format(I18nUtil.LITERALS.getString("methodtoolwindow.ui.chart.drampower.title"), statistics.getRamWattage().getAverage()),
+                            String.format(I18nUtil.LITERALS.getString("methodtoolwindow.ui.chart.otherpower.title"), statistics.getOtherWattage().getAverage())};
+                    Double[] values = new Double[]{
+                            statistics.getCpuWattage().getAverage(),
+                            //statistics.getGpuWattage().getAverage(),
+                            statistics.getRamWattage().getAverage(),
+                            statistics.getOtherWattage().getAverage()};
+                    series.add( new DefaultSingleStackedBarPlotModel( legend, values ) );
+                }
+            } );
+            String[] legend = new String[]{ "CPU", "DRAM", "UNCORE" };
+            multipleBarPlotModel = new DefaultMultipleStackedBarPlotModel( legend, series.toArray(SingleStackedBarPlotModel[]::new) );
+            multipleBarPlotComponent.setModel( multipleBarPlotModel );
+
         } else {
             DefaultMutableTreeNode root = new DefaultMutableTreeNode(file.getClasses()[0]);
             root.add( new DefaultMutableTreeNode( "No recorded energy data found" ) );
@@ -259,14 +280,6 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
         JPanel panel = new JPanel();
         panel.setLayout( new BorderLayout( ) );
         multipleBarPlotComponent = new MultipleStackedBarPlotComponent();
-        multipleBarPlotComponent.setModel( new SingleStackedBarPlotModel[]{
-                new DefaultSingleStackedBarPlotModel("method_a", new String[]{}, new Double[]{}),
-                new DefaultSingleStackedBarPlotModel("method_b", new String[]{}, new Double[]{}),
-                new DefaultSingleStackedBarPlotModel("method_c", new String[]{}, new Double[]{}),
-                new DefaultSingleStackedBarPlotModel("method_d", new String[]{}, new Double[]{}),
-                new DefaultSingleStackedBarPlotModel("method_e", new String[]{}, new Double[]{}),
-                new DefaultSingleStackedBarPlotModel("method_f", new String[]{}, new Double[]{})
-        } );
         panel.add( multipleBarPlotComponent, BorderLayout.CENTER );
 
         tabContainer = new JBTabbedPane();

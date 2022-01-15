@@ -28,6 +28,8 @@ public class MultipleStackedBarPlotComponent extends JPanel {
     private final Color[] colors = ColorUtil.STACK_COLORS_DEFAULT;
 
     private boolean relative = false;
+    private int minHeight = 200;
+
 
     public MultipleStackedBarPlotComponent() {
         this.setOpaque( true );
@@ -57,10 +59,10 @@ public class MultipleStackedBarPlotComponent extends JPanel {
         Graphics2D graphics = (Graphics2D) g.create();
         int startY = insets.top;
         int startX = insets.left;
-        int endX = this.getWidth() - insets.right;
-        int endY = this.getHeight() - insets.bottom;
+        int endX = g.getClipBounds().width - insets.right;
+        int endY = g.getClipBounds().height - insets.bottom;
         int drawingWidth = endX - startX;
-        int drawingHeight = endY - startY;
+        int drawingHeight = Math.max( endY - startY, minHeight );;
         // next divide drawing content in 2 areas
         int leftWidth = (int) (drawingWidth * 0.8);  // omit floating point precision
         int leftHeight = drawingHeight;

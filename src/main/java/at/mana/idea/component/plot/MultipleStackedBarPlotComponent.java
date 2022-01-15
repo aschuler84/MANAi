@@ -25,7 +25,9 @@ public class MultipleStackedBarPlotComponent extends JPanel {
 
     private Insets insets = JBUI.insets(6);
     private MultipleStackedBarPlotModel model;
-    private final Color[] colors = ColorUtil.HEAT_MAP_COLORS_DEFAULT;
+    private final Color[] colors = ColorUtil.STACK_COLORS_DEFAULT;
+
+    private boolean relative = false;
 
     public MultipleStackedBarPlotComponent() {
         this.setOpaque( true );
@@ -76,6 +78,7 @@ public class MultipleStackedBarPlotComponent extends JPanel {
             int endRX = drawingWidth;
             int endRY = startRY + rightHeight - ( legendHeight +  axisHeight);
 
+            // draw x and y axis
             graphics.setColor(getBackground());
             Line2D topLine = new Line2D.Double( startRX, startRY, endRX, startRY );
             Line2D bottomLine = new Line2D.Double( startRX, endRY, endRX-100, endRY);
@@ -95,49 +98,45 @@ public class MultipleStackedBarPlotComponent extends JPanel {
             var startYTick = startRY + 9 + barHeight/2;
             var endYTick = endRY - 1 - barHeight/2;
 
-            int tickCount = 10;
-
             var fnY = NumberScale.domain( 0.0, (double) model.getSeries().length - 1 ).range( startYTick, endYTick );
-            var fnX = NumberScale.domain( 0.0, (double) tickCount ).range( startRX, startRX+chartWidth );
-            double percent = 100.0/tickCount;
-            IntStream.range( 0, tickCount + 1 ).forEach( e -> {
-                var d = fnX.apply( e );
-                Line2D tickLine = new Line2D.Double( d, endRY, d, endRY +16 );
-                graphics.draw( tickLine );
-                graphics.drawString( String.format( "%.2f%%",percent * e ), d + 4, endRY + 16 );
-            });
-
-            int maxNoOfStacks = 0;
 
             Font normalFont = graphics.getFont();
             Font smallFont = graphics.getFont().deriveFont( graphics.getFont().getSize()-4f );
 
+            var maxTotalValue = 0.0;
             for( int i = 0; i < model.getSeries().length; i++ ) {
                 var yPos = fnY.apply(  i );
 
+                // y-axis titles
                 graphics.drawString( model.getSeries()[i].getTitle(),
                         startRX - 12 - graphics.getFontMetrics().stringWidth(model.getSeries()[i].getTitle()),
                         yPos + 3 );
                 Line2D tickLine = new Line2D.Double( startRX - 6, yPos, startRX, yPos );
                 Line2D tickLineEnd = new Line2D.Double( startRX + chartWidth + 3, yPos, startRX + chartWidth + 3  + 6, yPos );
 
-                String value = String.format("%.2f J", model.getSeries()[i].getTotalValue());
+                String value = String.format("%.2f W", model.getSeries()[i].getTotalValue());
                 Rectangle totalBounds = getStringBounds( graphics, value, startRX + chartWidth + 3  + 9, yPos );
                 graphics.drawString( value, startRX + chartWidth + 3  + 9, yPos + 3 );
 
-
                 graphics.draw( tickLine );
                 graphics.draw( tickLineEnd );
+
                 var stack = model.getSeries()[i];
                 var startStack = startRX;
-                maxNoOfStacks = Math.max( maxNoOfStacks, stack.getNoOfStacks() );
-
+                var maxBarWidth = chartWidth;
+                maxTotalValue = Math.max( maxTotalValue, stack.getTotalValue() );
                 for( int j = 0; j < stack.getNoOfStacks(); j++ ) {
+                    if( !relative ) {
+                        if( j==0 )
+                            maxBarWidth = (int) (maxBarWidth * stack.getTotalValue() / maxTotalValue);
+                    }
+
                     graphics.setColor( colors[ j % colors.length ] );
                     double ratio = stack.getValueFor( j ) / stack.getTotalValue();
-                    int stackWidth = (int) Double.max(1,chartWidth * ratio );
+                    int stackWidth = (int) Double.max(1,maxBarWidth * ratio );
+
                     if( j == stack.getNoOfStacks() - 1 ) {
-                        var diff = (startRX + chartWidth) - (startStack  + 1 + stackWidth);
+                        var diff = (startRX + maxBarWidth) - (startStack  + 1 + stackWidth);
                         Rectangle2D bar = new Rectangle2D.Double(startStack + 1, yPos - halfBarHeight + 3, stackWidth + diff, barHeight - 6);
                         graphics.fill( bar );
                     }
@@ -147,12 +146,12 @@ public class MultipleStackedBarPlotComponent extends JPanel {
                     }
 
                     graphics.setFont(smallFont);
-                    Rectangle stringBounds = getStringBounds( graphics, stack.getValueFor(j) + "", startStack + 6, (int) (yPos) + 3 );
+                    Rectangle stringBounds = getStringBounds( graphics, String.format( "%.2f", stack.getValueFor( j ) ), startStack + 6, (int) (yPos) + 3 );
                     if( stringBounds.height < barHeight - 4 ) {
                         //graphics.setColor( Color.WHITE );
                         //graphics.drawString( "" + stack.getValueFor( j ), startStack + stackWidth - stringBounds.width, (int) (yPos) + 4  );
                         graphics.setColor( colors[ j % colors.length ].darker() );
-                        graphics.drawString( "" + stack.getValueFor( j ), startStack + stackWidth - stringBounds.width - 1, (int) (yPos) + 3  );
+                        graphics.drawString( String.format( "%.2f", stack.getValueFor( j ) ), startStack + stackWidth - stringBounds.width - 1, (int) (yPos) + 3  );
                     }
                     graphics.setFont(normalFont);
                     startStack = startStack + stackWidth;
@@ -174,6 +173,30 @@ public class MultipleStackedBarPlotComponent extends JPanel {
                 graphics.drawString( model.getLegendFor(i), x + w + 3, y + bounds.height / 2 );
                 startRXL = startRXL + 20 + bounds.width;
             }
+
+            // drawing axis x ticks
+            int tickCount = 10;
+            var fnX = NumberScale.domain( 0.0, (double) tickCount ).range( startRX, startRX+chartWidth );
+            var fnXValue = NumberScale.domain(0.0, (double)tickCount).range( 0.0, maxTotalValue );
+            double percent = 100.0/tickCount;
+
+            IntStream.range( 0, tickCount + 1 ).forEach( e -> {
+                var d = fnX.apply( e );
+                Line2D tickLine = new Line2D.Double( d, endRY, d, endRY +16 );
+                graphics.draw( tickLine );
+                graphics.setFont(smallFont);
+                if( relative ) {
+                    String per = String.format("%.2f%%", percent * e);
+                    graphics.drawString(per, d + 4, endRY + 16);
+                } else {
+                    String per = String.format("%.2f", fnXValue.apply((double)e));
+                    graphics.drawString(per, d + 4, endRY + 16);
+                }
+                graphics.setFont(normalFont);
+            });
+
+
+
             graphics.setColor( Color.GRAY );
         } else {
             // TODO: print empty text

@@ -95,9 +95,10 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
                             //statistics.getGpuWattage().getAverage(),
                             statistics.getRamWattage().getAverage(),
                             statistics.getOtherWattage().getAverage()};
-                    series.add( new DefaultSingleStackedBarPlotModel( legend, values ) );
+                    series.add( new DefaultSingleStackedBarPlotModel( k.getName(),  legend, values ) );
                 }
             } );
+            series.sort( Comparator.comparing( SingleStackedBarPlotModel::getTotalValue ).reversed() );  // sort by total value
             String[] legend = new String[]{ "CPU", "DRAM", "UNCORE" };
             multipleBarPlotModel = new DefaultMultipleStackedBarPlotModel( legend, series.toArray(SingleStackedBarPlotModel[]::new) );
             multipleBarPlotComponent.setModel( multipleBarPlotModel );

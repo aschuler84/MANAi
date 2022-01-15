@@ -29,6 +29,12 @@ public class ColorUtil {
             new JBColor(new Color(255, 143, 143), new Color(255, 143, 143))
     };
 
+    public static final Color[] STACK_COLORS_DEFAULT = new Color[] {
+            new JBColor(new Color(138,153,212), new Color(138,153,212)),
+            new JBColor(new Color(120,184,174), new Color(120,184,174)),
+            new JBColor(new Color(255,173,138), new Color(255,173,138)),
+    };
+
     public static final Color[] HEATMAP_COLORS_YLGNBU = new Color[] {
             new JBColor(new Color(255,255,217), new Color(255,255,217)),
             new JBColor(new Color(237,248,177), new Color(237,248,177)),

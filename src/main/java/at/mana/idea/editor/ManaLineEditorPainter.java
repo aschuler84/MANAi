@@ -116,8 +116,8 @@ public class ManaLineEditorPainter extends EditorLinePainter implements UpdateIn
         statistics.sort( Comparator.comparing( MethodEnergyModel::getStartDateTime ) );
 
         MethodEnergyModel newest = statistics.get( statistics.size() - 1 );
-        MethodEnergyModel lowest = statistics.stream().min(
-                Comparator.comparingDouble(o -> o.getEnergyConsumption().getAverage())).get();
+        MethodEnergyModel lowest = statistics.stream().filter( p -> !p.equals( newest ) ).min(
+                    Comparator.comparingDouble(o -> o.getEnergyConsumption().getAverage())).orElse( newest );
 
 
         int binSize = statistics.size() / max;
@@ -152,7 +152,14 @@ public class ManaLineEditorPainter extends EditorLinePainter implements UpdateIn
 
         //lines.add(new LineExtensionInfo(String.format( "%.3fJ", sum/(1.0*bins.length)), ColorUtil.INLINE_TEXT, EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
         var rate = (newest.getEnergyConsumption().getAverage() - lowest.getEnergyConsumption().getAverage() ) / lowest.getEnergyConsumption().getAverage();
-        lines.add(new LineExtensionInfo(String.format( "%.2f%%", rate ), rate <= 0 ? ColorUtil.INLINE_TEXT_DECREASE : ColorUtil.INLINE_TEXT_INCREASE, EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
+        if( rate == 0 ) {
+            lines.add(new LineExtensionInfo(String.format( "%.2f%%", rate *100 ), ColorUtil.INLINE_TEXT_EVEN,EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
+        } else if(  rate <= 0 ) {
+            lines.add(new LineExtensionInfo(String.format( "\u2193 %.2f%%", rate *100 ), ColorUtil.INLINE_TEXT_DECREASE,EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
+        } else {
+            lines.add(new LineExtensionInfo(String.format( "\u2191 %.2f%%", rate *100 ), ColorUtil.INLINE_TEXT_INCREASE,EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
+        }
+
 
         return lines;
     }

@@ -10,15 +10,17 @@ package at.mana.idea.component.plot;
 
 import at.mana.core.util.NumberScale;
 import at.mana.idea.util.ColorUtil;
-import com.intellij.ui.JBColor;
 import com.intellij.util.ui.JBUI;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 public class MultipleStackedBarPlotComponent extends JPanel {
@@ -26,20 +28,44 @@ public class MultipleStackedBarPlotComponent extends JPanel {
     private Insets insets = JBUI.insets(6);
     private MultipleStackedBarPlotModel model;
     private final Color[] colors = ColorUtil.STACK_COLORS_DEFAULT;
-
-    private boolean relative = false;
+    private boolean relativeMode = false;
     private int minHeight = 200;
+    private AtomicInteger barAnimationWidth = new AtomicInteger(0);
+
+    private boolean initial = true;
+
+    private Timer barAnimation;
+
+    private static final String PROPERTY_RELATIVE_MODE = "relativeMode";
+
 
 
     public MultipleStackedBarPlotComponent() {
         this.setOpaque( true );
+        this.addPropertyChangeListener( evt -> {
+            if( evt.getPropertyName().equals( PROPERTY_RELATIVE_MODE ) ) {
+                repaint();
+            }
+        } );
+
+        barAnimation = new Timer( 5,  evt -> {
+            barAnimationWidth.set( barAnimationWidth.get() - 10 );
+            if( barAnimationWidth.get() < 0 ) {
+                barAnimationWidth.set( 0 );
+                barAnimation.stop();
+            }
+            repaint();
+        } );
     }
 
     public void setModel(MultipleStackedBarPlotModel model) {
         this.model = model;
+        this.initial = true;
         this.invalidate();
         this.validate();
         this.repaint();
+        //if(barAnimation != null)
+        //    barAnimation.start();
     }
 
     private static final int GAP = 30;
@@ -52,6 +78,12 @@ public class MultipleStackedBarPlotComponent extends JPanel {
     // otherwise use available space
     // min height is computed based on current height
 
+    public void setRelativeMode( boolean relativeMode ){
+        this.firePropertyChange(PROPERTY_RELATIVE_MODE, this.relativeMode, relativeMode);
+        this.relativeMode = relativeMode;
+        //if(barAnimation != null)
+        //    barAnimation.start();
+    }
 
     @Override
     public void paintComponent(Graphics g) {
@@ -70,15 +102,32 @@ public class MultipleStackedBarPlotComponent extends JPanel {
         int rightHeight = drawingHeight;
         int startXRight = startX + leftWidth + GAP;
 
+        int axisHeight = 20;
+        int legendHeight = 20;
+        int startRX = rightWidth;
+        int startRY = startY + axisHeight;
+        int endRX = drawingWidth;
+        int endRY = startRY + rightHeight - ( legendHeight +  axisHeight);
+
+
+        var chartHeight = endRY - startRY + 10;
+        var chartWidth = endRX - startRX - 100;
+        var barHeight = model.getSeries().length == 1 ? chartHeight / 3 : chartHeight / model.getSeries().length;
+        var halfBarHeight = barHeight / 2.0;
+        var startYTick = startRY + 9 + barHeight/2;
+        var endYTick = endRY - 1 - barHeight/2;
+
+        if( initial && !barAnimation.isRunning() ) {
+            initial = false;
+            barAnimationWidth.set( chartWidth );
+            //barAnimation.setInitialDelay(1000);
+            barAnimation.start();
+        }
+
+
         if( this.model != null && this.model.getSeries().length != 0 ) {
             graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-            int axisHeight = 20;
-            int legendHeight = 20;
-            int startRX = rightWidth;
-            int startRY = startY + axisHeight;
-            int endRX = drawingWidth;
-            int endRY = startRY + rightHeight - ( legendHeight +  axisHeight);
 
             // draw x and y axis
             graphics.setColor(getBackground());
@@ -91,15 +140,6 @@ public class MultipleStackedBarPlotComponent extends JPanel {
             graphics.draw( leftLine );
             graphics.draw( bottomLine );
 
-
-
-            var chartHeight = endRY - startRY + 10;
-            var chartWidth = endRX - startRX - 100;
-            var barHeight = chartHeight / model.getSeries().length;
-            var halfBarHeight = barHeight / 2.0;
-            var startYTick = startRY + 9 + barHeight/2;
-            var endYTick = endRY - 1 - barHeight/2;
-
             var fnY = NumberScale.domain( 0.0, (double) model.getSeries().length - 1 ).range( startYTick, endYTick );
 
             Font normalFont = graphics.getFont();
@@ -107,7 +147,9 @@ public class MultipleStackedBarPlotComponent extends JPanel {
 
             var maxTotalValue = 0.0;
             for( int i = 0; i < model.getSeries().length; i++ ) {
-                var yPos = fnY.apply(  i );
+                var yPos = model.getSeries().length == 1
+                                ? startYTick + ((endYTick-startYTick)/2)
+                                : fnY.apply(  i );
 
                 // y-axis titles
                 graphics.drawString( model.getSeries()[i].getTitle(),
@@ -123,12 +165,14 @@ public class MultipleStackedBarPlotComponent extends JPanel {
                 graphics.draw( tickLine );
                 graphics.draw( tickLineEnd );
 
+
+
                 var stack = model.getSeries()[i];
                 var startStack = startRX;
-                var maxBarWidth = chartWidth;
+                var maxBarWidth = chartWidth - barAnimationWidth.get();
                 maxTotalValue = Math.max( maxTotalValue, stack.getTotalValue() );
                 for( int j = 0; j < stack.getNoOfStacks(); j++ ) {
-                    if( !relative ) {
+                    if( !relativeMode) {
                         if( j==0 )
                             maxBarWidth = (int) (maxBarWidth * stack.getTotalValue() / maxTotalValue);
                     }
@@ -139,21 +183,21 @@ public class MultipleStackedBarPlotComponent extends JPanel {
 
                     if( j == stack.getNoOfStacks() - 1 ) {
                         var diff = (startRX + maxBarWidth) - (startStack  + 1 + stackWidth);
-                        Rectangle2D bar = new Rectangle2D.Double(startStack + 1, yPos - halfBarHeight + 3, stackWidth + diff, barHeight - 6);
+                        Rectangle2D bar = new Rectangle2D.Double(startStack + 1, yPos - halfBarHeight, stackWidth + diff, barHeight - (barHeight*0.2));
                         graphics.fill( bar );
                     }
                     else {
-                        Rectangle2D bar = new Rectangle2D.Double(startStack + 1, yPos - halfBarHeight + 3, stackWidth, barHeight - 6);
+                        Rectangle2D bar = new Rectangle2D.Double(startStack + 1,yPos - halfBarHeight, stackWidth, barHeight - (barHeight*0.2));
                         graphics.fill( bar );
                     }
 
                     graphics.setFont(smallFont);
-                    Rectangle stringBounds = getStringBounds( graphics, String.format( "%.2f", stack.getValueFor( j ) ), startStack + 6, (int) (yPos) + 3 );
+                    Rectangle stringBounds = getStringBounds( graphics, String.format( "%.2f", stack.getValueFor( j ) ), startStack + 6, (int) (yPos) );
                     if( stringBounds.height < barHeight - 4 ) {
                         //graphics.setColor( Color.WHITE );
                         //graphics.drawString( "" + stack.getValueFor( j ), startStack + stackWidth - stringBounds.width, (int) (yPos) + 4  );
                         graphics.setColor( colors[ j % colors.length ].darker() );
-                        graphics.drawString( String.format( "%.2f", stack.getValueFor( j ) ), startStack + stackWidth - stringBounds.width - 1, (int) (yPos) + 3  );
+                        graphics.drawString( String.format( "%.2f", stack.getValueFor( j ) ), startStack + stackWidth - stringBounds.width - 1, (int) (yPos)  );
                     }
                     graphics.setFont(normalFont);
                     startStack = startStack + stackWidth;
@@ -187,7 +231,7 @@ public class MultipleStackedBarPlotComponent extends JPanel {
                 Line2D tickLine = new Line2D.Double( d, endRY, d, endRY +16 );
                 graphics.draw( tickLine );
                 graphics.setFont(smallFont);
-                if( relative ) {
+                if(relativeMode) {
                     String per = String.format("%.2f%%", percent * e);
                     graphics.drawString(per, d + 4, endRY + 16);
                 } else {
@@ -196,8 +240,6 @@ public class MultipleStackedBarPlotComponent extends JPanel {
                 }
                 graphics.setFont(normalFont);
             });
-
-
 
             graphics.setColor( Color.GRAY );
         } else {

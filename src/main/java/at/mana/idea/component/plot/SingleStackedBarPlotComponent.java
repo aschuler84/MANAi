@@ -21,7 +21,7 @@ public class SingleStackedBarPlotComponent extends JPanel {
 
     private Insets insets = JBUI.insets(20);
     private SingleStackedBarPlotModel model;
-    private final Color[] colors = ColorUtil.HEAT_MAP_COLORS_DEFAULT;
+    private final Color[] colors = ColorUtil.STACK_COLORS_DEFAULT;
 
     public SingleStackedBarPlotComponent() {
         this.setOpaque( true );

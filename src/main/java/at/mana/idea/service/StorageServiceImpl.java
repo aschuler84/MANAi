@@ -133,23 +133,25 @@ public class StorageServiceImpl implements StorageService {
                                                     + jsonEntry.get("powerRam").getAsDouble()
                                     };
                         }).toArray(Double[][]::new);
-                        energyData = transposeDbl().apply(energyData);
-                        Sample sample = new Sample();
-                        sample.setStartDateTime( startDateTime );
-                        sample.setEndDateTime( endDateTime );
-                        sample.setDuration( duration );
+                        if( energyData != null && energyData.length >0  ) {
+                            energyData = transposeDbl().apply(energyData);
+                            Sample sample = new Sample();
+                            sample.setStartDateTime(startDateTime);
+                            sample.setEndDateTime(endDateTime);
+                            sample.setDuration(duration);
 
-                        sample.setDuration(duration);
-                        sample.setPowerCore(Arrays.asList(energyData[0]));
-                        sample.setPowerGpu(Arrays.asList(energyData[1]));
-                        sample.setPowerRam(Arrays.asList(energyData[2]));
-                        sample.setPowerOther(Arrays.asList(energyData[3]));
-                        sample.setMeasurement(measurement);
+                            sample.setDuration(duration);
+                            sample.setPowerCore(Arrays.asList(energyData[0]));
+                            sample.setPowerGpu(Arrays.asList(energyData[1]));
+                            sample.setPowerRam(Arrays.asList(energyData[2]));
+                            sample.setPowerOther(Arrays.asList(energyData[3]));
+                            sample.setMeasurement(measurement);
 
-                        measurement.getSamples().add( sample );
-                        measurement.setDescriptor(descriptor);
-                        descriptor.getMeasurements().add(measurement);
-                        session.save(descriptor);
+                            measurement.getSamples().add(sample);
+                            measurement.setDescriptor(descriptor);
+                            descriptor.getMeasurements().add(measurement);
+                            session.save(descriptor);
+                        }
                     } );
                 }
                 return null;

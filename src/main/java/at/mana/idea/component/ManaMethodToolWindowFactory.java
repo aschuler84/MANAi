@@ -21,6 +21,7 @@ import at.mana.idea.util.I18nUtil;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionToolbarPosition;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.fileEditor.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
@@ -69,46 +70,52 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
     private JBTabbedPane tabContainer;
 
     private void updateModel( PsiJavaFile file, ManaEnergyExperimentModel data ) {
-        this.model = data;
-        if( model != null && !model.getMethodEnergyStatistics().isEmpty() ) {
-            // TODO get classes from file -> build parent nodes for each of them
-            DefaultMutableTreeNode root = new DefaultMutableTreeNode(file.getClasses()[0]);
-            for (var stats : model.getMethodEnergyStatistics().entrySet()) {
-                DefaultMutableTreeNode node = new DefaultMutableTreeNode(stats.getKey());
-                root.add(node);
-            }
-            methodTree.setModel(new DefaultTreeModel(root));
-
-            // update model for overview chart
-            List<SingleStackedBarPlotModel> series = new ArrayList<>();
-            model.getMethodEnergyStatistics().forEach( (k,v) -> {
-                MethodEnergyModel statistics =
-                        v.stream().max( Comparator.comparing( MethodEnergyModel::getStartDateTime) ).orElse(null);
-                if( statistics != null ){
-                    String[] legend = new String[]{
-                            String.format(I18nUtil.LITERALS.getString("methodtoolwindow.ui.chart.cpupower.title"), statistics.getCpuWattage().getAverage()),
-                            //String.format(I18nUtil.LITERALS.getString("methodtoolwindow.ui.chart.gpupower.title"), statistics.getGpuWattage().getAverage()),
-                            String.format(I18nUtil.LITERALS.getString("methodtoolwindow.ui.chart.drampower.title"), statistics.getRamWattage().getAverage()),
-                            String.format(I18nUtil.LITERALS.getString("methodtoolwindow.ui.chart.otherpower.title"), statistics.getOtherWattage().getAverage())};
-                    Double[] values = new Double[]{
-                            statistics.getCpuWattage().getAverage(),
-                            //statistics.getGpuWattage().getAverage(),
-                            statistics.getRamWattage().getAverage(),
-                            statistics.getOtherWattage().getAverage()};
-                    series.add( new DefaultSingleStackedBarPlotModel( k.getName(),  legend, values ) );
+        ReadAction.run( () -> {
+            this.model = data;
+            if( model != null && !model.getMethodEnergyStatistics().isEmpty() ) {
+                // TODO get classes from file -> build parent nodes for each of them
+                DefaultMutableTreeNode root = new DefaultMutableTreeNode(file.getClasses()[0]);
+                for (var stats : model.getMethodEnergyStatistics().entrySet()) {
+                    DefaultMutableTreeNode node = new DefaultMutableTreeNode(stats.getKey());
+                    root.add(node);
                 }
-            } );
-            series.sort( Comparator.comparing( SingleStackedBarPlotModel::getTotalValue ).reversed() );  // sort by total value
-            String[] legend = new String[]{ "CPU", "DRAM", "UNCORE" };
-            multipleBarPlotModel = new DefaultMultipleStackedBarPlotModel( legend, series.toArray(SingleStackedBarPlotModel[]::new) );
-            multipleBarPlotComponent.setModel( multipleBarPlotModel );
+                methodTree.setModel(new DefaultTreeModel(root));
 
-        } else {
-            DefaultMutableTreeNode root = new DefaultMutableTreeNode(file.getClasses()[0]);
-            root.add( new DefaultMutableTreeNode( "No recorded energy data found" ) );
-            methodTree.setModel(new DefaultTreeModel(root));
-            bind( new ArrayList<>() );
-        }
+                // update model for overview chart
+                List<SingleStackedBarPlotModel> series = new ArrayList<>();
+                model.getMethodEnergyStatistics().forEach( (k,v) -> {
+                    MethodEnergyModel statistics =
+                            v.stream().max( Comparator.comparing( MethodEnergyModel::getStartDateTime) ).orElse(null);
+                    if( statistics != null ){
+                        String[] legend = new String[]{
+                                String.format(I18nUtil.LITERALS.getString("methodtoolwindow.ui.chart.cpupower.title"), statistics.getCpuWattage().getAverage()),
+                                //String.format(I18nUtil.LITERALS.getString("methodtoolwindow.ui.chart.gpupower.title"), statistics.getGpuWattage().getAverage()),
+                                String.format(I18nUtil.LITERALS.getString("methodtoolwindow.ui.chart.drampower.title"), statistics.getRamWattage().getAverage()),
+                                String.format(I18nUtil.LITERALS.getString("methodtoolwindow.ui.chart.otherpower.title"), statistics.getOtherWattage().getAverage())};
+                        Double[] values = new Double[]{
+                                statistics.getCpuWattage().getAverage(),
+                                //statistics.getGpuWattage().getAverage(),
+                                statistics.getRamWattage().getAverage(),
+                                statistics.getOtherWattage().getAverage()};
+                        series.add( new DefaultSingleStackedBarPlotModel( k.getName(),  legend, values ) );
+                    }
+                } );
+                series.sort( Comparator.comparing( SingleStackedBarPlotModel::getTotalValue ).reversed() );  // sort by total value
+                String[] legend = new String[]{ "CPU", "DRAM", "UNCORE" };
+                multipleBarPlotModel = new DefaultMultipleStackedBarPlotModel( legend, series.toArray(SingleStackedBarPlotModel[]::new) );
+                SwingUtilities.invokeLater( () ->  multipleBarPlotComponent.setModel( multipleBarPlotModel ) );
+
+            } else {
+                DefaultMutableTreeNode root = new DefaultMutableTreeNode(file.getClasses()[0]);
+                root.add( new DefaultMutableTreeNode( "No recorded energy data found" ) );
+                SwingUtilities.invokeLater( () -> {
+                    methodTree.setModel(new DefaultTreeModel(root));
+                    multipleBarPlotComponent.setModel( null );
+                    bind(new ArrayList<>());
+                });
+            }
+        } );
+
     }
 
     private JBSplitter createBaseComponent() {

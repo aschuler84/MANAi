@@ -10,6 +10,9 @@ package at.mana.idea.component.plot;
 
 import at.mana.core.util.NumberScale;
 import at.mana.idea.util.ColorUtil;
+import com.intellij.icons.AllIcons;
+import com.intellij.ui.JBColor;
+import com.intellij.util.IconUtil;
 import com.intellij.util.ui.JBUI;
 
 import javax.swing.*;
@@ -112,10 +115,7 @@ public class MultipleStackedBarPlotComponent extends JPanel {
 
         var chartHeight = endRY - startRY + 10;
         var chartWidth = endRX - startRX - 100;
-        var barHeight = model.getSeries().length == 1 ? chartHeight / 3 : chartHeight / model.getSeries().length;
-        var halfBarHeight = barHeight / 2.0;
-        var startYTick = startRY + 9 + barHeight/2;
-        var endYTick = endRY - 1 - barHeight/2;
+
 
         if( initial && !barAnimation.isRunning() ) {
             initial = false;
@@ -126,6 +126,12 @@ public class MultipleStackedBarPlotComponent extends JPanel {
 
 
         if( this.model != null && this.model.getSeries().length != 0 ) {
+
+            var barHeight = model.getSeries().length == 1 ? chartHeight / 3 : chartHeight / model.getSeries().length;
+            var halfBarHeight = barHeight / 2.0;
+            var startYTick = startRY + 9 + barHeight/2;
+            var endYTick = endRY - 1 - barHeight/2;
+
             graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
@@ -134,7 +140,7 @@ public class MultipleStackedBarPlotComponent extends JPanel {
             Line2D topLine = new Line2D.Double( startRX, startRY, endRX, startRY );
             Line2D bottomLine = new Line2D.Double( startRX, endRY, endRX-100, endRY);
             Line2D leftLine = new Line2D.Double( startRX, startRY, startRX, endRY );
-            graphics.setColor( Color.GRAY );
+            graphics.setColor(JBColor.GRAY);
             graphics.setStroke( new BasicStroke(0.80f) );  // determine ratio based on largest string
             //graphics.draw( topLine );
             graphics.draw( leftLine );
@@ -202,7 +208,7 @@ public class MultipleStackedBarPlotComponent extends JPanel {
                     graphics.setFont(normalFont);
                     startStack = startStack + stackWidth;
                 }
-                graphics.setColor( Color.GRAY );
+                graphics.setColor(JBColor.GRAY);
             }
 
             double startRXL = startRX + chartWidth/4.0;
@@ -215,7 +221,7 @@ public class MultipleStackedBarPlotComponent extends JPanel {
                 Rectangle bounds = getStringBounds( graphics, model.getLegendFor(i) + "", x + 6, y );
                 graphics.setColor( colors[ i % colors.length ] );
                 graphics.fill( legend );
-                graphics.setColor(Color.GRAY);
+                graphics.setColor(JBColor.GRAY);
                 graphics.drawString( model.getLegendFor(i), x + w + 3, y + bounds.height / 2 );
                 startRXL = startRXL + 20 + bounds.width;
             }
@@ -241,9 +247,17 @@ public class MultipleStackedBarPlotComponent extends JPanel {
                 graphics.setFont(normalFont);
             });
 
-            graphics.setColor( Color.GRAY );
+            graphics.setColor(JBColor.GRAY);
         } else {
-            // TODO: print empty text
+            graphics.setColor(JBColor.GRAY);
+            Icon info = AllIcons.General.ShowInfos;
+            Image infoImage = IconUtil.toBufferedImage( info );
+            var emptyText = "No data recorded for selected class";
+            Rectangle2D bounds = getStringBounds( graphics, emptyText, drawingWidth / 2.0f, drawingHeight / 2.0f );
+            graphics.drawString( emptyText, (float)(drawingWidth / 2f - bounds.getWidth() / 2f), (float)(drawingHeight / 2f - bounds.getHeight()/2f)  );
+            graphics.drawImage( infoImage,
+                    (int) (drawingWidth / 2 - bounds.getWidth() / 2) - 2 - infoImage.getWidth(null),
+                    (int)(drawingHeight / 2) - infoImage.getHeight(null), null );
         }
         graphics.dispose();
     }

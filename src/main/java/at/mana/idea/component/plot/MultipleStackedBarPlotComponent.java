@@ -250,14 +250,14 @@ public class MultipleStackedBarPlotComponent extends JPanel {
             graphics.setColor(JBColor.GRAY);
         } else {
             graphics.setColor(JBColor.GRAY);
-            Icon info = AllIcons.General.ShowInfos;
-            Image infoImage = IconUtil.toBufferedImage( info );
+            Icon info = AllIcons.General.Error;
+            Image infoImage = IconUtil.toBufferedImage( info, true );
             var emptyText = "No data recorded for selected class";
             Rectangle2D bounds = getStringBounds( graphics, emptyText, drawingWidth / 2.0f, drawingHeight / 2.0f );
             graphics.drawString( emptyText, (float)(drawingWidth / 2f - bounds.getWidth() / 2f), (float)(drawingHeight / 2f - bounds.getHeight()/2f)  );
             graphics.drawImage( infoImage,
                     (int) (drawingWidth / 2 - bounds.getWidth() / 2) - 2 - infoImage.getWidth(null),
-                    (int)(drawingHeight / 2) - infoImage.getHeight(null), null );
+                    (int)(drawingHeight / 2 - bounds.getHeight()/2) - infoImage.getHeight(null), null );
         }
         graphics.dispose();
     }

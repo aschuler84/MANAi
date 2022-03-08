@@ -15,13 +15,13 @@
         <postStartupActivity implementation="at.mana.idea.ManaPluginStartup"/>
 
         <projectService serviceInterface="at.mana.idea.service.ManaService"
-                        serviceImplementation="at.mana.idea.service.ManaServiceImpl"/>
+                        serviceImplementation="at.mana.idea.service.impl.ManaServiceImpl"/>
 
         <projectService serviceInterface="at.mana.idea.service.DataAcquisitionService"
-                        serviceImplementation="at.mana.idea.service.DataAcquisitionServiceImpl"/>
+                        serviceImplementation="at.mana.idea.service.impl.DataAcquisitionServiceImpl"/>
 
         <projectService serviceInterface="at.mana.idea.service.StorageService"
-                        serviceImplementation="at.mana.idea.service.StorageServiceImpl"/>
+                        serviceImplementation="at.mana.idea.service.impl.StorageServiceImpl"/>
 
         <codeInsight.lineMarkerProvider language="JAVA"
                                         implementationClass="at.mana.idea.ManaMethodMarkerProvider"/>

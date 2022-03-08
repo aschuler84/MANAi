@@ -8,7 +8,6 @@
  */
 package at.mana.idea;
 
-import at.mana.idea.service.ManaService;
 import at.mana.idea.model.MethodEnergyModel;
 import at.mana.idea.service.StorageService;
 import com.intellij.codeInsight.daemon.RelatedItemLineMarkerInfo;
@@ -16,9 +15,7 @@ import com.intellij.codeInsight.daemon.RelatedItemLineMarkerProvider;
 import com.intellij.codeInsight.navigation.NavigationGutterIconBuilder;
 import com.intellij.openapi.actionSystem.UpdateInBackground;
 import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.IconLoader;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiIdentifier;
 import com.intellij.psi.PsiJavaFile;
@@ -39,9 +36,6 @@ import java.util.Collection;
  * a PSI Method is found the ManaMethodMarkerProvider
  * verifies, if an energy consumption reading is
  * available for respective method.
- *
- * \TODO: Change the icon in accordance IntelliJ Icon guideline
- *
  */
 public class ManaMethodMarkerProvider extends RelatedItemLineMarkerProvider implements UpdateInBackground {
 
@@ -62,24 +56,10 @@ public class ManaMethodMarkerProvider extends RelatedItemLineMarkerProvider impl
         if( statistics == null ) {
             return;
         }
-
-        // The literal expression must start with the Simple language literal expression
-        /*PsiIdentifier identifier = (PsiIdentifier) element;
-
-        if( identifier.getText() != null && !identifier.getText().startsWith( "get" ) ) {
-            return;
-        }*/
         NavigationGutterIconBuilder<PsiElement> builder =
                 NavigationGutterIconBuilder.create( Icons.LOGO_EMPTY_BG_GUTTER )
                         .setTargets( element )
-                        .setTooltipText("Wattage: "
-                                + df2.format(statistics.getCpuWattage().getAverage() )
-                                + "|"
-                                + df2.format(statistics.getGpuWattage().getAverage() )
-                                + "|"
-                                + df2.format(statistics.getRamWattage().getAverage() )
-                                + "|"
-                                + df2.format(statistics.getOtherWattage().getAverage() ));
+                        .setTooltipText("MANAi energy profile");
         result.add(builder.createLineMarkerInfo(element));
     }
 }

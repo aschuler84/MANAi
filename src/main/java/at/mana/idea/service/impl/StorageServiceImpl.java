@@ -6,7 +6,37 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
-package at.mana.idea.service;
+package at.mana.idea.service.impl;
+
+import static at.mana.core.util.MatrixHelper.transposeDbl;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
+import at.mana.idea.service.StorageService;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.intellij.openapi.components.Service;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiJavaFile;
+import com.intellij.psi.PsiMethod;
+import com.intellij.psi.util.ClassUtil;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import at.mana.core.util.HashUtil;
 import at.mana.core.util.KeyValuePair;
@@ -18,26 +48,6 @@ import at.mana.idea.model.MethodEnergyModel;
 import at.mana.idea.model.MethodEnergySampleModel;
 import at.mana.idea.util.DateUtil;
 import at.mana.idea.util.HibernateUtil;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.intellij.openapi.components.Service;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiJavaFile;
-import com.intellij.psi.PsiMethod;
-import com.intellij.psi.util.ClassUtil;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import static at.mana.core.util.MatrixHelper.transposeDbl;
 
 @Service
 public class StorageServiceImpl implements StorageService {

@@ -12,10 +12,7 @@ import at.mana.idea.component.model.ManaEditorModel;
 import at.mana.idea.component.plot.BoxPlotComponent;
 import at.mana.idea.component.plot.Series;
 import at.mana.idea.component.plot.TimeSeriesPlotComponent;
-import at.mana.idea.service.VisualisationService;
-import at.mana.template.impl.renderer.InstantiateTemplateRenderer;
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.JBColor;
@@ -277,9 +274,6 @@ public class ManaEditorSummaryDetailsComponent extends ManaEditorDetailsComponen
 
         private int arcX = 6;
         private int arcY = 6;
-
-        public RoundedCornerPanel() {
-        }
 
         public RoundedCornerPanel( int arcX, int arcY ) {
             this.arcX = arcX;

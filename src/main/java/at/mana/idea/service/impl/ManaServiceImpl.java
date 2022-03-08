@@ -6,10 +6,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
-package at.mana.idea.service;
+package at.mana.idea.service.impl;
 
 import at.mana.idea.model.ManaEnergyExperimentModel;
 import at.mana.idea.model.MethodEnergyModel;
+import at.mana.idea.service.EnergyDataNotifierEvent;
+import at.mana.idea.service.ManaEnergyDataNotifier;
+import at.mana.idea.service.ManaService;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -39,7 +42,6 @@ import static at.mana.core.util.MatrixHelper.transposeDbl;
 public class ManaServiceImpl implements ManaService {
 
     private final static String MANA_NAME_SUFFIX = ".mana";
-    private VirtualFile selectedManaTraceFile;
     private final Project project;
     private Map<PsiClass,ManaEnergyExperimentModel> energyStatsModel = new HashMap<>();
 

@@ -50,24 +50,16 @@ public class HibernateUtil {
         }
 
     public static <T> T executeInTransaction( ActionCallback<T> callback) {
-        /*boolean useOpenSession = false;
-        if (session == null)
-            session = getSession();
-        else
-            useOpenSession = true; */
-
         Transaction tx = null;
         if (!getCurrentSession().getTransaction().isActive()) {
             tx = getCurrentSession().beginTransaction();
         }
-
         try {
             return callback.execute(getCurrentSession());
         } finally {
             if (tx != null) {
                 tx.commit();
             }
-           // if (!useOpenSession) closeSession();
         }
     }
 

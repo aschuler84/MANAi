@@ -64,11 +64,8 @@ public class ManaLineEditorPainter extends EditorLinePainter implements UpdateIn
                         List<LineExtensionInfo> histogram = createHistogram( v );
                         Optional<MethodEnergyModel> oM = v.stream().max(Comparator.comparing(MethodEnergyModel::getStartDateTime));
                         if (oM.isPresent()) {
-                            String line = "      \u2502";
                             String energyConsumption = String.format( "\u251C %.3fJ", oM.get().getEnergyConsumption().getAverage() );
-
                             lines.addAll(histogram);
-
                             lines.add(new LineExtensionInfo("    \u2502",ColorUtil.INLINE_TEXT, EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
                             lines.add( createInLineChart( oM.get().getEnergyConsumption().getAverage()/total.get() ) );
                             lines.add(new LineExtensionInfo(energyConsumption, ColorUtil.INLINE_TEXT, EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));

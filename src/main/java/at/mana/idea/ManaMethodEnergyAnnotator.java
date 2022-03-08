@@ -8,15 +8,12 @@
  */
 package at.mana.idea;
 
-import at.mana.idea.service.ManaService;
 import at.mana.idea.model.MethodEnergyModel;
 import at.mana.idea.service.StorageService;
-import at.mana.idea.service.StorageServiceImpl;
 import at.mana.idea.util.ColorUtil;
 import com.intellij.lang.annotation.*;
 import com.intellij.openapi.actionSystem.UpdateInBackground;
 import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.project.Project;

@@ -8,10 +8,7 @@
  */
 package at.mana.idea.component.details;
 
-import at.mana.idea.component.plot.TimeSeriesPlotComponent;
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.Nullable;
 

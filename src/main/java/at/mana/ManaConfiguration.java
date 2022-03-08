@@ -18,6 +18,4 @@ import org.springframework.context.annotation.Import;
 @Import({VisualisationConfiguration.class, TemplateConfiguration.class})
 public class ManaConfiguration {
 
-
-
 }

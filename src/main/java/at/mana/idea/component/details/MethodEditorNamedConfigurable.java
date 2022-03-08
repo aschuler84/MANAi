@@ -9,7 +9,6 @@
 package at.mana.idea.component.details;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.ui.NamedConfigurable;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.Nullable;
 

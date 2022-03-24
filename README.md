@@ -1,10 +1,8 @@
 # MANAi - An IntelliJ Plugin for Software Energy Consumption Profiling
-The Mana tool provides ease of use for energy consumption profiling on Intel-based PCs and Macs. 
+MANAi provides ease of use for energy consumption profiling on Intel-based PCs and Macs. 
 MANAi leverages *Intel's Running Average Power Limit (RAPL)* to provide feedback to developers 
 from within Jetbrains Intellij IDEA development tool platform. 
 
-Currently, MANAi is primarily tailored to be used in connection with Java applications, 
-however its modular design allow to further extend it to other languages and development environments.
 Once MANAi is installed and configured correctly, one can execute unit tests in Java projects 
 using the respective MANAi command runner in IDEA. Recorded samples are mapped to the respective 
 program unit in the development environment and 
@@ -12,9 +10,10 @@ energy data is being presented. The following screenshot shows methods that were
 executed using MANAi. The color coding gives feedback to the developer on the energy characteristics 
 of respective methods.
 
-![](doc/method_attributed.png)
+![](doc/fasta_code.png)
 
 ## Motivation
+
 
 ## Getting Started
 
@@ -53,8 +52,18 @@ apache maven is installed on your system and properly configured. MANAi processe
 the `M2_HOME` environment variable, so ensure it is properly set pointing 
 to a valid maven installation directory. The plugin was tested with apache maven 3.8.4. 
 
-### Installing MANAi
+### Installation
+MANAi can either be installed and used from one of the published pre-packaged binaries,
+or you can build it yourself directly from source.
+
 #### Installation from Pre-Built Binaries
+We provide a set of pre-built binaries which are ready to 
+use. Just select the correct binary depending on the system
+you are wokring on, download it and install it in your IntelliJ
+installation via its plugin mechanism. 
+
+http:// ... downloadlinks
+
 #### Installation from Source
 - install maven plugin - just run mvn install
 - install MANA plugin - unzip Mana Plugin in IDEA folder → maven bash script runner - exec plugin?
@@ -80,6 +89,12 @@ on how to connect to the database to e.g. select and export measurements for fur
 using IntelliJ's internal database view.
 
 ## Conclusion
-## FAQ
+Currently, MANAi is primarily tailored to be used in connection with Java applications, 
+however its modular design allow to further extend it to other languages and development environments.
+
 ## License
+Copyright (c) 2020 the original author or authors. DO NOT ALTER OR REMOVE COPYRIGHT NOTICES.
+
+This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 ## Contributing

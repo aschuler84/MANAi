@@ -33,7 +33,7 @@ The MAC-based version relies on
 measurements obtained using an adapted version of the C++ Mozilla RAPL implementation 
 available under http://
 
-<span style="border-radius: 3px;background-color:red; padding:2px 6px 2px 6px;color:#FFF;font-family: Panic Sans, Consolas, monospace;">!</span> Be aware, that MANAi only supports Intel-based Mac systems.
+> ⚠️ Be aware, that MANAi only supports Intel-based Mac systems.
 
 ### Windows Users
 The Windows version uses Intel's Power Gadget which needs to be 

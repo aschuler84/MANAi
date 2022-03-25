@@ -42,7 +42,7 @@ public class ManaRaplRunProfileState extends CommandLineState {
                 .withExePath( raplPath + File.separator +  ManaRaplConfigurationUtil.RAPL_EXECUTABLE_NAME )
                 .withEnvironment( M2_HOME_KEY, mavenHome )
                 .withEnvironment( RAPL_HOME_KEY, raplPath );
-        //GeneralCommandLine commandLine = new GeneralCommandLine("/Users/andreasschuler/Dropbox/Dokumente/Dissertation/repository/testsuiteoptimizer/exec/src/main/resources/rapl/execute_rapl_idea");
+        //GeneralCommandLine commandLine = new GeneralCommandLine("");
         commandLine.addParameter( configuration.getOutputFolder() + File.separator + ManaProjectServiceImpl.FOLDER_DATE.format(new Date()));
         commandLine.addParameter( configuration.getNoOfSamples() + "" );
         //commandLine.addParameter( "-DsamplingRate=" + configuration.getSamplingRate());

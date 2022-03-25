@@ -112,6 +112,7 @@ public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfi
     protected void applyEditorTo(@NotNull ManaRaplJarConfiguration s) throws ConfigurationException {
         s.setNoOfSamples( (int) this.spinnerSamplesRecorded.getValue() ) ;
         s.setSamplingRate( this.sliderNoSamples.getValue() );
+        s.setConnectionPort( 9999 );
         if( I18nUtil.LITERALS.getString(CLASS_KEY).equals( this.cmbMember.getSelectedItem() ) ){
             if( selectedClass == null ) {
                 ComponentValidator.getInstance(txtClass).ifPresent( ComponentValidator::revalidate );

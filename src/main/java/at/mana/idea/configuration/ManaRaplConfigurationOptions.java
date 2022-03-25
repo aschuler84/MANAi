@@ -15,7 +15,7 @@ import com.intellij.psi.PsiClass;
 
 public class ManaRaplConfigurationOptions extends JvmMainMethodRunConfigurationOptions {
 
-    private final StoredProperty<Integer> connectionPort = property(10).provideDelegate( this, "connectionPort" );
+    private final StoredProperty<Integer> connectionPort = property(9999).provideDelegate( this, "connectionPort" );
     private final StoredProperty<Integer> noSamplesProperty = property(10).provideDelegate( this, "noOfSamples" );
     private final StoredProperty<Integer> samplingRateProperty = property(50).provideDelegate(this,"samplingRate" );
     private final StoredProperty<String> selectedClass = string(null).provideDelegate(this,"selectedClass" );

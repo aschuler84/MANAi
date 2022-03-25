@@ -16,8 +16,8 @@ dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.12'
     implementation 'org.hibernate:hibernate-core:5.3.7.Final'
     implementation 'com.h2database:h2:1.4.200'
-    implementation group: 'at.mana', name: 'template', version: "1.0-SNAPSHOT"
-    implementation group: 'at.mana', name: 'visualisation', version: "1.0-SNAPSHOT"
+    implementation group: 'at.mana', name: 'core', version: '1.0-SNAPSHOT'
+    implementation files('cli/mana-cli-1.0.jar.jar')
     compileOnly 'org.projectlombok:lombok:1.18.20'
     annotationProcessor 'org.projectlombok:lombok:1.18.20'
 }
@@ -33,3 +33,4 @@ patchPluginXml {
     sinceBuild = '212'
     untilBuild = '213.*'
 }
+

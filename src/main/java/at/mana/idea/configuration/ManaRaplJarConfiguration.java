@@ -8,6 +8,7 @@
  */
 package at.mana.idea.configuration;
 
+import at.mana.idea.ManaPluginStartup;
 import at.mana.idea.service.DataAcquisitionService;
 import at.mana.idea.util.I18nUtil;
 import com.intellij.execution.ExecutionException;
@@ -20,6 +21,9 @@ import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.target.LanguageRuntimeType;
 import com.intellij.execution.target.TargetEnvironmentConfiguration;
 import com.intellij.execution.util.JavaParametersUtil;
+import com.intellij.ide.plugins.PluginManager;
+import com.intellij.openapi.application.PathManager;
+import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
@@ -28,6 +32,9 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.File;
+import java.nio.file.Path;
 
 import static at.mana.idea.configuration.ManaRaplConfigurationUtil.*;
 
@@ -42,13 +49,18 @@ public class ManaRaplJarConfiguration extends ApplicationConfiguration {
     }
 
     private void initJarPath() {
-        // TODO: resolve path relative to plugin home directory
-        jarPath = "/Users/andreasschuler/.m2/repository/at/mana/cli/1.0-SNAPSHOT/cli-1.0-SNAPSHOT-exec.jar";
+        jarPath = ManaRaplConfigurationUtil.findManaCliExecutable();
     }
 
     @Override
     protected @NotNull ManaRaplConfigurationOptions getOptions() {
         return (ManaRaplConfigurationOptions) super.getOptions();
+    }
+
+    private String getJarPath() {
+        if( this.jarPath == null )
+            this.initJarPath();
+        return this.jarPath;
     }
 
     public int getNoOfSamples() {
@@ -106,6 +118,9 @@ public class ManaRaplJarConfiguration extends ApplicationConfiguration {
 
     @Override
     public void checkConfiguration() throws RuntimeConfigurationException {
+        if( ManaRaplConfigurationUtil.findManaCliPath() == null )
+            throw new RuntimeConfigurationException(I18nUtil.LITERALS.getString( "configuration.cli.exception" ));
+
         if( findMavenHome( ManaRaplConfigurationUtil.M2_HOME_KEY) == null )
             throw new RuntimeConfigurationException(I18nUtil.LITERALS.getString("configuration.maven.exception"));
 
@@ -117,6 +132,15 @@ public class ManaRaplJarConfiguration extends ApplicationConfiguration {
             throw  new RuntimeConfigurationException(
                     String.format( I18nUtil.LITERALS.getString("configuration.port.exception") ,getConnectionPort()) );
         }
+
+    }
+
+    private String buildManaCommandLine( ManaRaplJarConfiguration configuration ) {
+        //command: rapl -p 9999 -i /Users/andreasschuler/Documents/repository/instrument-mana-test -n 5
+        return String.format( "rapl -p %d -i %s -n %d",
+                configuration.getConnectionPort(),
+                getProject().getBasePath(),
+                configuration.getNoOfSamples() );
     }
 
     @Override
@@ -127,11 +151,10 @@ public class ManaRaplJarConfiguration extends ApplicationConfiguration {
             protected JavaParameters createJavaParameters() throws ExecutionException {
                 final JavaParameters params = new JavaParameters();
                 final String jreHome = myConfiguration.isAlternativeJrePathEnabled() ? myConfiguration.getAlternativeJrePath() : null;
-                // TODO: make this configurable
-                setProgramParameters( "rapl -p 9999 -i /Users/andreasschuler/Documents/repository/instrument-mana-test -n 5" );
+                setProgramParameters( buildManaCommandLine( myConfiguration ) );
                 params.setJdk(JavaParametersUtil.createProjectJdk(myConfiguration.getProject(), jreHome));
                 setupJavaParameters(params);
-                params.setJarPath(FileUtil.toSystemDependentName(myConfiguration.jarPath));
+                params.setJarPath(FileUtil.toSystemDependentName(myConfiguration.getJarPath()));
                 return params;
             }
 
@@ -144,14 +167,15 @@ public class ManaRaplJarConfiguration extends ApplicationConfiguration {
                 }
 
                 final OSProcessHandler handler = super.startProcess();
-                DataAcquisitionService service = DataAcquisitionService.getInstance( this.getEnvironment().getProject() );
+                DataAcquisitionService service =
+                        DataAcquisitionService.getInstance( this.getEnvironment().getProject() );
                 handler.addProcessListener( service );
                 service.startDataAcquisition( this.getEnvironment().getProject() );
                 return handler;
             }
         };
-        state.setConsoleBuilder(TextConsoleBuilderFactory.getInstance().createBuilder(getProject(), getConfigurationModule().getSearchScope()));
-
+        state.setConsoleBuilder(TextConsoleBuilderFactory.getInstance()
+                .createBuilder(getProject(), getConfigurationModule().getSearchScope()));
         return state;
     }
 

@@ -8,9 +8,12 @@
  */
 package at.mana.idea.configuration;
 
+import at.mana.idea.util.I18nUtil;
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil;
 import com.intellij.execution.configurations.RuntimeConfigurationException;
+import com.intellij.ide.plugins.PluginManager;
 import com.intellij.openapi.application.ReadAction;
+import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.search.FilenameIndex;
@@ -30,6 +33,22 @@ public class ManaRaplConfigurationUtil {
     public static final String MAVEN_EXECUTABLE_NAME = "mvn";
     public static final String M2_HOME_KEY = "M2_HOME";
     public static final String RAPL_HOME_KEY = "RAPL_HOME";
+
+    public static String findManaCliPath(   ) {
+        var plugin = PluginManager
+                .getInstance().findEnabledPlugin(
+                        PluginId.getId( I18nUtil.LITERALS.getString( I18nUtil.PLUGIN_ID ) ) );
+        if( plugin != null ) {
+            var libPath = new File(plugin.getPluginPath().toAbsolutePath() + File.separator + "lib");
+            return libPath.exists() ? libPath.getAbsolutePath() : null;
+        }
+        return null;
+    }
+
+    public static String findManaCliExecutable() {
+        return ManaRaplConfigurationUtil.findManaCliPath() + File.separator + I18nUtil.LITERALS.getString( I18nUtil.MANA_CLI );
+    }
+
 
     public static String findExecutablePath(String key, String executableName ) {
         var raplHome = EnvironmentUtil.getValue(key);

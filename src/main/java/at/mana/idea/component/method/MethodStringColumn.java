@@ -15,6 +15,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class MethodStringColumn<T> extends ColumnInfo<MethodEnergyModel, T> {
 
     private final Function<MethodEnergyModel, T> mapper;

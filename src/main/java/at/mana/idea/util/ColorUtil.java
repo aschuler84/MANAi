@@ -4,6 +4,10 @@ import com.intellij.ui.JBColor;
 
 import java.awt.*;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class ColorUtil {
 
     public static final JBColor NOTIFICATION_COLOR = new JBColor(

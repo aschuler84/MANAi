@@ -37,6 +37,10 @@ import java.util.Collection;
  * verifies, if an energy consumption reading is
  * available for respective method.
  */
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class ManaMethodMarkerProvider extends RelatedItemLineMarkerProvider implements UpdateInBackground {
 
     private static DecimalFormat df2 = new DecimalFormat("#.##");

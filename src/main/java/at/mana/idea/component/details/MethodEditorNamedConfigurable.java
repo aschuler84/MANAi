@@ -14,6 +14,10 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class MethodEditorNamedConfigurable extends ManaEditorNamedConfigurable{
 
     private ManaEditorMethodDetailsComponent methodDetails;

@@ -22,6 +22,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class ManaRaplProgramRunner extends GenericProgramRunner<ManaRaplProgramRunnerSettings> {
     public @NotNull
     @NonNls String getRunnerId() {

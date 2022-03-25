@@ -18,6 +18,10 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class ManaRaplConfigurationType implements ConfigurationType {
 
 

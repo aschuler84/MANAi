@@ -49,6 +49,10 @@ import at.mana.idea.model.MethodEnergySampleModel;
 import at.mana.idea.util.DateUtil;
 import at.mana.idea.util.HibernateUtil;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 @Service
 public class StorageServiceImpl implements StorageService {
 

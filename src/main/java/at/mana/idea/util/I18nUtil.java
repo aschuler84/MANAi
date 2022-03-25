@@ -2,6 +2,10 @@ package at.mana.idea.util;
 
 import java.util.ResourceBundle;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class I18nUtil {
 
     public static final String PLUGIN_ID = "plugin.id";

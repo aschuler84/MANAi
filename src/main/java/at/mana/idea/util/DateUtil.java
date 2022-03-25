@@ -10,6 +10,10 @@ package at.mana.idea.util;
 
 import java.time.format.DateTimeFormatter;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class DateUtil {
 
     public static DateTimeFormatter Formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");

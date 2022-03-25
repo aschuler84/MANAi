@@ -33,6 +33,10 @@ import java.awt.*;
 import java.util.List;
 import java.util.function.Function;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class ManaEditorSummaryDetailsComponent extends ManaEditorDetailsComponent {
 
     private TimeSeriesPlotComponent timeSeriesPlot  = new TimeSeriesPlotComponent();

@@ -27,6 +27,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class ManaRaplConfigurationUtil {
 
     public static final String RAPL_EXECUTABLE_NAME = "execute_rapl_idea";

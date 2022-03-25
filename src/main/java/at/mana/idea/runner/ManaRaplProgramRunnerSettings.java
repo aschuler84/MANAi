@@ -13,6 +13,10 @@ import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.WriteExternalException;
 import org.jdom.Element;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class ManaRaplProgramRunnerSettings implements RunnerSettings {
     @Override
     public void readExternal(Element element) throws InvalidDataException {

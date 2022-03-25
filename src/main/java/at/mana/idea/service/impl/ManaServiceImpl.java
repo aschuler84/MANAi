@@ -38,6 +38,10 @@ import java.util.stream.StreamSupport;
 
 import static at.mana.core.util.MatrixHelper.transposeDbl;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 @Service
 public class ManaServiceImpl implements ManaService {
 

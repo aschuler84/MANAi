@@ -16,6 +16,10 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 @Entity
 @Getter
 @Setter

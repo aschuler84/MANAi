@@ -26,6 +26,10 @@ import java.awt.geom.Rectangle2D;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class MultipleStackedBarPlotComponent extends JPanel {
 
     private Insets insets = JBUI.insets(6);

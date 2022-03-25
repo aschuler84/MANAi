@@ -13,6 +13,10 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupActivity;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class ManaPluginStartup implements StartupActivity
 {
 

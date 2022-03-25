@@ -34,6 +34,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class ManaToolWindowFactory implements ToolWindowFactory {
 
 

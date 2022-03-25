@@ -16,6 +16,10 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class ManaTraceFileEditorProvider implements FileEditorProvider, DumbAware {
 
     @Override

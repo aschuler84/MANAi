@@ -32,6 +32,10 @@ import javax.swing.event.*;
 import java.awt.event.*;
 import java.util.Objects;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfiguration> implements DumbAware {
     private JPanel panel1;
     private JTabbedPane tabbedPane1;

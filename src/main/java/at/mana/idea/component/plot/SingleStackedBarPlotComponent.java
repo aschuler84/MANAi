@@ -17,6 +17,10 @@ import java.awt.*;
 import java.awt.geom.Line2D;
 import java.util.Arrays;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class SingleStackedBarPlotComponent extends JPanel {
 
     private Insets insets = JBUI.insets(20);

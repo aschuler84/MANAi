@@ -14,6 +14,10 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class BoxPlotComponent extends PlotComponent<List<Series>> {
 
     private static final String CHART_ID = "/static/bp_chart.html";

@@ -12,6 +12,10 @@ import com.intellij.openapi.vfs.VirtualFile;
 
 import javax.swing.*;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class ManaEditorMethodDetailsComponent extends ManaEditorDetailsComponent {
 
 

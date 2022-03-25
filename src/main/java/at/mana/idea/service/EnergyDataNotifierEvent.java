@@ -13,6 +13,10 @@ import com.intellij.openapi.project.Project;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 @Getter
 @AllArgsConstructor
 public class EnergyDataNotifierEvent {

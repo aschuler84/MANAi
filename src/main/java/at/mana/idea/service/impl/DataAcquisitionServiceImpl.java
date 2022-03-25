@@ -34,6 +34,10 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 @Service
 public class DataAcquisitionServiceImpl extends ProcessAdapter implements DataAcquisitionService {
 

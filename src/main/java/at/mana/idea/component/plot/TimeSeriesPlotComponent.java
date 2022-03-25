@@ -16,6 +16,10 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class TimeSeriesPlotComponent extends PlotComponent<List<Series>> {
 
     private static final String CHART_ID = "/static/2density_chart.html";

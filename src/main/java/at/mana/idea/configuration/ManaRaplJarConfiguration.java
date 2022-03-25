@@ -38,6 +38,10 @@ import java.nio.file.Path;
 
 import static at.mana.idea.configuration.ManaRaplConfigurationUtil.*;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class ManaRaplJarConfiguration extends ApplicationConfiguration {
 
     private String jarPath;

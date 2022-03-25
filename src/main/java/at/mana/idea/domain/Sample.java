@@ -16,6 +16,10 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 @Entity
 @Getter
 @Setter

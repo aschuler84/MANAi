@@ -56,6 +56,10 @@ import java.util.function.Function;
 import java.awt.*;
 import javax.swing.*;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnergyDataNotifier {
 
     private final Tree methodTree = new Tree();

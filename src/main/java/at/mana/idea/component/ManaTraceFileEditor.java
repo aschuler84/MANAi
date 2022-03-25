@@ -27,6 +27,10 @@ import javax.swing.*;
 import java.beans.PropertyChangeListener;
 import java.util.Comparator;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class ManaTraceFileEditor implements FileEditor {
 
     private ManaMasterDetailView component;

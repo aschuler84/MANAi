@@ -1,5 +1,9 @@
 package at.mana.idea.component.plot;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class DefaultMultipleStackedBarPlotModel implements MultipleStackedBarPlotModel{
 
     private String[] legend;

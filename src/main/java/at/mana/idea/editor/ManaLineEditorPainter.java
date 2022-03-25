@@ -34,6 +34,10 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.IntStream;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class ManaLineEditorPainter extends EditorLinePainter implements UpdateInBackground {
 
 

@@ -14,6 +14,10 @@ import com.intellij.execution.process.*;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class ManaRaplRunProfileState extends CommandLineState {
 
     private static final String MVN_FAIL_MESSAGE = "Could not execute Mana RAPL profiler, unable to find maven installation. Did you properly set M2_HOME environment variable?";

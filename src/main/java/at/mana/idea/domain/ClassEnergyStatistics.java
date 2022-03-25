@@ -12,6 +12,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 @Getter
 @Setter
 @Builder

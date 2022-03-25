@@ -14,6 +14,10 @@ import com.intellij.openapi.vfs.VirtualFile;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class ManaEditorModel  {
 
     private final VirtualFile source;

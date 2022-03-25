@@ -10,6 +10,10 @@ package at.mana.idea.component.plot;
 
 import java.util.Arrays;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class DefaultSingleStackedBarPlotModel implements SingleStackedBarPlotModel {
 
     private String[] legend;

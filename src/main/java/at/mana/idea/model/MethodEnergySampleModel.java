@@ -15,6 +15,10 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 @Getter
 @Setter
 public class MethodEnergySampleModel {

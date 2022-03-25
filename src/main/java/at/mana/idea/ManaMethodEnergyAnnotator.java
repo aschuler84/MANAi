@@ -24,6 +24,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class ManaMethodEnergyAnnotator implements Annotator, UpdateInBackground {
 
     @Override

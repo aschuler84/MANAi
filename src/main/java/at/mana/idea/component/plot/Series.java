@@ -11,6 +11,10 @@ package at.mana.idea.component.plot;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class Series {
 
     private String name;

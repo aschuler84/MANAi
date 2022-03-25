@@ -17,6 +17,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiJavaFile;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class ManaRaplRunConfigurationProducer extends LazyRunConfigurationProducer<ManaRaplJarConfiguration> {
 
     @Override

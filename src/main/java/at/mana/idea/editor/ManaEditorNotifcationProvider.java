@@ -23,6 +23,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class ManaEditorNotifcationProvider extends EditorNotifications.Provider<EditorNotificationPanel> {
 
     private static final Key<String> KEY = new Key<>("ManaEditorNotification");

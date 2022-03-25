@@ -20,6 +20,10 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class ManaRaplConfigurationFactory extends ConfigurationFactory {
 
     private static final String MANA_RAPL_FACTORY_NAME = "Mana Profiling Configuration Factory";

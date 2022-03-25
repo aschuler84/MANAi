@@ -17,6 +17,10 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class MethodIconColumn extends ColumnInfo<MethodEnergyModel, String> {
 
     public MethodIconColumn() {

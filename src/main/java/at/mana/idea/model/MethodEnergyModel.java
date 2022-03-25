@@ -19,6 +19,10 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 @Getter
 @Setter
 public class MethodEnergyModel {

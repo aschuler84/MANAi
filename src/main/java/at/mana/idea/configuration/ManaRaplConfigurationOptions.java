@@ -13,6 +13,10 @@ import com.intellij.execution.configurations.RunConfigurationOptions;
 import com.intellij.openapi.components.StoredProperty;
 import com.intellij.psi.PsiClass;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public class ManaRaplConfigurationOptions extends JvmMainMethodRunConfigurationOptions {
 
     private final StoredProperty<Integer> connectionPort = property(9999).provideDelegate( this, "connectionPort" );

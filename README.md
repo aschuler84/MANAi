@@ -13,7 +13,14 @@ of respective methods.
 ![](doc/fasta_code.png)
 
 ## Motivation
-
+Understanding the energy implications of software design
+choices can play a crucial role towards developing
+sustainable software. MANAi helps developers, researcher 
+and students alike to make energy consumption explicit 
+by providing a wide range of visualisation and tools
+for energy-aware development straight within an integrated 
+development. This way MANAi can support in building awareness
+for energy-efficient software design amongst the developer community.
 
 ## Getting Started
 
@@ -46,11 +53,11 @@ After download, run the installer and test run the power gadget app
 to verify that obtaining energy measurements is available on your system.
 
 #### Maven 
-MANAi uses apache maven for communication between an application under test 
-and the Intellij plugin. In order to properly execute MANAi test run, ensure
-apache maven is installed on your system and properly configured. MANAi processes
-the `M2_HOME` environment variable, so ensure it is properly set pointing 
-to a valid maven installation directory. The plugin was tested with apache maven 3.8.4. 
+MANAi uses _Apache Maven_ for communication between an application under test 
+and the _Intellij_ plugin. In order to properly execute a MANAi test run, ensure
+_Apache Maven_ is installed on your system and properly configured. MANAi processes
+the `M2_HOME` environment variable, so ensure it is set and pointing 
+to a valid maven installation directory. The plugin was tested with _Apache Maven 3.8.4_. 
 
 ### Installation
 MANAi can either be installed and used from one of the published pre-packaged binaries,
@@ -59,8 +66,8 @@ or you can build it yourself directly from source.
 #### Installation from Pre-Built Binaries
 We provide a set of pre-built binaries which are ready to 
 use. Just select the correct binary depending on the system
-you are wokring on, download it and install it in your IntelliJ
-installation via its plugin mechanism. 
+you are working with, download it and install the plugin
+using Intellij's internal plugin mechanism. 
 
 http:// ... downloadlinks
 
@@ -70,9 +77,15 @@ http:// ... downloadlinks
 - install RAPL Command - exec plugin?
 - Provide an installation script and plugin
 
+```grooy
+gradle downloadFile and processResources tasks
+```
+
+```xml
+<insertxmlofmanainstrumentplugin>
+```
+
 ### Usage
-An example of a recorded sample consists of 5 attributes. 
-The sample below shows the Json format used to report recorded samples.
 
 #### Project Setup and Preliminaries
 - install maven plugin - just run mvn install
@@ -80,17 +93,30 @@ The sample below shows the Json format used to report recorded samples.
 - install RAPL Command - exec plugin?
 - [ ]  Provide an Installation script and plugin
 
-#### Storing Measurements
-Measurements are stored in a small H2 database which is automatically created upon the
-initial startup of MANAi in the user's home directory in a special `mana` folder.
 
-Feel free to connect to the H2 database using your favored SQL-Client application. An example
+```xml
+how to set up a project usign manai
+```
+#### Storing Measurements
+Measurements are stored in a small _H2 database_ which is automatically created at the
+initial startup of MANAi in the user's home directory in a special `.mana` folder.
+
+Feel free to connect to the H2 database using your favorite SQL-Client application. An example
 on how to connect to the database to e.g. select and export measurements for further analysis
-using IntelliJ's internal database view.
+using IntelliJ's internal database view is provided in our Wiki system.
 
 ## Conclusion
-Currently, MANAi is primarily tailored to be used in connection with Java applications, 
-however its modular design allow to further extend it to other languages and development environments.
+MANAi provides an out-of-the-box solution 
+to software energy profiling from within IntelliJ IDE.
+We hope that MANAi helps to support in better comprehending
+the energy implications of software design choices. If you are
+interested in contributing to MANAi or just want to share
+your experience using the plugin, feel free to contact me.
+
+Currently, MANAi is primarily tailored to be 
+used in connection with Java applications. 
+However its modular design allow to further extend 
+it to other languages and development environments.
 
 ## License
 Copyright (c) 2020 the original author or authors. DO NOT ALTER OR REMOVE COPYRIGHT NOTICES.
@@ -98,3 +124,5 @@ Copyright (c) 2020 the original author or authors. DO NOT ALTER OR REMOVE COPYRI
 This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 ## Contributing
+We are currently bringing together a contribution guide
+which will cover information on how you can contribute to MANAi.

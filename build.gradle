@@ -4,8 +4,8 @@ plugins {
     id 'de.undercouch.download' version '5.0.2'
 }
 
-group 'at.mana'
-version '1.0'
+group manaGroup
+version manaVersion
 
 repositories {
     mavenLocal()
@@ -18,7 +18,7 @@ dependencies {
     implementation 'org.hibernate:hibernate-core:5.3.7.Final'
     implementation 'com.h2database:h2:1.4.200'
     implementation group: 'at.mana', name: 'core', version: '1.0-SNAPSHOT'
-    implementation files('cli/' + manaCliArtifact + '-' + manaCliVersion +  '.jar')
+    implementation files('cli/' + manaCliArtifact + '-' + manaVersion +  '.jar')
     compileOnly 'org.projectlombok:lombok:1.18.20'
     annotationProcessor 'org.projectlombok:lombok:1.18.20'
 }

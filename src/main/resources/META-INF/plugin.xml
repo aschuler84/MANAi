@@ -53,6 +53,13 @@
 
         <editorNotificationProvider implementation="at.mana.idea.editor.ManaEditorNotifcationProvider" />
 
+        <applicationService serviceImplementation="at.mana.idea.settings.ManaSettingsState"/>
+
+        <applicationConfigurable
+                parentId="language"
+                instance="at.mana.idea.settings.ManaSettingsConfigurable"
+                id="at.mana.idea.settings.ManaSettingsConfigurable"
+                displayName="MANAi"/>
 
     </extensions>
 

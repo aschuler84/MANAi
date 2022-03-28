@@ -8,12 +8,25 @@
  */
 package at.mana.idea.configuration;
 
+import at.mana.core.util.StringUtil;
+import at.mana.idea.service.EnergyDataNotifierEvent;
+import at.mana.idea.service.ManaEnergyDataNotifier;
+import at.mana.idea.service.StorageService;
 import at.mana.idea.util.I18nUtil;
+import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil;
 import com.intellij.execution.configurations.RuntimeConfigurationException;
+import com.intellij.execution.process.OSProcessHandler;
+import com.intellij.execution.process.ProcessHandlerFactory;
+import com.intellij.execution.process.ProcessListener;
+import com.intellij.execution.process.ProcessTerminatedListener;
 import com.intellij.ide.plugins.PluginManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.extensions.PluginId;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.search.FilenameIndex;
@@ -22,10 +35,19 @@ import com.intellij.psi.xml.XmlFile;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.EnvironmentUtil;
 import com.intellij.xml.util.XmlUtil;
+import lombok.SneakyThrows;
+import org.jetbrains.annotations.NotNull;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketTimeoutException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * @author Andreas Schuler
@@ -53,6 +75,9 @@ public class ManaRaplConfigurationUtil {
         return ManaRaplConfigurationUtil.findManaCliPath() + File.separator + I18nUtil.LITERALS.getString( I18nUtil.MANA_CLI );
     }
 
+    public static String findMavenHome() {
+        return EnvironmentUtil.getValue(M2_HOME_KEY);
+    }
 
     public static String findExecutablePath(String key, String executableName ) {
         var raplHome = EnvironmentUtil.getValue(key);
@@ -119,6 +144,35 @@ public class ManaRaplConfigurationUtil {
         } catch (IOException ignored) {
         }
         return false;
+    }
+
+    public static void verifyManaInstrumentPluginAvailable( final Project project, final ProcessListener listener ) {
+        var artifactName = "at.mana:exec:1.0.0";
+        var task = new Task.Backgroundable( project, I18nUtil.LITERALS.getString("configuration.mana.instrument.title") ){
+
+            @Override
+            public void run(@NotNull ProgressIndicator indicator) {
+                try {
+                    GeneralCommandLine commandLine = new GeneralCommandLine(ManaRaplConfigurationUtil.RAPL_EXECUTABLE_NAME)
+                            .withExePath(MAVEN_EXECUTABLE_NAME)
+                            .withEnvironment(M2_HOME_KEY, findExecutablePath("", "mvn"));
+                    commandLine.addParameter("dependency:get");  // mvn command parameter
+                    commandLine.addParameter("-Dartifact=" + artifactName);
+                    commandLine.setWorkDirectory(project.getBasePath());
+                    ProcessHandlerFactory factory = ProcessHandlerFactory.getInstance();
+                    OSProcessHandler processHandler = factory.createColoredProcessHandler(commandLine);
+                    ProcessTerminatedListener.attach(processHandler);
+                    processHandler.addProcessListener(listener);
+                    processHandler.startNotify();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                // listener gets informed by status code - status code determines if plugin is available
+            }
+
+        };
+        var indicator = new BackgroundableProcessIndicator( project, task );
+        ProgressManager.getInstance().runProcessWithProgressAsynchronously( task, indicator );
     }
 
 }

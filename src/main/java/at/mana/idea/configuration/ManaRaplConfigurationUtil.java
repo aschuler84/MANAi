@@ -8,14 +8,10 @@
  */
 package at.mana.idea.configuration;
 
-import at.mana.core.util.StringUtil;
-import at.mana.idea.service.EnergyDataNotifierEvent;
-import at.mana.idea.service.ManaEnergyDataNotifier;
-import at.mana.idea.service.StorageService;
+import at.mana.idea.settings.ManaSettingsState;
 import at.mana.idea.util.I18nUtil;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil;
-import com.intellij.execution.configurations.RuntimeConfigurationException;
 import com.intellij.execution.process.OSProcessHandler;
 import com.intellij.execution.process.ProcessHandlerFactory;
 import com.intellij.execution.process.ProcessListener;
@@ -35,19 +31,11 @@ import com.intellij.psi.xml.XmlFile;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.EnvironmentUtil;
 import com.intellij.xml.util.XmlUtil;
-import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * @author Andreas Schuler
@@ -60,7 +48,7 @@ public class ManaRaplConfigurationUtil {
     public static final String M2_HOME_KEY = "M2_HOME";
     public static final String RAPL_HOME_KEY = "RAPL_HOME";
 
-    public static String findManaCliPath(   ) {
+    public static String findManaPluginLibPath(   ) {
         var plugin = PluginManager
                 .getInstance().findEnabledPlugin(
                         PluginId.getId( I18nUtil.LITERALS.getString( I18nUtil.PLUGIN_ID ) ) );
@@ -72,7 +60,7 @@ public class ManaRaplConfigurationUtil {
     }
 
     public static String findManaCliExecutable() {
-        return ManaRaplConfigurationUtil.findManaCliPath() + File.separator + I18nUtil.LITERALS.getString( I18nUtil.MANA_CLI );
+        return ManaRaplConfigurationUtil.findManaPluginLibPath() + File.separator + I18nUtil.LITERALS.getString( I18nUtil.MANA_CLI );
     }
 
     public static String findMavenHome() {
@@ -147,8 +135,8 @@ public class ManaRaplConfigurationUtil {
     }
 
     public static void verifyManaInstrumentPluginAvailable( final Project project, final ProcessListener listener ) {
-        var artifactName = "at.mana:exec:1.0.0";
-        var task = new Task.Backgroundable( project, I18nUtil.LITERALS.getString("configuration.mana.instrument.title") ){
+        var artifactName = ManaSettingsState.getInstance().manaInstrumentPlugin;
+        var task = new Task.Backgroundable( project, I18nUtil.LITERALS.getString("configuration.mana.instrument.title.verify") ){
 
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
@@ -164,12 +152,41 @@ public class ManaRaplConfigurationUtil {
                     ProcessTerminatedListener.attach(processHandler);
                     processHandler.addProcessListener(listener);
                     processHandler.startNotify();
+                    processHandler.waitFor();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 // listener gets informed by status code - status code determines if plugin is available
             }
 
+        };
+        var indicator = new BackgroundableProcessIndicator( project, task );
+        ProgressManager.getInstance().runProcessWithProgressAsynchronously( task, indicator );
+    }
+
+    public static void installManaInstrumentPluginAvailable( final Project project, final ProcessListener listener ) {
+        var artifactPath= findManaPluginLibPath() + File.separator +
+                ManaSettingsState.getInstance().manaInstrumentPlugin;
+        var task = new Task.Backgroundable( project, I18nUtil.LITERALS.getString("configuration.mana.instrument.title.install") ){
+            @Override
+            public void run(@NotNull ProgressIndicator indicator) {
+                try {
+                    GeneralCommandLine commandLine = new GeneralCommandLine(ManaRaplConfigurationUtil.RAPL_EXECUTABLE_NAME)
+                            .withExePath(MAVEN_EXECUTABLE_NAME)
+                            .withEnvironment(M2_HOME_KEY, findExecutablePath("", "mvn"));
+                    commandLine.addParameter("install:install-file");  // mvn command parameter
+                    commandLine.addParameter("-Dfile=" + artifactPath);
+                    commandLine.setWorkDirectory(project.getBasePath());
+                    ProcessHandlerFactory factory = ProcessHandlerFactory.getInstance();
+                    OSProcessHandler processHandler = factory.createColoredProcessHandler(commandLine);
+                    ProcessTerminatedListener.attach(processHandler);
+                    processHandler.addProcessListener(listener);
+                    processHandler.startNotify();
+                    processHandler.waitFor();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         };
         var indicator = new BackgroundableProcessIndicator( project, task );
         ProgressManager.getInstance().runProcessWithProgressAsynchronously( task, indicator );

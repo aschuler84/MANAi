@@ -20,12 +20,11 @@ public class ManaSettingsComponent {
 
     private final JPanel contentPanel;
     private final JBTextField myUserNameText = new JBTextField();
-    private final JBCheckBox myIdeaUserStatus = new JBCheckBox("Do you use IntelliJ IDEA? ");
     private final ActionLink buttonInstall = new ActionLink("Verify MANAi installation");
+    private StringBuffer output = new StringBuffer();
+
 
     private final ManaSettingsVerifyComponent settingsVerifyComponent = new ManaSettingsVerifyComponent();
-    // Automatically install MANAi dependencies into local repository
-    // TODO: verify if repackaged jar contains pom for installation
 
     public ManaSettingsComponent() {
         contentPanel = FormBuilder.createFormBuilder()
@@ -64,6 +63,7 @@ public class ManaSettingsComponent {
             ManaRaplConfigurationUtil.verifyManaInstrumentPluginAvailable(ProjectManager.getInstance().getDefaultProject(), new ProcessListener() {
                 @Override
                 public void startNotified(@NotNull ProcessEvent event) {
+                    output = new StringBuffer();
                     SwingUtilities.invokeLater( () -> {
                         settingsVerifyComponent.getIconManaInstrument().setIcon( new AnimatedIcon.Default() );
                     });
@@ -83,6 +83,7 @@ public class ManaSettingsComponent {
                 @Override
                 public void onTextAvailable(@NotNull ProcessEvent event, @NotNull Key outputType) {
                     SwingUtilities.invokeLater( () -> {
+                        output.append( event.getText() );
                     });
                 }
             });
@@ -97,21 +98,5 @@ public class ManaSettingsComponent {
         return myUserNameText;
     }
 
-    @NotNull
-    public String getUserNameText() {
-        return myUserNameText.getText();
-    }
-
-    public void setUserNameText(@NotNull String newText) {
-        myUserNameText.setText(newText);
-    }
-
-    public boolean getIdeaUserStatus() {
-        return myIdeaUserStatus.isSelected();
-    }
-
-    public void setIdeaUserStatus(boolean newStatus) {
-        myIdeaUserStatus.setSelected(newStatus);
-    }
 
 }

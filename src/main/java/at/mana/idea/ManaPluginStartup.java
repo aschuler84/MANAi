@@ -8,11 +8,19 @@
  */
 package at.mana.idea;
 
+import at.mana.idea.configuration.ManaRaplConfigurationUtil;
+import at.mana.idea.settings.ManaSettingsState;
 import at.mana.idea.util.HibernateUtil;
+import com.intellij.execution.process.ProcessAdapter;
+import com.intellij.execution.process.ProcessEvent;
+import com.intellij.execution.process.ProcessListener;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationAction;
 import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupActivity;
+import com.intellij.openapi.util.Key;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -26,10 +34,26 @@ public class ManaPluginStartup implements StartupActivity
     public void runActivity(@NotNull Project project) {
         HibernateUtil.getSessionFactory();
         // verify if mana-instrument is installed
-        NotificationGroupManager.getInstance().getNotificationGroup("ManaNotificationGroup")
+        if( !ManaSettingsState.getInstance().initialVerification ) {
+        Notification notification = NotificationGroupManager.getInstance().getNotificationGroup("ManaNotificationGroup")
                 .createNotification("MANAi verifies if the required plugins are installed",
-                        NotificationType.INFORMATION)
+                        NotificationType.INFORMATION);
+                notification.addAction(NotificationAction.create( "Install Dependencies", anActionEvent -> {
+                    notification.expire();
+                    ManaRaplConfigurationUtil.installManaInstrumentPluginAvailable(anActionEvent.getProject(), new ProcessAdapter() {
+                        @Override
+                        public void processTerminated(@NotNull ProcessEvent event) {
+                            if( event.getExitCode() == 0 ) {
+                                ManaSettingsState.getInstance().initialVerification = true;
+                            } else {
+                                NotificationGroupManager.getInstance().getNotificationGroup("ManaNotificationGroup")
+                                        .createNotification("Could not install dependencies!", NotificationType.ERROR).notify(anActionEvent.getProject());
+                            }
+                        }
+                    });
+                } ))
                 .notify(project);
+        }
     }
 
 }

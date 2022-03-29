@@ -8,7 +8,6 @@
  */
 package at.mana.idea.configuration;
 
-import at.mana.idea.ManaPluginStartup;
 import at.mana.idea.service.DataAcquisitionService;
 import at.mana.idea.util.I18nUtil;
 import com.intellij.execution.ExecutionException;
@@ -21,9 +20,6 @@ import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.target.LanguageRuntimeType;
 import com.intellij.execution.target.TargetEnvironmentConfiguration;
 import com.intellij.execution.util.JavaParametersUtil;
-import com.intellij.ide.plugins.PluginManager;
-import com.intellij.openapi.application.PathManager;
-import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
@@ -32,9 +28,6 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.File;
-import java.nio.file.Path;
 
 import static at.mana.idea.configuration.ManaRaplConfigurationUtil.*;
 
@@ -122,7 +115,7 @@ public class ManaRaplJarConfiguration extends ApplicationConfiguration {
 
     @Override
     public void checkConfiguration() throws RuntimeConfigurationException {
-        if( ManaRaplConfigurationUtil.findManaCliPath() == null )
+        if( ManaRaplConfigurationUtil.findManaPluginLibPath() == null )
             throw new RuntimeConfigurationException(I18nUtil.LITERALS.getString( "configuration.cli.exception" ));
 
         if( findMavenHome( ManaRaplConfigurationUtil.M2_HOME_KEY) == null )

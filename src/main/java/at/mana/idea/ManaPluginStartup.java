@@ -50,6 +50,11 @@ public class ManaPluginStartup implements StartupActivity
                                         .createNotification("Could not install dependencies!", NotificationType.ERROR).notify(anActionEvent.getProject());
                             }
                         }
+
+                        @Override
+                        public void onTextAvailable(@NotNull ProcessEvent event, @NotNull Key outputType) {
+                            System.out.println( event.getText() );
+                        }
                     });
                 } ))
                 .notify(project);

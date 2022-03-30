@@ -174,7 +174,7 @@ public class ManaRaplConfigurationUtil {
                     GeneralCommandLine commandLine = new GeneralCommandLine(ManaRaplConfigurationUtil.RAPL_EXECUTABLE_NAME)
                             .withExePath(MAVEN_EXECUTABLE_NAME)
                             .withEnvironment(M2_HOME_KEY, findExecutablePath("", "mvn"));
-                    commandLine.addParameter("install:install-file");  // mvn command parameter
+                    commandLine.addParameter("org.apache.maven.plugins:maven-install-plugin:2.5.2:install-file");  // mvn command parameter
                     commandLine.addParameter("-Dfile=" + artifactPath);
                     commandLine.setWorkDirectory(project.getBasePath());
                     ProcessHandlerFactory factory = ProcessHandlerFactory.getInstance();

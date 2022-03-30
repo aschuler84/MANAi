@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 )
 public class ManaSettingsState implements PersistentStateComponent<ManaSettingsState> {
 
-    public String manaInstrumentPlugin = "at.mana:instrument-maven-plugin:1.0.0";
+    public String manaInstrumentPlugin = "instrument-maven-plugin-1.0.0.jar";
     public boolean initialVerification = false;
 
     public static ManaSettingsState getInstance() {

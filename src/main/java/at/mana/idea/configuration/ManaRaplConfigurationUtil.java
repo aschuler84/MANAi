@@ -8,6 +8,7 @@
  */
 package at.mana.idea.configuration;
 
+import at.mana.core.util.OperatingSystemUtil;
 import at.mana.idea.settings.ManaSettingsState;
 import at.mana.idea.util.I18nUtil;
 import com.intellij.execution.configurations.GeneralCommandLine;
@@ -47,6 +48,11 @@ public class ManaRaplConfigurationUtil {
     public static final String MAVEN_EXECUTABLE_NAME = "mvn";
     public static final String M2_HOME_KEY = "M2_HOME";
     public static final String RAPL_HOME_KEY = "RAPL_HOME";
+
+    public static String getMvnCommand( ) {
+        return OperatingSystemUtil.getOperatingSystemType() == OperatingSystemUtil.OperatingSystemType.Windows
+                ? "mvn.cmd" : "mvn";
+    }
 
     public static String findManaPluginLibPath(   ) {
         var plugin = PluginManager
@@ -141,9 +147,8 @@ public class ManaRaplConfigurationUtil {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 try {
-                    GeneralCommandLine commandLine = new GeneralCommandLine(ManaRaplConfigurationUtil.RAPL_EXECUTABLE_NAME)
-                            .withExePath(MAVEN_EXECUTABLE_NAME)
-                            .withEnvironment(M2_HOME_KEY, findExecutablePath("", "mvn"));
+                    GeneralCommandLine commandLine = new GeneralCommandLine( getMvnCommand() );
+                            //.withExePath( findExecutablePath("", "mvn") + File.separator + MAVEN_EXECUTABLE_NAME);
                     commandLine.addParameter("dependency:get");  // mvn command parameter
                     commandLine.addParameter("-Dartifact=" + artifactName);
                     commandLine.setWorkDirectory(project.getBasePath());
@@ -171,10 +176,9 @@ public class ManaRaplConfigurationUtil {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 try {
-                    GeneralCommandLine commandLine = new GeneralCommandLine(ManaRaplConfigurationUtil.RAPL_EXECUTABLE_NAME)
-                            .withExePath(MAVEN_EXECUTABLE_NAME)
-                            .withEnvironment(M2_HOME_KEY, findExecutablePath("", "mvn"));
-                    commandLine.addParameter("org.apache.maven.plugins:maven-install-plugin:2.5.2:install-file");  // mvn command parameter
+                    GeneralCommandLine commandLine = new GeneralCommandLine( getMvnCommand() );
+                            //.withExePath( findExecutablePath("", "mvn") );
+                    commandLine.addParameter("org.apache.maven.plugins:maven-install-plugin:3.0.0-M1:install-file");  // mvn command parameter
                     commandLine.addParameter("-Dfile=" + artifactPath);
                     commandLine.setWorkDirectory(project.getBasePath());
                     ProcessHandlerFactory factory = ProcessHandlerFactory.getInstance();

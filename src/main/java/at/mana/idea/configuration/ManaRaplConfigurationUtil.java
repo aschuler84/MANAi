@@ -171,7 +171,7 @@ public class ManaRaplConfigurationUtil {
 
     public static void installManaInstrumentPluginAvailable( final Project project, final ProcessListener listener ) {
         var artifactPath= findManaPluginLibPath() + File.separator +
-                ManaSettingsState.getInstance().manaInstrumentPlugin;
+                ManaSettingsState.getInstance().manaInstrumentPluginJar;
         var task = new Task.Backgroundable( project, I18nUtil.LITERALS.getString("configuration.mana.instrument.title.install") ){
             @Override
             public void run(@NotNull ProgressIndicator indicator) {

@@ -149,6 +149,7 @@ public class ManaRaplJarConfiguration extends ApplicationConfiguration {
                 final JavaParameters params = new JavaParameters();
                 final String jreHome = myConfiguration.isAlternativeJrePathEnabled() ? myConfiguration.getAlternativeJrePath() : null;
                 setProgramParameters( buildManaCommandLine( myConfiguration ) );
+                setVMParameters( "--add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED" );
                 params.setJdk(JavaParametersUtil.createProjectJdk(myConfiguration.getProject(), jreHome));
                 setupJavaParameters(params);
                 params.setJarPath(FileUtil.toSystemDependentName(myConfiguration.getJarPath()));

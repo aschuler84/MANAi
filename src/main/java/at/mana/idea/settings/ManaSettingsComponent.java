@@ -1,6 +1,7 @@
 package at.mana.idea.settings;
 
 import at.mana.idea.configuration.ManaRaplConfigurationUtil;
+import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.process.ProcessListener;
 import com.intellij.icons.AllIcons;
@@ -38,6 +39,22 @@ public class ManaSettingsComponent {
                 .getPanel();
         buttonVerify.addActionListener( e -> {
             verifyInstallation();
+        } );
+        buttonInstallDep.addActionListener( e -> {
+            buttonInstallDep.setIcon( new AnimatedIcon.Default() );
+            ManaRaplConfigurationUtil.installManaInstrumentPluginAvailable(ProjectManager.getInstance().getDefaultProject(),
+                    new ProcessAdapter() {
+
+                        @Override
+                        public void processTerminated(@NotNull ProcessEvent event) {
+                            if( event.getExitCode() == 0 ) {
+                                SwingUtilities.invokeLater( () -> buttonInstallDep.setIcon( AllIcons.Actions.Commit ) );
+                            } else {
+                                SwingUtilities.invokeLater( () -> buttonInstallDep.setIcon( AllIcons.General.Error ) );
+                            }
+                        }
+
+                    });
         } );
     }
 

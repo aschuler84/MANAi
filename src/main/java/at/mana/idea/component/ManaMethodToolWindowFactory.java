@@ -17,7 +17,7 @@ import at.mana.idea.service.ManaEnergyDataNotifier;
 import at.mana.idea.service.StorageService;
 import at.mana.core.util.DoubleStatistics;
 import at.mana.idea.util.DateUtil;
-import at.mana.idea.util.I18nUtil;
+
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionToolbarPosition;
 import com.intellij.openapi.application.ApplicationManager;
@@ -56,6 +56,8 @@ import java.util.function.Function;
 import java.awt.*;
 import javax.swing.*;
 
+import static  at.mana.idea.util.I18nUtil.i18n;
+
 /**
  * @author Andreas Schuler
  * @since 1.0
@@ -92,10 +94,10 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
                             v.stream().max( Comparator.comparing( MethodEnergyModel::getStartDateTime) ).orElse(null);
                     if( statistics != null ){
                         String[] legend = new String[]{
-                                String.format(I18nUtil.LITERALS.getString("methodtoolwindow.ui.chart.cpupower.title"), statistics.getCpuWattage().getAverage()),
-                                //String.format(I18nUtil.LITERALS.getString("methodtoolwindow.ui.chart.gpupower.title"), statistics.getGpuWattage().getAverage()),
-                                String.format(I18nUtil.LITERALS.getString("methodtoolwindow.ui.chart.drampower.title"), statistics.getRamWattage().getAverage()),
-                                String.format(I18nUtil.LITERALS.getString("methodtoolwindow.ui.chart.otherpower.title"), statistics.getOtherWattage().getAverage())};
+                                String.format(i18n("methodtoolwindow.ui.chart.cpupower.title"), statistics.getCpuWattage().getAverage()),
+                                //String.format(i18n("methodtoolwindow.ui.chart.gpupower.title"), statistics.getGpuWattage().getAverage()),
+                                String.format(i18n("methodtoolwindow.ui.chart.drampower.title"), statistics.getRamWattage().getAverage()),
+                                String.format(i18n("methodtoolwindow.ui.chart.otherpower.title"), statistics.getOtherWattage().getAverage())};
                         Double[] values = new Double[]{
                                 statistics.getCpuWattage().getAverage(),
                                 //statistics.getGpuWattage().getAverage(),
@@ -162,7 +164,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
         if( this.columns == null ) {
             columns = new ColumnInfo[]
                     {
-                            new TreeTableColumn<String>(I18nUtil.LITERALS.getString("methodtoolwindow.ui.table.recorded.title"), TreeTableModel.class, node ->node.getUserObject().toString() ),
+                            new TreeTableColumn<String>(i18n("methodtoolwindow.ui.table.recorded.title"), TreeTableModel.class, node ->node.getUserObject().toString() ),
                             new TreeTableColumn<DoubleStatistics>("Duration", DoubleStatistics.class, node -> {
                                 if( node.getUserObject() instanceof MethodEnergyModel) {
                                     MethodEnergyModel statistics = (MethodEnergyModel) node.getUserObject();
@@ -173,7 +175,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
                                 }
                                 return null;
                             }),
-                            new TreeTableColumn<DoubleStatistics>(I18nUtil.LITERALS.getString("methodtoolwindow.ui.table.energy.title"), DoubleStatistics.class, node -> {
+                            new TreeTableColumn<DoubleStatistics>(i18n("methodtoolwindow.ui.table.energy.title"), DoubleStatistics.class, node -> {
                                 if( node.getUserObject() instanceof MethodEnergyModel) {
                                     MethodEnergyModel statistics = (MethodEnergyModel) node.getUserObject();
                                     return statistics.getEnergyConsumption();
@@ -183,7 +185,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
                                 }
                                 return null;
                             }),
-                            new TreeTableColumn<DoubleStatistics>(I18nUtil.LITERALS.getString("methodtoolwindow.ui.table.cpupower.title"), DoubleStatistics.class, node -> {
+                            new TreeTableColumn<DoubleStatistics>(i18n("methodtoolwindow.ui.table.cpupower.title"), DoubleStatistics.class, node -> {
                                 if( node.getUserObject() instanceof MethodEnergyModel) {
                                     MethodEnergyModel statistics = (MethodEnergyModel) node.getUserObject();
                                     return statistics.getCpuWattage();
@@ -193,7 +195,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
                                  }
                                 return null;
                             }),
-                            new TreeTableColumn<DoubleStatistics>(I18nUtil.LITERALS.getString("methodtoolwindow.ui.table.gpupower.title"), DoubleStatistics.class, node -> {
+                            new TreeTableColumn<DoubleStatistics>(i18n("methodtoolwindow.ui.table.gpupower.title"), DoubleStatistics.class, node -> {
                                 if( node.getUserObject() instanceof MethodEnergyModel) {
                                     MethodEnergyModel statistics = (MethodEnergyModel) node.getUserObject();
                                     return statistics.getGpuWattage();
@@ -203,7 +205,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
                                 }
                                 return null;
                             }),
-                            new TreeTableColumn<DoubleStatistics>(I18nUtil.LITERALS.getString("methodtoolwindow.ui.table.drampower.title"), DoubleStatistics.class, node -> {
+                            new TreeTableColumn<DoubleStatistics>(i18n("methodtoolwindow.ui.table.drampower.title"), DoubleStatistics.class, node -> {
                                 if( node.getUserObject() instanceof MethodEnergyModel) {
                                     MethodEnergyModel statistics = (MethodEnergyModel) node.getUserObject();
                                     return statistics.getRamWattage();
@@ -213,7 +215,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
                                 }
                                 return null;
                             }),
-                            new TreeTableColumn<DoubleStatistics>(I18nUtil.LITERALS.getString("methodtoolwindow.ui.table.otherpower.title"), DoubleStatistics.class, node -> {
+                            new TreeTableColumn<DoubleStatistics>(i18n("methodtoolwindow.ui.table.otherpower.title"), DoubleStatistics.class, node -> {
                                 if( node.getUserObject() instanceof MethodEnergyModel) {
                                     MethodEnergyModel statistics = (MethodEnergyModel) node.getUserObject();
                                     return statistics.getOtherWattage();
@@ -234,10 +236,10 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
                 energyStatistics.stream().max( Comparator.comparing( MethodEnergyModel::getStartDateTime) ).orElse(null);
         if( statistics != null ) {
             String[] legend = new String[]{
-                    String.format(I18nUtil.LITERALS.getString("methodtoolwindow.ui.chart.cpupower.title"), statistics.getCpuWattage().getAverage()),
-                    //String.format(I18nUtil.LITERALS.getString("methodtoolwindow.ui.chart.gpupower.title"), statistics.getGpuWattage().getAverage()),
-                    String.format(I18nUtil.LITERALS.getString("methodtoolwindow.ui.chart.drampower.title"), statistics.getRamWattage().getAverage()),
-                    String.format(I18nUtil.LITERALS.getString("methodtoolwindow.ui.chart.otherpower.title"), statistics.getOtherWattage().getAverage())};
+                    String.format(i18n("methodtoolwindow.ui.chart.cpupower.title"), statistics.getCpuWattage().getAverage()),
+                    //String.format(i18n("methodtoolwindow.ui.chart.gpupower.title"), statistics.getGpuWattage().getAverage()),
+                    String.format(i18n("methodtoolwindow.ui.chart.drampower.title"), statistics.getRamWattage().getAverage()),
+                    String.format(i18n("methodtoolwindow.ui.chart.otherpower.title"), statistics.getOtherWattage().getAverage())};
             Double[] values = new Double[]{
                     statistics.getCpuWattage().getAverage(),
                     //statistics.getGpuWattage().getAverage(),
@@ -398,7 +400,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
 
     private void initTable() {
         methodTree.getEmptyText().setShowAboveCenter(true);
-        methodTree.getEmptyText().setText(I18nUtil.LITERALS.getString("methodtoolwindow.ui.table.empty.title"));
+        methodTree.getEmptyText().setText(i18n("methodtoolwindow.ui.table.empty.title"));
     }
 
     @Override
@@ -417,7 +419,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
                     StorageService service = StorageService.getInstance(project);
                     updateModel(javaFile, service.findDataFor(javaFile));
                 } else {
-                    methodTree.getEmptyText().setText(I18nUtil.LITERALS.getString("methodtoolwindow.ui.table.empty.title"));
+                    methodTree.getEmptyText().setText(i18n("methodtoolwindow.ui.table.empty.title"));
                 }
             }
         }
@@ -434,7 +436,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
                 StorageService service = StorageService.getInstance(project);
                 updateModel( javaFile, service.findDataFor( javaFile ));
             } else {
-                methodTree.getEmptyText().setText(I18nUtil.LITERALS.getString("methodtoolwindow.ui.table.empty.title"));
+                methodTree.getEmptyText().setText(i18n("methodtoolwindow.ui.table.empty.title"));
             }
         }
 
@@ -448,7 +450,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
                         StorageService service = StorageService.getInstance(project);
                         updateModel( javaFile, service.findDataFor( javaFile ));
                 } else {
-                        methodTree.getEmptyText().setText(I18nUtil.LITERALS.getString("methodtoolwindow.ui.table.empty.title"));
+                        methodTree.getEmptyText().setText(i18n("methodtoolwindow.ui.table.empty.title"));
                 }
             }
         }

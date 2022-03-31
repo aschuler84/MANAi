@@ -44,14 +44,13 @@ import java.net.ServerSocket;
  */
 public class ManaRaplConfigurationUtil {
 
-    public static final String RAPL_EXECUTABLE_NAME = "execute_rapl_idea";
-    public static final String MAVEN_EXECUTABLE_NAME = "mvn";
+    public static final String MAVEN_EXECUTABLE_NAME_OSX = "mvn";
+    public static final String MAVEN_EXECUTABLE_NAME_WIN = "mvn.cmd";
     public static final String M2_HOME_KEY = "M2_HOME";
-    public static final String RAPL_HOME_KEY = "RAPL_HOME";
 
     public static String getMvnCommand( ) {
         return OperatingSystemUtil.getOperatingSystemType() == OperatingSystemUtil.OperatingSystemType.Windows
-                ? "mvn.cmd" : "mvn";
+                ? MAVEN_EXECUTABLE_NAME_WIN : MAVEN_EXECUTABLE_NAME_OSX;
     }
 
     public static String findManaPluginLibPath(   ) {
@@ -74,14 +73,14 @@ public class ManaRaplConfigurationUtil {
     }
 
     public static String findExecutablePath(String key, String executableName ) {
-        var raplHome = EnvironmentUtil.getValue(key);
-        if( raplHome == null ) {
-            File raplExec = PathEnvironmentVariableUtil.findInPath( executableName );
-            if( raplExec != null && raplExec.exists() ) {
-                return raplExec.getAbsolutePath();
+        var path = EnvironmentUtil.getValue(key);
+        if( path == null ) {
+            File pathToExec = PathEnvironmentVariableUtil.findInPath( executableName );
+            if( pathToExec != null && pathToExec.exists() ) {
+                return pathToExec.getAbsolutePath();
             }
         } else {
-            return raplHome;
+            return path;
         }
         return null;
     }

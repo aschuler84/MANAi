@@ -3,16 +3,16 @@
     <name>Mana</name>
     <vendor 
       url="https://github.com/aschuler84/MANAi" 
-      email="andreas.schu.84@gmail.com" >Andreas S.</vendor>
+      email="andreas.schu.84@gmail.com" >Andreas Schuler</vendor>
     <description><![CDATA[
     <p>
     MANAi provides ease of use for energy consumption profiling on Intel-based PCs and Macs. 
     MANAi leverages <i>Intel's Running Average Power Limit (RAPL)</i> to provide feedback to developers 
     from within Jetbrains Intellij IDEA development tool platform. The plugin provides the following features:
     <ul>
-        <li>Runner to executer energy tests and record their runtime energy consumption</li>
+        <li>Runner to executor energy tests and record their runtime energy consumption</li>
         <li>Beautiful inline charts to provide feedback to developers on the energy characteristics of individual methods</li>
-        <li>Differnt plots and charts to provide further insights and compare energy consumption in Java projects</li>
+        <li>Different plots and charts to provide further insights and compare energy consumption in Java projects</li>
     </ul>
     </p>
     ]]></description>

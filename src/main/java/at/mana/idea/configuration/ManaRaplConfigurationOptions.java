@@ -9,9 +9,7 @@
 package at.mana.idea.configuration;
 
 import com.intellij.execution.application.JvmMainMethodRunConfigurationOptions;
-import com.intellij.execution.configurations.RunConfigurationOptions;
 import com.intellij.openapi.components.StoredProperty;
-import com.intellij.psi.PsiClass;
 
 /**
  * @author Andreas Schuler

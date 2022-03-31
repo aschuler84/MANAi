@@ -9,7 +9,10 @@
 package at.mana.idea.editor;
 
 import at.mana.idea.configuration.ManaRaplConfigurationUtil;
+import at.mana.idea.settings.ManaSettingsState;
 import at.mana.idea.util.ColorUtil;
+import static at.mana.idea.util.I18nUtil.i18n;
+
 import at.mana.idea.util.I18nUtil;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
@@ -21,6 +24,12 @@ import com.intellij.ui.EditorNotificationPanel;
 import com.intellij.ui.EditorNotifications;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.awt.*;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 
 /**
@@ -44,9 +53,13 @@ public class ManaEditorNotifcationProvider extends EditorNotifications.Provider<
             if( xmlFile.getName().equals( "pom.xml" )
                   && !ManaRaplConfigurationUtil.verifyMavenManaPluginAvailable( project, xmlFile )  ) {
                 EditorNotificationPanel banner = new EditorNotificationPanel(ColorUtil.NOTIFICATION_COLOR);
-                banner.text(I18nUtil.LITERALS.getString("notification.manaplugin"));
+                banner.text(i18n("notification.manaplugin"));
                 banner.createActionLabel("Help", () -> {
-                    // TODO: Open URL to documentation
+                    try {
+                        Desktop.getDesktop().browse(new URI(ManaSettingsState.getInstance().helpUrl));
+                    } catch (URISyntaxException | IOException e) {
+                        
+                    }
                 });
                 return banner;
             }

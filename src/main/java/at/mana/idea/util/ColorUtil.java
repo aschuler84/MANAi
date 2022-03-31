@@ -12,7 +12,7 @@ public class ColorUtil {
 
     public static final JBColor NOTIFICATION_COLOR = new JBColor(
             new Color(237, 180, 180),
-            new Color(237, 180, 180));
+            new Color(142, 20, 20));
 
     public static final JBColor LINE_MARKER_DATA_AVAILABLE = new JBColor(
             JBColor.decode("0xD8F0E8"),

@@ -13,7 +13,7 @@ import at.mana.idea.service.DataAcquisitionService;
 import at.mana.idea.service.EnergyDataNotifierEvent;
 import at.mana.idea.service.ManaEnergyDataNotifier;
 import at.mana.idea.service.StorageService;
-import at.mana.idea.util.I18nUtil;
+import static at.mana.idea.util.I18nUtil.i18n;
 import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
 import com.intellij.openapi.components.Service;
@@ -54,9 +54,9 @@ public class DataAcquisitionServiceImpl extends ProcessAdapter implements DataAc
     @Override
     public void startDataAcquisition( @NotNull Project project ) {
         if( indicator != null && indicator.isRunning() ) {
-            throw new RuntimeException(I18nUtil.LITERALS.getString("dataacquisition.mana.exception"));
+            throw new RuntimeException(i18n("dataacquisition.mana.exception"));
         }
-        var task = new Task.Backgroundable( project, I18nUtil.LITERALS.getString("dataacquisition.mana.title") ){
+        var task = new Task.Backgroundable( project, i18n("dataacquisition.mana.title") ){
             @SneakyThrows
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
@@ -67,7 +67,7 @@ public class DataAcquisitionServiceImpl extends ProcessAdapter implements DataAc
                         StringBuilder builder = new StringBuilder();
                         serverSocket.setSoTimeout(10000);
                         try {
-                            indicator.setText( I18nUtil.LITERALS.getString("dataacquisition.mana.status.waiting") );
+                            indicator.setText( i18n("dataacquisition.mana.status.waiting") );
                             Socket socket = serverSocket.accept();
                             BufferedReader socketReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                             while ((read = socketReader.read()) != -1 && read != '\0') {
@@ -76,7 +76,7 @@ public class DataAcquisitionServiceImpl extends ProcessAdapter implements DataAc
                             socketReader.close();
                             socket.close();
                             logger.debug(StringUtil.coloredString().yellow().withText("data received: ").build() + builder.toString());
-                            indicator.setText( I18nUtil.LITERALS.getString("dataacquisition.mana.status.received") );
+                            indicator.setText( i18n("dataacquisition.mana.status.received") );
                             measurements.add( builder.toString() );
                         } catch (SocketTimeoutException ignore) {
                             // exception is ignored - required to verify if process is still running

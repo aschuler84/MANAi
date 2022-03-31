@@ -11,7 +11,6 @@ package at.mana.idea.configuration;
 import at.mana.idea.Icons;
 import com.intellij.execution.configurations.ConfigurationFactory;
 import com.intellij.execution.configurations.ConfigurationType;
-import com.intellij.icons.AllIcons;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +22,6 @@ import javax.swing.*;
  * @since 1.0
  */
 public class ManaRaplConfigurationType implements ConfigurationType {
-
 
     @Override
     public @NotNull @Nls(capitalization = Nls.Capitalization.Title) String getDisplayName() {

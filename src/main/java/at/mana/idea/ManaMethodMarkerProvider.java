@@ -28,17 +28,6 @@ import java.util.Collection;
 
 /**
  * @author Andreas Schuler
- * ManaMethodMarkerProvider is responsible
- * to annotate lines for energy consumption records
- * are available. The ManaMethodMarkerProvider
- * is executed for every java source file beeing
- * parsed into PSI. During the parsging, once
- * a PSI Method is found the ManaMethodMarkerProvider
- * verifies, if an energy consumption reading is
- * available for respective method.
- */
-/**
- * @author Andreas Schuler
  * @since 1.0
  */
 public class ManaMethodMarkerProvider extends RelatedItemLineMarkerProvider implements UpdateInBackground {

@@ -9,14 +9,7 @@ import javax.swing.*;
 
 public class ManaSettingsConfigurable  implements Configurable {
 
-    // TODO: test if maven repository is set
-    // TODO: test if in maven we find a maven dependency
-    // Verfiy if maven dependency is installed correctly.
-    // mvn dependency:get -Dartifact={groupId}:{artifactId}:{version}
-    // Issue an action that installs required dependencies
-
     private ManaSettingsComponent settingsComponent;
-
 
     @Override
     public @NlsContexts.ConfigurableName String getDisplayName() {

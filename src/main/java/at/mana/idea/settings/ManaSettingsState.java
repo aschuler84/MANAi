@@ -17,6 +17,7 @@ public class ManaSettingsState implements PersistentStateComponent<ManaSettingsS
     public String manaInstrumentPlugin = "at.mana:instrument-maven-plugin:1.0.0";
     public String manaInstrumentPluginJar = "instrument-maven-plugin-1.0.0.jar";
     public boolean initialVerification = false;
+    public String helpUrl = "https://github.com/aschuler84/MANAi";
 
     public static ManaSettingsState getInstance() {
         return ApplicationManager.getApplication().getService(ManaSettingsState.class);

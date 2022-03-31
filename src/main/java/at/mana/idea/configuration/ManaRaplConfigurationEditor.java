@@ -8,7 +8,7 @@
  */
 package at.mana.idea.configuration;
 
-import at.mana.idea.util.I18nUtil;
+
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.util.TreeClassChooser;
 import com.intellij.ide.util.TreeClassChooserFactory;
@@ -26,6 +26,8 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.components.fields.ExtendableTextComponent;
 import com.intellij.ui.components.fields.ExtendableTextField;
 import org.jetbrains.annotations.NotNull;
+
+import static at.mana.idea.util.I18nUtil.i18n;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -53,8 +55,8 @@ public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfi
     private PsiClass selectedClass;
 
     private static final String[] cmbContent = new String[]{
-            I18nUtil.LITERALS.getString( PROJECT_KEY ),
-            I18nUtil.LITERALS.getString( CLASS_KEY )
+            i18n( PROJECT_KEY ),
+            i18n( CLASS_KEY )
     };
 
     private static String projectName;
@@ -72,7 +74,7 @@ public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfi
             public void itemStateChanged(ItemEvent e) {
                 if( e.getStateChange() == ItemEvent.SELECTED ){
                     String item = (String) e.getItem();
-                    if( I18nUtil.LITERALS.getString(PROJECT_KEY).equals( item ) ) {
+                    if( i18n(PROJECT_KEY).equals( item ) ) {
                         txtClass.removeExtension( getBrowseExtension() );
                         txtClass.setText( projectName );
                         txtClass.setToolTipText( "" );
@@ -102,11 +104,11 @@ public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfi
         this.txtNoSamples.setText( s.getSamplingRate() + "" );
         this.spinnerSamplesRecorded.setValue( s.getNoOfSamples() );
         if( s.getSelectedClass() != null ) {
-            this.cmbMember.setSelectedItem(  I18nUtil.LITERALS.getString(CLASS_KEY) );
+            this.cmbMember.setSelectedItem(  i18n(CLASS_KEY) );
             this.selectedClass = s.getSelectedPsiClass();
             this.txtClass.setText( this.selectedClass.getQualifiedName() );
         } else {
-            this.cmbMember.setSelectedItem(  I18nUtil.LITERALS.getString(PROJECT_KEY) );
+            this.cmbMember.setSelectedItem(  i18n(PROJECT_KEY) );
             this.txtClass.setText( projectName );
         }
         ComponentValidator.getInstance(txtClass).ifPresent(ComponentValidator::revalidate);
@@ -117,10 +119,10 @@ public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfi
         s.setNoOfSamples( (int) this.spinnerSamplesRecorded.getValue() ) ;
         s.setSamplingRate( this.sliderNoSamples.getValue() );
         s.setConnectionPort( 9999 );
-        if( I18nUtil.LITERALS.getString(CLASS_KEY).equals( this.cmbMember.getSelectedItem() ) ){
+        if( i18n(CLASS_KEY).equals( this.cmbMember.getSelectedItem() ) ){
             if( selectedClass == null ) {
                 ComponentValidator.getInstance(txtClass).ifPresent( ComponentValidator::revalidate );
-                throw new ConfigurationException( I18nUtil.LITERALS.getString("configuration.ui.config.exception") );
+                throw new ConfigurationException( i18n("configuration.ui.config.exception") );
             }
             s.setSelectedClass( selectedClass.getQualifiedName() );
         } else {
@@ -140,12 +142,12 @@ public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfi
         new ComponentValidator(project).withValidator(() -> {
 
             if(StringUtil.isEmptyOrSpaces( txtClass.getText() ) ) {
-                return new ValidationInfo( I18nUtil.LITERALS.getString("configuration.ui.validation.class"), txtClass );
+                return new ValidationInfo( i18n("configuration.ui.validation.class"), txtClass );
             }
 
-            if( I18nUtil.LITERALS.getString(CLASS_KEY).equals( cmbMember.getSelectedItem() ) ) {
+            if( i18n(CLASS_KEY).equals( cmbMember.getSelectedItem() ) ) {
                 PsiClass psiClass = JavaPsiFacade.getInstance(project).findClass(txtClass.getText(), GlobalSearchScope.projectScope(project));
-                return psiClass != null ? null: new ValidationInfo(String.format(I18nUtil.LITERALS.getString("configuration.ui.validation.class.notfound"), txtClass.getText()), txtClass);
+                return psiClass != null ? null: new ValidationInfo(String.format(i18n("configuration.ui.validation.class.notfound"), txtClass.getText()), txtClass);
             }
 
             return null;
@@ -165,7 +167,7 @@ public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfi
                 ExtendableTextComponent.Extension.create(AllIcons.Actions.ListFiles, AllIcons.Actions.ListFiles,
                         "Select class", () -> {
                             TreeClassChooser chooser = TreeClassChooserFactory.getInstance(project)
-                                    .createProjectScopeChooser(I18nUtil.LITERALS.getString("configuration.ui.class.select.title"), null);
+                                    .createProjectScopeChooser(i18n("configuration.ui.class.select.title"), null);
                             chooser.showDialog();
                             selectedClass = chooser.getSelected();
                             txtClass.setText( selectedClass.getQualifiedName() );

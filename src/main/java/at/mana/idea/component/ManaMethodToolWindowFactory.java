@@ -417,7 +417,7 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
                 if (psiFile instanceof PsiJavaFile) {
                     PsiJavaFile javaFile = (PsiJavaFile) psiFile;
                     StorageService service = StorageService.getInstance(project);
-                    updateModel(javaFile, service.findDataFor(javaFile));
+                    updateModel(javaFile, ReadAction.compute( () -> service.findDataFor(javaFile)));
                 } else {
                     methodTree.getEmptyText().setText(i18n("methodtoolwindow.ui.table.empty.title"));
                 }

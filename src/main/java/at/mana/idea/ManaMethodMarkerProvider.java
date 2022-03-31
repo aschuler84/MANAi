@@ -32,8 +32,6 @@ import java.util.Collection;
  */
 public class ManaMethodMarkerProvider extends RelatedItemLineMarkerProvider implements UpdateInBackground {
 
-    private static DecimalFormat df2 = new DecimalFormat("#.##");
-
     @Override
     protected void collectNavigationMarkers(@NotNull PsiElement element, @NotNull Collection<? super RelatedItemLineMarkerInfo<?>> result) {
         Project project = element.getProject();

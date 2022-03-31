@@ -30,6 +30,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.intellij.openapi.components.Service;
+import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiMethod;
@@ -54,14 +56,20 @@ import at.mana.idea.util.HibernateUtil;
  * @since 1.0
  */
 @Service
-public class StorageServiceImpl implements StorageService {
+public class StorageServiceImpl implements StorageService
+{
 
     private final Map<PsiJavaFile, ManaEnergyExperimentModel> model = new HashMap<>();
 
 
     @Override
     public ManaEnergyExperimentModel findDataFor(PsiJavaFile file) {
+
+        if( DumbService.isDumb( file.getProject() ) )
+            return null;  // return null when indices are being built
+
         if( model.get(file) == null ) {
+
             // data is invalidated once new records are created
             ManaEnergyExperimentModel eModel = model.computeIfAbsent( file, f -> new ManaEnergyExperimentModel() );
             eModel.setExperimentFile(file);

@@ -163,11 +163,13 @@ public class StorageServiceImpl implements StorageService
                             sample.setDuration(duration);
 
                             sample.setDuration(duration);
-                            sample.setPowerCore(Arrays.asList(energyData[0]));
-                            sample.setPowerGpu(Arrays.asList(energyData[1]));
-                            sample.setPowerRam(Arrays.asList(energyData[2]));
-                            sample.setPowerOther(Arrays.asList(energyData[3]));
+                            sample.setPowerCore(new ArrayList<>(Arrays.asList(energyData[0])));
+                            sample.setPowerGpu(new ArrayList<>(Arrays.asList(energyData[1])));
+                            sample.setPowerRam(new ArrayList<>(Arrays.asList(energyData[2])));
+                            sample.setPowerOther(new ArrayList<>(Arrays.asList(energyData[3])));
                             sample.setMeasurement(measurement);
+
+                            cleanSamples( sample );
 
                             measurement.getSamples().add(sample);
                             measurement.setDescriptor(descriptor);
@@ -180,6 +182,13 @@ public class StorageServiceImpl implements StorageService
             });
             invalidateModel(); // invalidate after data is committed
         }
+    }
+
+    private void cleanSamples( Sample sample ){
+        sample.getPowerCore().removeIf( v -> v.equals( Double.NaN ) );
+        sample.getPowerGpu().removeIf( v -> v.equals( Double.NaN ) );
+        sample.getPowerOther().removeIf( v -> v.equals( Double.NaN ) );
+        sample.getPowerRam().removeIf( v -> v.equals( Double.NaN ) );
     }
 
     private Map<String, List<JsonObject>> parseRecordedData(List<String> recorded) {

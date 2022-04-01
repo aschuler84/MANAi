@@ -332,7 +332,6 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
                                 setIcon(AllIcons.Actions.ProfileBlue);
                             } else if (node.getUserObject() instanceof MethodEnergySampleModel) {
                                 MethodEnergySampleModel data = (MethodEnergySampleModel) node.getUserObject();
-                                append( row + "");
                                 setIcon(AllIcons.Xml.Html_id);
                             }
                         } else {

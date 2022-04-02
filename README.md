@@ -27,20 +27,20 @@ for energy-efficient software design amongst the developer community.
 ### Prerequisites
 MANAi relies on *Intel's Running Average Power Limit (RAPL)*. Before using MANAi
 please ensure that your system supports RAPL.
-
 Currently, MANAi comes in two different flavors, one that supports Intel-based
-Macs and the other for Windows-based systems.
+Macs and the second which offers support from Windows-based systems.
 
 #### Apple Users
 The MAC-based version relies on
-measurements obtained using an adapted version of the C++ Mozilla RAPL implementation
-available under https://firefox-source-docs.mozilla.org/performance/tools_power_rapl.html
+measurements obtained using an adapted version of the C++ Mozilla RAPL implementation. 
+Refer to https://firefox-source-docs.mozilla.org/performance/tools_power_rapl.html
+for details on Mozilla RAPL. 
 
 > ⚠️ Be aware, that MANAi only supports Intel-based Mac systems.
 
 #### Windows Users
-The Windows version of the uses Intel's Power Gadget which needs to be
-installed beforehand. You can obtain Intel Power Gadget via the following
+The Windows version utilizes Intel's Power Gadget which needs to be
+installed using the plugin. You can obtain Intel Power Gadget via the following
 https://www.intel.com/content/www/us/en/developer/articles/tool/power-gadget.html.
 After download, run the installer and test run the power gadget app
 to verify that obtaining energy measurements is available on your system.
@@ -57,7 +57,7 @@ your PATH-Variable accordingly.
 
 ### Installation
 MANAi can either be installed and used from one of the published pre-packaged binaries,
-or you can build it yourself directly from source.
+or you can build it yourself directly from source (work-in-progress).
 
 #### Installation from Pre-Built Binaries
 We provide a set of pre-built binaries which are ready to
@@ -69,18 +69,17 @@ https://zenodo.org/record/6405335#.YkcC2y-21hE
 
 #### Installation from Source
 - ⚠️ Installation from source requires two additional dependencies, which we currently
-  do not include in this repository. However, we are working distributing
+  do not include in this repository. However, we are working on distributing
   them via Maven central repository in near future.
-
 
 ### Verfiy MANAi Installation
 After installing the MANAi plugin upon first startup of the plugin,  
 MANAi asks to install dependencies. These dependencies are required
 for energy experiment execution and are installed into you local
-maven repository.
+maven repository which defaults to `~/.m2`.
 
-If the dependency installation fails, your system configuration
-might not be valid. To verify if all prerequisists are met
+If the dependency installation fails one reasons might be an invalid 
+system configuration might not be valid. To verify if all prerequisists are met
 you can open IntelliJ's preferences and proceed to
 *Language Tools, Framworks & rarr; MANAi*.
 On the MANAi settings page, click the *Verify Installation*
@@ -97,11 +96,11 @@ on how to prepare a Java project for MANAi software energy profiling.
 
 #### Project Setup and Preliminaries
 MANAi currently only supports maven-managed Java projects.
-Therefore, a preliminary step create a new Maven project from
+Therefore, as a preliminary step create a new Maven project from
 within IntelliJ which you would like to use as a foundation
 for your energy experiments.
 
-- Use whatever project coordinates you but ensure to add the following
+- Use whatever project coordinates you like, but ensure to add the following
   dependencies to the project's object model `pom.xml` file
 
 ```xml
@@ -150,15 +149,15 @@ for your energy experiments.
 ```
 
 Otherwise, whenever you open `pom.xml` file without these dependencies, MANAi will provide
-a notification that the project is not cappable for energy software
+a notification that the project is not cappable for software energy
 profiling experiments.
 
->The `<package>` configuration element is requires. It lets you specify that MANAi restricts search for energy experiment candidate classes residing in that package or one of its sub-packages.
+>The `<package>` configuration element is required. It lets you restrict search for energy experiment candidate classes residing in the specified package or one of its sub-packages.
 
 Now you should be able to define you first energy experiment:
-- Create a unit test.
-- Create a new Run Consfiguarion based on MANAi.
-- Selet sampling rate and number of collected samples.
+- Start by creating a unit test.
+- Create a new *Run Configuration*, select MANA as configuration type.
+- Select sampling interval in milliseconds and the number of collected samples.
 - Execute the run configuration - when the experiment run is finished you can inspect recorded energy consumption of execcuted tests right within your source code.
 
 ## Conclusion

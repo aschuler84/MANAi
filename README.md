@@ -1,13 +1,13 @@
 # MANAi - An IntelliJ Plugin for Software Energy Consumption Profiling
-MANAi provides ease of use for energy consumption profiling on Intel-based PCs and Macs. 
-MANAi leverages *Intel's Running Average Power Limit (RAPL)* to provide feedback to developers 
-from within Jetbrains Intellij IDEA development tool platform. 
+MANAi provides ease of use for energy consumption profiling on Intel-based PCs and Macs.
+MANAi leverages *Intel's Running Average Power Limit (RAPL)* to provide feedback to developers
+from within Jetbrains Intellij IDEA development tool platform.
 
-Once MANAi is installed and configured correctly, one can execute unit tests in Java projects 
-using the respective MANAi command runner in IDEA. Recorded samples are mapped to the respective 
-program unit in the development environment and 
-energy data is being presented. The following screenshot shows methods that were 
-executed using MANAi. The color coding gives feedback to the developer on the energy characteristics 
+Once MANAi is installed and configured correctly, one can execute unit tests in Java projects
+using the respective MANAi command runner in IDEA. Recorded samples are mapped to the respective
+program unit in the development environment and
+energy data is being presented. The following screenshot shows methods that were
+executed using MANAi. The color coding gives feedback to the developer on the energy characteristics
 of respective methods.
 
 ![](doc/fasta_code.png)
@@ -15,10 +15,10 @@ of respective methods.
 ## Motivation
 Understanding the energy implications of software design
 choices can play a crucial role towards developing
-sustainable software. MANAi helps developers, researcher 
-and students alike to make energy consumption explicit 
+sustainable software. MANAi helps developers, researcher
+and students alike to make energy consumption explicit
 by providing a wide range of visualisation and tools
-for energy-aware development straight within an integrated 
+for energy-aware development straight within an integrated
 development. This way MANAi can support in building awareness
 for energy-efficient software design amongst the developer community.
 
@@ -26,96 +26,152 @@ for energy-efficient software design amongst the developer community.
 
 ### Prerequisites
 MANAi relies on *Intel's Running Average Power Limit (RAPL)*. Before using MANAi
-please ensure that your system supports RAPL. For a list of supported 
-CPU models refer to the following table:
-
-| model name  | supported by RAPL  |
-| --- | --- |
-|   |   |
-|   |   |
-|   |   |
+please ensure that your system supports RAPL.
 
 Currently, MANAi comes in two different flavors, one that supports Intel-based
-Macs and the other for Windows-based systems. 
+Macs and the other for Windows-based systems.
 
 #### Apple Users
 The MAC-based version relies on
-measurements obtained using an adapted version of the C++ Mozilla RAPL implementation 
-available under http://
+measurements obtained using an adapted version of the C++ Mozilla RAPL implementation
+available under https://firefox-source-docs.mozilla.org/performance/tools_power_rapl.html
 
 > ⚠️ Be aware, that MANAi only supports Intel-based Mac systems.
 
 #### Windows Users
-The Windows version uses Intel's Power Gadget which needs to be 
+The Windows version of the uses Intel's Power Gadget which needs to be
 installed beforehand. You can obtain Intel Power Gadget via the following
-https://www.intel.com/content/www/us/en/developer/articles/tool/power-gadget.html. 
+https://www.intel.com/content/www/us/en/developer/articles/tool/power-gadget.html.
 After download, run the installer and test run the power gadget app
 to verify that obtaining energy measurements is available on your system.
 
-#### Maven 
-MANAi uses _Apache Maven_ for communication between an application under test 
+#### Maven
+MANAi uses _Apache Maven_ for communication between an application under test
 and the _Intellij_ plugin. In order to properly execute a MANAi test run, ensure
-_Apache Maven_ is installed on your system and properly configured. MANAi processes
-the `M2_HOME` environment variable, so ensure it is set and pointing 
-to a valid maven installation directory. The plugin was tested with _Apache Maven 3.8.4_. 
+_Apache Maven_ is installed on your system and properly configured.
+MANAi processes the `M2_HOME` environment variable, so ensure it is set and pointing
+to a valid maven installation directory. The plugin was tested with _Apache Maven 3.8.4_.
+
+Additionally, for MANAi to execute the `mvn` command directly, be sure to update
+your PATH-Variable accordingly.
 
 ### Installation
 MANAi can either be installed and used from one of the published pre-packaged binaries,
 or you can build it yourself directly from source.
 
 #### Installation from Pre-Built Binaries
-We provide a set of pre-built binaries which are ready to 
+We provide a set of pre-built binaries which are ready to
 use. Just select the correct binary depending on the system
 you are working with, download it and install the plugin
-using Intellij's internal plugin mechanism. 
+using Intellij's internal plugin mechanism.
 
-http:// ... downloadlinks
+https://zenodo.org/record/6405335#.YkcC2y-21hE
 
 #### Installation from Source
-- install maven plugin - just run mvn install
-- install MANA plugin - unzip Mana Plugin in IDEA folder → maven bash script runner - exec plugin?
-- install RAPL Command - exec plugin?
-- Provide an installation script and plugin
+- ⚠️ Installation from source requires two additional dependencies, which we currently
+  do not include in this repository. However, we are working distributing
+  them via Maven central repository in near future.
 
-```grooy
-gradle downloadFile and processResources tasks
-```
 
-```xml
-<insertxmlofmanainstrumentplugin>
-```
+### Verfiy MANAi Installation
+After installing the MANAi plugin upon first startup of the plugin,  
+MANAi asks to install dependencies. These dependencies are required
+for energy experiment execution and are installed into you local
+maven repository.
+
+If the dependency installation fails, your system configuration
+might not be valid. To verify if all prerequisists are met
+you can open IntelliJ's preferences and proceed to
+*Language Tools, Framworks & rarr; MANAi*.
+On the MANAi settings page, click the *Verify Installation*
+Link. If your configuration is correct, all entries
+should show a green checkmark icon.
 
 ### Usage
 
-#### Project Setup and Preliminaries
-- install maven plugin - just run mvn install
-- install MANA plugin - unzip Mana Plugin in IDEA folder → maven bash script runner - exec plugin?
-- install RAPL Command - exec plugin?
-- [ ]  Provide an Installation script and plugin
+MANAi can be used directly from within your IntelliJ installation.
+Once installed, you are able to define new energy experiments
+and execute them based on defined unit test methods. To
+get you up and running follow the step by step guide
+on how to prepare a Java project for MANAi software energy profiling.
 
+#### Project Setup and Preliminaries
+MANAi currently only supports maven-managed Java projects.
+Therefore, a preliminary step create a new Maven project from
+within IntelliJ which you would like to use as a foundation
+for your energy experiments.
+
+- Use whatever project coordinates you but ensure to add the following
+  dependencies to the project's object model `pom.xml` file
 
 ```xml
-how to set up a project usign manai
-```
-#### Storing Measurements
-Measurements are stored in a small _H2 database_ which is automatically created at the
-initial startup of MANAi in the user's home directory in a special `.mana` folder.
+ <dependencies>
+    <!-- this dependency is required for compilation -->
+    <dependency>
+        <groupId>at.mana</groupId>
+        <artifactId>instrument-maven-plugin</artifactId>
+        <version>1.0.0</version>
+    </dependency>
 
-Feel free to connect to the H2 database using your favorite SQL-Client application. An example
-on how to connect to the database to e.g. select and export measurements for further analysis
-using IntelliJ's internal database view is provided in our Wiki system.
+    <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.13.1</version>
+        <scope>test</scope>
+    </dependency>
+</dependencies>
+
+<build>
+    <plugins>
+        <!-- this dependency is required for instrumentation -->
+        <plugin>
+            <groupId>at.mana</groupId>
+            <artifactId>instrument-maven-plugin</artifactId>
+            <version>1.0.0</version>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>instrument-methods</goal>
+                    </goals>
+                </execution>
+            </executions>
+            <configuration>
+                <packageList>at</packageList>
+            </configuration>
+        </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.8.1</version>
+        </plugin>
+
+    </plugins>
+</build>
+```
+
+Otherwise, whenever you open `pom.xml` file without these dependencies, MANAi will provide
+a notification that the project is not cappable for energy software
+profiling experiments.
+
+>The `<package>` configuration element is requires. It lets you specify that MANAi restricts search for energy experiment candidate classes residing in that package or one of its sub-packages.
+
+Now you should be able to define you first energy experiment:
+- Create a unit test.
+- Create a new Run Consfiguarion based on MANAi.
+- Selet sampling rate and number of collected samples.
+- Execute the run configuration - when the experiment run is finished you can inspect recorded energy consumption of execcuted tests right within your source code.
 
 ## Conclusion
-MANAi provides an out-of-the-box solution 
+MANAi provides an out-of-the-box solution
 to software energy profiling from within IntelliJ IDE.
 We hope that MANAi helps to support in better comprehending
 the energy implications of software design choices. If you are
 interested in contributing to MANAi or just want to share
 your experience using the plugin, feel free to contact me.
 
-Currently, MANAi is primarily tailored to be 
-used in connection with Java applications. 
-However its modular design allow to further extend 
+Currently, MANAi is primarily tailored to be
+used in connection with Java applications.
+However its modular design allow to further extend
 it to other languages and development environments.
 
 ## License

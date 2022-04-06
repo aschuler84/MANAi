@@ -62,7 +62,11 @@ public class ManaLineEditorPainter extends EditorLinePainter implements UpdateIn
             //double total = statistics.getMethodEnergyStatistics().values().stream().flatMap(Collection::stream)
             //        .mapToDouble( value -> value.getEnergyConsumption().getAverage() ).sum();
                 statistics.getMethodEnergyStatistics().forEach((k, v) -> {
-                    if (doc.getLineNumber(k.getTextOffset()) == lineNumber) {
+                    if ( k.getTextOffset() < doc.getTextLength()
+                            && doc.getLineNumber(k.getTextOffset()) == lineNumber) {
+
+                        // TODO: change model to store method hash and include linenumber in methodDescriptor
+
                         // compute max consumption in this class
                         // print relative contribution per each method as chart -> color coded
                         List<LineExtensionInfo> histogram = createHistogram( v );

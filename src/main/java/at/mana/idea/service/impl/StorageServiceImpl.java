@@ -32,9 +32,12 @@ import com.google.gson.JsonParser;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.DumbService;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiJavaFile;
-import com.intellij.psi.PsiMethod;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.vfs.newvfs.BulkFileListener;
+import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
+import com.intellij.psi.*;
 import com.intellij.psi.util.ClassUtil;
 
 import org.jetbrains.annotations.NotNull;
@@ -60,7 +63,30 @@ public class StorageServiceImpl implements StorageService
 {
 
     private final Map<PsiJavaFile, ManaEnergyExperimentModel> model = new HashMap<>();
+    private Project project;
 
+    public StorageServiceImpl(Project project) {
+        this.project = project;
+        initFileChangeListener();
+    }
+
+    private void initFileChangeListener() {
+        project.getMessageBus().connect().subscribe(VirtualFileManager.VFS_CHANGES,
+            new BulkFileListener() {
+                @Override
+                public void after(@NotNull List<? extends VFileEvent> events) {
+                    for( VFileEvent event : events ) {
+                        VirtualFile file = event.getFile();
+                        PsiFile psiFile = PsiManager.getInstance(project).findFile( file );
+                        if( psiFile instanceof PsiJavaFile
+                                && !psiFile.getFileType().getDefaultExtension().endsWith("class") ) {
+                            PsiJavaFile javaFile = (PsiJavaFile) psiFile;
+                            model.remove(javaFile);
+                        }
+                    }
+                }
+        });
+    }
 
     @Override
     public ManaEnergyExperimentModel findDataFor(PsiJavaFile file) {

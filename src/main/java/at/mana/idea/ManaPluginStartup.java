@@ -23,7 +23,12 @@ import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
 import com.intellij.openapi.startup.StartupActivity;
 import com.intellij.openapi.util.Key;
+import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.vfs.newvfs.BulkFileListener;
+import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 import static  at.mana.idea.util.I18nUtil.i18n;
 /**
@@ -36,6 +41,8 @@ public class ManaPluginStartup implements StartupActivity
     @Override
     public void runActivity(@NotNull Project project) {
         HibernateUtil.getSessionFactory();
+
+
         if( !ManaSettingsState.getInstance().initialVerification ) {
             // TODO: extract to configuration util
             Notification notification = NotificationGroupManager.getInstance().getNotificationGroup("ManaNotificationGroup")

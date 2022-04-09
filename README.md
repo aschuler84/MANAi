@@ -12,7 +12,7 @@ energy data is being presented. The following screenshot shows methods that were
 executed using MANAi. The color coding gives feedback to the developer on the energy characteristics
 of respective methods.
 
-![](doc/fasta_code.png)
+![](doc/fasta_benchmark.png)
 
 ## Motivation
 Understanding the energy implications of software design

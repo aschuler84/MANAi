@@ -17,7 +17,6 @@ dependencies {
 
     implementation 'org.hibernate:hibernate-core:5.3.7.Final'
     implementation 'com.h2database:h2:1.4.200'
-    implementation group: 'at.mana', name: 'core', version: '1.0.0'
     implementation files('cli/instrument-maven-plugin-1.0.0.jar' )
     implementation files('cli/' + manaCliArtifact + '-' + manaVersion +  '.jar')
     compileOnly 'org.projectlombok:lombok:1.18.20'

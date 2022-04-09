@@ -1,4 +1,5 @@
 # MANAi - An IntelliJ Plugin for Software Energy Consumption Profiling
+[![MANAi Tests](https://github.com/aschuler84/MANAi/actions/workflows/gradle.yml/badge.svg?branch=main)](https://github.com/aschuler84/MANAi/actions/workflows/gradle.yml)
 MANAi provides ease of use for energy consumption profiling on Intel-based PCs and Macs.
 MANAi leverages *Intel's Running Average Power Limit (RAPL)* to provide feedback to developers
 from within Jetbrains Intellij IDEA development tool platform.

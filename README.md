@@ -3,12 +3,12 @@
 
 MANAi provides ease of use for energy consumption profiling on Intel-based PCs and Macs.
 MANAi leverages *Intel's Running Average Power Limit (RAPL)* to provide feedback to developers
-from within Jetbrains Intellij IDEA development tool platform.
+from within Jetbrain's Intellij IDEA development tool platform.
 
 Once MANAi is installed and configured correctly, one can execute unit tests in Java projects
 using the respective MANAi command runner in IDEA. Recorded samples are mapped to the respective
 program unit in the development environment and
-energy data is being presented. The following screenshot shows methods that were
+energy data is being presented. The following screenshot shows a method that was
 executed using MANAi. The color coding gives feedback to the developer on the energy characteristics
 of respective methods.
 
@@ -20,9 +20,8 @@ choices can play a crucial role towards developing
 sustainable software. MANAi helps developers, researcher
 and students alike to make energy consumption explicit
 by providing a wide range of visualisation and tools
-for energy-aware development straight within an integrated
-development. This way MANAi can support in building awareness
-for energy-efficient software design amongst the developer community.
+for energy-aware development, straight within an integrated
+development.
 
 ## Getting Started
 
@@ -42,7 +41,7 @@ for details on Mozilla RAPL.
 
 #### Windows Users
 The Windows version utilizes Intel's Power Gadget which needs to be
-installed using the plugin. You can obtain Intel Power Gadget via the following
+installed before using the plugin. You can obtain Intel Power Gadget via the following link
 https://www.intel.com/content/www/us/en/developer/articles/tool/power-gadget.html.
 After download, run the installer and test run the power gadget app
 to verify that obtaining energy measurements is available on your system.

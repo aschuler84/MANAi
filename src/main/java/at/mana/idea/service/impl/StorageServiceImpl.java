@@ -77,11 +77,13 @@ public class StorageServiceImpl implements StorageService
                 public void after(@NotNull List<? extends VFileEvent> events) {
                     for( VFileEvent event : events ) {
                         VirtualFile file = event.getFile();
-                        PsiFile psiFile = PsiManager.getInstance(project).findFile( file );
-                        if( psiFile instanceof PsiJavaFile
-                                && !psiFile.getFileType().getDefaultExtension().endsWith("class") ) {
-                            PsiJavaFile javaFile = (PsiJavaFile) psiFile;
-                            model.remove(javaFile);
+                        if( file != null && file.isValid() ) {  // #28: verify that file is valid before proceeding
+                            PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
+                            if (psiFile instanceof PsiJavaFile
+                                    && !psiFile.getFileType().getDefaultExtension().endsWith("class")) {
+                                PsiJavaFile javaFile = (PsiJavaFile) psiFile;
+                                model.remove(javaFile);
+                            }
                         }
                     }
                 }

@@ -35,18 +35,20 @@ measurements obtained using an adapted version of the C++ Mozilla RAPL implement
 Refer to https://firefox-source-docs.mozilla.org/performance/tools_power_rapl.html
 for details on Mozilla RAPL. 
 
-> ⚠️ Be aware, that MANAi only supports Intel-based Mac systems.
+> ⚠️ Be aware that MANAi only supports Intel-based Mac systems.
 
 #### Windows Users
 The Windows version utilizes Intel's Power Gadget which needs to be
 installed before using the plugin. You can obtain Intel Power Gadget via the following link
 https://www.intel.com/content/www/us/en/developer/articles/tool/power-gadget.html.
 After download, run the installer and test run the power gadget app
-to verify that obtaining energy measurements is available on your system.
+to verify that obtaining energy measurements is available on your system. After installing
+Power Gadget verify that the environment variables `IPG_Dir` and `IPG_Ver` are 
+properly set. 
 
 #### Maven
 MANAi uses _Apache Maven_ for communication between an application under test
-and the _Intellij_ plugin. In order to properly execute a MANAi test run, ensure
+and the _Intellij_ plugin. In order to execute a MANAi test run, ensure
 _Apache Maven_ is installed on your system and properly configured.
 MANAi processes the `M2_HOME` environment variable, so ensure it is set and pointing
 to a valid maven installation directory. The plugin was tested with _Apache Maven 3.8.4_.
@@ -64,7 +66,7 @@ use. Just select the correct binary depending on the system
 you are working with, download it and install the plugin
 using Intellij's internal plugin mechanism.
 
-https://zenodo.org/record/6405335#.YkcC2y-21hE
+- Refer to [MANAi Zenodo Dataset](https://zenodo.org/record/6405335#.YkcC2y-21hE) for Download
 
 #### Installation from Source
 - ⚠️ Installation from source requires two additional dependencies, which we currently
@@ -180,3 +182,4 @@ This Source Code Form is subject to the terms of the Mozilla Public License, v. 
 ## Contributing
 We are currently bringing together a contribution guide
 which will cover information on how you can contribute to MANAi.
+

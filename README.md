@@ -28,11 +28,9 @@ development.
 ### Prerequisites
 MANAi relies on *Intel's Running Average Power Limit (RAPL)*. Before using MANAi
 please ensure that your system supports RAPL.
-Currently, MANAi comes in two different flavors, one that supports Intel-based
-Macs and the second which offers support from Windows-based systems.
 
-#### Apple Users
-The MAC-based version relies on
+#### Linux and Apple Users
+The Linux and OsX-based version relies on
 measurements obtained using an adapted version of the C++ Mozilla RAPL implementation. 
 Refer to https://firefox-source-docs.mozilla.org/performance/tools_power_rapl.html
 for details on Mozilla RAPL. 

@@ -32,6 +32,12 @@
         <projectService serviceInterface="at.mana.idea.service.StorageService"
                         serviceImplementation="at.mana.idea.service.impl.StorageServiceImpl"/>
 
+        <projectService serviceInterface="at.mana.idea.service.TraceService"
+                        serviceImplementation="at.mana.idea.service.impl.TraceServiceImpl"/>
+
+        <projectService serviceInterface="at.mana.idea.service.MemberDescriptorService"
+                        serviceImplementation="at.mana.idea.service.impl.MemberDescriptorServiceImpl"/>
+
         <codeInsight.lineMarkerProvider language="JAVA"
                                         implementationClass="at.mana.idea.ManaMethodMarkerProvider"/>
         <annotator language="JAVA" implementationClass="at.mana.idea.ManaMethodEnergyAnnotator"/>

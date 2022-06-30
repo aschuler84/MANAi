@@ -20,5 +20,7 @@
         <mapping class="at.mana.idea.domain.Measurement"/>
         <mapping class="at.mana.idea.domain.MemberDescriptor"/>
         <mapping class="at.mana.idea.domain.Sample"/>
+        <mapping class="at.mana.idea.domain.Trace"/>
+        <mapping class="at.mana.idea.domain.Run"/>
     </session-factory>
 </hibernate-configuration>

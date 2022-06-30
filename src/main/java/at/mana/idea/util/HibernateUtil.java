@@ -60,7 +60,12 @@ public class HibernateUtil {
         }
         try {
             return callback.execute(getCurrentSession());
-        } finally {
+        } catch( Exception e ) {
+            if(tx != null )
+                tx.rollback();
+            throw new RuntimeException("Failed to store data in database");
+        }
+        finally {
             if (tx != null) {
                 tx.commit();
             }

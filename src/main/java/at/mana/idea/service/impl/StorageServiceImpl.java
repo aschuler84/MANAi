@@ -10,7 +10,9 @@ package at.mana.idea.service.impl;
 
 import static at.mana.core.util.MatrixHelper.transposeDbl;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -18,19 +20,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
+import at.mana.idea.domain.*;
+import at.mana.idea.service.MemberDescriptorService;
 import at.mana.idea.service.StorageService;
+import at.mana.idea.service.TraceService;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.intellij.openapi.components.Service;
-import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -45,9 +51,6 @@ import org.jetbrains.annotations.Nullable;
 
 import at.mana.core.util.HashUtil;
 import at.mana.core.util.KeyValuePair;
-import at.mana.idea.domain.Measurement;
-import at.mana.idea.domain.MemberDescriptor;
-import at.mana.idea.domain.Sample;
 import at.mana.idea.model.ManaEnergyExperimentModel;
 import at.mana.idea.model.MethodEnergyModel;
 import at.mana.idea.model.MethodEnergySampleModel;
@@ -65,8 +68,12 @@ public class StorageServiceImpl implements StorageService
     private final Map<PsiJavaFile, ManaEnergyExperimentModel> model = new HashMap<>();
     private Project project;
 
+    private MemberDescriptorService memberDescriptorService;
+    private TraceService traceService;
+
     public StorageServiceImpl(Project project) {
         this.project = project;
+        this.traceService = project.getService( TraceService.class );
         initFileChangeListener();
     }
 
@@ -148,23 +155,29 @@ public class StorageServiceImpl implements StorageService
     @Override
     public void processAndStore(List<String> recorded) {
         if (recorded != null && !recorded.isEmpty()) {
-            Map<String, List<JsonObject>> groupedEntries = parseRecordedData( recorded );
+            Map<String, List<JsonObject>> groupedEntries = parseRecordedEnergyData( recorded );
             HibernateUtil.executeInTransaction(session -> {
+                Run run = new Run();
+                run.setDate( LocalDateTime.now() );
                 for( var entry : groupedEntries.entrySet() ) {
                     Measurement measurement = new Measurement();
                     entry.getValue().stream().forEach( json -> {
-                        JsonArray dataArray = json.get("data").getAsJsonArray();
-                        String hash = json.get("hash").getAsString();
-                        String method = json.get("methodName").getAsString();
-                        String clazz = json.get("className").getAsString();
-                        String methodDescriptor = json.get("methodDescriptor").getAsString();
-                        LocalDateTime startDateTime = LocalDateTime.parse( json.get("startTime").getAsString(), DateUtil.Formatter);
-                        LocalDateTime endDateTime = LocalDateTime.parse( json.get("endTime").getAsString(), DateUtil.Formatter);
-                        long duration = json.get("duration").getAsLong();
-                        long samplingRate = json.get("samplingRate").getAsLong();
+
+                        JsonObject rootEntry = json.getAsJsonObject("energy");
+                        JsonArray childEntries = json.getAsJsonArray("trace");
+
+                        JsonArray dataArray = rootEntry.get("data").getAsJsonArray();
+                        String hash = rootEntry.get("hash").getAsString();
+                        String method = rootEntry.get("methodName").getAsString();
+                        String clazz = rootEntry.get("className").getAsString();
+                        String methodDescriptor = rootEntry.get("methodDescriptor").getAsString();
+                        LocalDateTime startDateTime = LocalDateTime.parse( rootEntry.get("startTime").getAsString(), DateUtil.Formatter);
+                        LocalDateTime endDateTime = LocalDateTime.parse( rootEntry.get("endTime").getAsString(), DateUtil.Formatter);
+                        long duration = rootEntry.get("duration").getAsLong();
+                        long samplingRate = rootEntry.get("samplingRate").getAsLong();
 
                         // try to find method descriptor in database get descriptor if available otherwise get new one
-                        MemberDescriptor descriptor = findOrDefault(hash, new MemberDescriptor(
+                        MemberDescriptor descriptor = memberDescriptorService.findOrDefault(hash, new MemberDescriptor(
                                 hash, method, methodDescriptor, clazz
                         ));
 
@@ -191,10 +204,11 @@ public class StorageServiceImpl implements StorageService
                             sample.setDuration(duration);
 
                             sample.setDuration(duration);
-                            sample.setPowerCore(new ArrayList<>(Arrays.asList(energyData[0])));
-                            sample.setPowerGpu(new ArrayList<>(Arrays.asList(energyData[1])));
-                            sample.setPowerRam(new ArrayList<>(Arrays.asList(energyData[2])));
-                            sample.setPowerOther(new ArrayList<>(Arrays.asList(energyData[3])));
+                            sample.setSamplingPeriod( samplingRate );
+                            sample.setPowerCore( new ArrayList<>(Arrays.asList(energyData[0])) );
+                            sample.setPowerGpu( new ArrayList<>(Arrays.asList(energyData[1])) );
+                            sample.setPowerRam( new ArrayList<>(Arrays.asList(energyData[2])) );
+                            sample.setPowerOther( new ArrayList<>(Arrays.asList(energyData[3])) );
                             sample.setMeasurement(measurement);
 
                             cleanSamples( sample );
@@ -202,7 +216,11 @@ public class StorageServiceImpl implements StorageService
                             measurement.getSamples().add(sample);
                             measurement.setDescriptor(descriptor);
                             descriptor.getMeasurements().add(measurement);
+
+                            traceService.attributeTraces( sample, rootEntry, childEntries );
+                            run.getMeasurements().add( measurement );
                             session.save(descriptor);
+                            session.save(run);
                         }
                     } );
                 }
@@ -212,6 +230,8 @@ public class StorageServiceImpl implements StorageService
         }
     }
 
+
+
     private void cleanSamples( Sample sample ){
         sample.getPowerCore().removeIf( v -> v.equals( Double.NaN ) );
         sample.getPowerGpu().removeIf( v -> v.equals( Double.NaN ) );
@@ -219,9 +239,13 @@ public class StorageServiceImpl implements StorageService
         sample.getPowerRam().removeIf( v -> v.equals( Double.NaN ) );
     }
 
-    private Map<String, List<JsonObject>> parseRecordedData(List<String> recorded) {
-        return recorded.stream().map( e -> (JsonObject) JsonParser.parseString(e) )
-                .collect( Collectors.groupingBy( json -> json.get("hash").getAsString() ) );
+    private Map<String, List<JsonObject>> parseRecordedEnergyData(List<String> recorded) {
+        // returns JsonObject(entry, trace)
+        return recorded.stream().map( e -> JsonParser.parseString(e).getAsJsonObject() )
+                .collect( Collectors.groupingBy( json ->
+                        json.getAsJsonObject("energy").get("hash").getAsString() ) );
+        //return recorded.stream().map( e -> ((JsonObject) JsonParser.parseString(e)).getAsJsonObject("energy") )
+        //        .collect( Collectors.groupingBy( json -> json.get("hash").getAsString() ) );
     }
 
     private void invalidateModel(){
@@ -243,16 +267,7 @@ public class StorageServiceImpl implements StorageService
         return model;
     }
 
-    private MemberDescriptor findOrDefault(String hash, @Nullable  MemberDescriptor memberDescriptor) {
-        return HibernateUtil.executeInTransaction(session -> {
-            var builder = session.getCriteriaBuilder();
-            var query = builder.createQuery(MemberDescriptor.class);
-            var root = query.from(MemberDescriptor.class);
-            query = query.select(root).where(root.get("hash").in(hash));
-            var result = session.createQuery(query).getResultList();
-            return result.size() == 1 ? result.get(0) : memberDescriptor;
-        });
-    }
+
 
 }
 

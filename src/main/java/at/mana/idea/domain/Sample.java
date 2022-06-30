@@ -37,6 +37,8 @@ public class Sample {
     private Measurement measurement;
     private Long duration;
 
+    private Long samplingPeriod;
+
     @ElementCollection
     private List<Double> powerCore;
     @ElementCollection
@@ -45,6 +47,9 @@ public class Sample {
     private List<Double> powerRam;
     @ElementCollection
     private List<Double> powerOther;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL,mappedBy = "sample")
+    private List<Trace> trace;
 
 
 }

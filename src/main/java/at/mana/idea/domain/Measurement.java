@@ -33,8 +33,9 @@ public class Measurement  {
     @ManyToOne( fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     private MemberDescriptor descriptor;
 
-    @OneToMany( fetch = FetchType.LAZY, cascade =  CascadeType.ALL, mappedBy = "measurement")
+    @OneToMany( fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "measurement")
     private Set<Sample> samples = new HashSet<>();
 
-
+    @ManyToOne( fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    private Run run;
 }

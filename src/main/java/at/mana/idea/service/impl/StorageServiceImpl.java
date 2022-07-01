@@ -74,6 +74,7 @@ public class StorageServiceImpl implements StorageService
     public StorageServiceImpl(Project project) {
         this.project = project;
         this.traceService = project.getService( TraceService.class );
+        this.memberDescriptorService = project.getService(MemberDescriptorService.class);
         initFileChangeListener();
     }
 
@@ -216,11 +217,11 @@ public class StorageServiceImpl implements StorageService
                             measurement.getSamples().add(sample);
                             measurement.setDescriptor(descriptor);
                             descriptor.getMeasurements().add(measurement);
-
-                            traceService.attributeTraces( sample, rootEntry, childEntries );
                             run.getMeasurements().add( measurement );
+                            session.save(measurement);
                             session.save(descriptor);
                             session.save(run);
+                            traceService.attributeTraces( sample, rootEntry, childEntries );
                         }
                     } );
                 }

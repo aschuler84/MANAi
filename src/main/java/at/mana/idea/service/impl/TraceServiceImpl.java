@@ -62,11 +62,7 @@ public class TraceServiceImpl implements TraceService {
                             .filter(aDouble -> sample.getStartDateTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
                                     + (sample.getSamplingPeriod() * endIndex.get()) > endMillis)
                             .mapToInt(value -> endIndex.get()).findFirst()
-                            .orElseGet(() ->
-                                    sample.getStartDateTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                                            + (sample.getSamplingPeriod() * powerCpu.length) > endMillis
-                                            ? powerCpu.length - 1
-                                            : indexOfStartEstimate);  // if overflow return last or start index
+                            .orElseGet(() -> powerCpu.length-1 );  // if overflow return last or start index
 
                     Trace methodTrace = new Trace();
                     // This query should find member descriptors which have already been inserted
@@ -88,6 +84,9 @@ public class TraceServiceImpl implements TraceService {
                     methodTrace.setGpuPower(IntStream.range(indexOfStartEstimate, indexOfEndEstimate + 1)
                             .mapToObj(i -> powerGpu[i]).collect(Collectors.toList()));
                     sample.getTrace().add(methodTrace);
+                    methodTrace.setSample(sample);
+                    session.save(methodTrace);
+                    session.save(sample);
                 });
             } else {
                 // No trace data available...

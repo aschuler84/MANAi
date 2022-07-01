@@ -99,7 +99,7 @@ public class ManaLineEditorPainter extends EditorLinePainter implements UpdateIn
             }
         } );
         return new LineExtensionInfo(chart.toString(),
-                ColorUtil.HEAT_MAP_COLORS_DEFAULT[Math.min(index, ColorUtil.HEAT_MAP_COLORS_DEFAULT.length)],
+                ColorUtil.HEAT_MAP_COLORS_DEFAULT[Math.min(index, ColorUtil.HEAT_MAP_COLORS_DEFAULT.length-1)],
                 EffectType.ROUNDED_BOX,
                 JBColor.RED,
                 Font.PLAIN);

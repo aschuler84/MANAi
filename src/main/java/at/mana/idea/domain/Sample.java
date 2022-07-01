@@ -14,7 +14,9 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Andreas Schuler
@@ -49,7 +51,7 @@ public class Sample {
     private List<Double> powerOther;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL,mappedBy = "sample")
-    private List<Trace> trace;
+    private Set<Trace> trace = new HashSet<>();
 
 
 }

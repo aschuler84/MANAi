@@ -6,7 +6,9 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -21,6 +23,6 @@ public class Run {
     private LocalDateTime date;
 
     @OneToMany( fetch = FetchType.EAGER, cascade = CascadeType.ALL,mappedBy = "run")
-    private List<Measurement> measurements;
+    private Set<Measurement> measurements = new HashSet();
 
 }

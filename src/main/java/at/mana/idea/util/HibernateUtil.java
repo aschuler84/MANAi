@@ -20,6 +20,7 @@ import org.hibernate.cfg.Configuration;
 public class HibernateUtil {
 
         private static SessionFactory sessionFactory;
+        private static final ThreadLocal<Transaction> tx = new ThreadLocal<>();
 
         public static SessionFactory getSessionFactory(){
             if( sessionFactory == null )
@@ -54,20 +55,22 @@ public class HibernateUtil {
         }
 
     public static <T> T executeInTransaction( ActionCallback<T> callback) {
-        Transaction tx = null;
+        boolean newTx = false;
         if (!getCurrentSession().getTransaction().isActive()) {
-            tx = getCurrentSession().beginTransaction();
+            tx.set(getCurrentSession().beginTransaction());
+            newTx = true;
         }
         try {
             return callback.execute(getCurrentSession());
-        } catch( Exception e ) {
-            if(tx != null )
-                tx.rollback();
-            throw new RuntimeException("Failed to store data in database");
+        } catch (RuntimeException e) {
+            if(tx.get() != null) tx.get().rollback();
+            tx.set(null);
+            throw e;
         }
         finally {
-            if (tx != null) {
-                tx.commit();
+            if (tx.get() != null && newTx) {
+                tx.get().commit();
+                tx.set(null);
             }
         }
     }

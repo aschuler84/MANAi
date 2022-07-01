@@ -21,6 +21,7 @@ public class ManaRaplConfigurationOptions extends JvmMainMethodRunConfigurationO
     private final StoredProperty<Integer> noSamplesProperty = property(10).provideDelegate( this, "noOfSamples" );
     private final StoredProperty<Integer> samplingRateProperty = property(50).provideDelegate(this,"samplingRate" );
     private final StoredProperty<String> selectedClass = string(null).provideDelegate(this,"selectedClass" );
+    private final StoredProperty<Boolean> collectTrace = property(false).provideDelegate(this, "collectTrace");
 
     public int getNoOfSamples() {
         return noSamplesProperty.getValue(this);
@@ -49,5 +50,13 @@ public class ManaRaplConfigurationOptions extends JvmMainMethodRunConfigurationO
     public void setSelectedClass( String selectedClass ){ this.selectedClass.setValue( this, selectedClass ); }
 
     public String getSelectedClass( ) { return selectedClass.getValue( this ); }
+
+    public void setCollectTrace( boolean collectTrace ){
+        this.collectTrace.setValue( this, collectTrace );
+    }
+
+    public boolean isCollectTrace( ) {
+        return this.collectTrace.getValue( this );
+    }
 
 }

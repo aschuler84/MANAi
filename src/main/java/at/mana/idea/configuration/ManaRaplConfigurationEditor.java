@@ -32,7 +32,6 @@ import static at.mana.idea.util.I18nUtil.i18n;
 import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.event.*;
-import java.util.Objects;
 
 /**
  * @author Andreas Schuler
@@ -46,6 +45,7 @@ public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfi
     private JTextField txtNoSamples;
     private ExtendableTextField txtClass;
     private ComboBox<String> cmbMember;
+    private JCheckBox traceCheckBox;
     private ExtendableTextComponent.Extension browseExtension;
 
     private static final String CLASS_KEY = "configuration.ui.class.title";
@@ -103,6 +103,7 @@ public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfi
         this.sliderNoSamples.setValue( s.getSamplingRate() );
         this.txtNoSamples.setText( s.getSamplingRate() + "" );
         this.spinnerSamplesRecorded.setValue( s.getNoOfSamples() );
+        this.traceCheckBox.setSelected( s.isCollectTrace() );
         if( s.getSelectedClass() != null ) {
             this.cmbMember.setSelectedItem(  i18n(CLASS_KEY) );
             this.selectedClass = s.getSelectedPsiClass();
@@ -119,6 +120,7 @@ public class ManaRaplConfigurationEditor extends SettingsEditor<ManaRaplJarConfi
         s.setNoOfSamples( (int) this.spinnerSamplesRecorded.getValue() ) ;
         s.setSamplingRate( this.sliderNoSamples.getValue() );
         s.setConnectionPort( 9999 );
+        s.setCollectTrace( this.traceCheckBox.isSelected() );
         if( i18n(CLASS_KEY).equals( this.cmbMember.getSelectedItem() ) ){
             if( selectedClass == null ) {
                 ComponentValidator.getInstance(txtClass).ifPresent( ComponentValidator::revalidate );

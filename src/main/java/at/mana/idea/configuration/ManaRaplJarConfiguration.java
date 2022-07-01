@@ -88,6 +88,14 @@ public class ManaRaplJarConfiguration extends ApplicationConfiguration {
         return getOptions().getSelectedClass();
     }
 
+    public void setCollectTrace( boolean collectTrace ) {
+        getOptions().setCollectTrace(collectTrace);
+    }
+
+    public boolean isCollectTrace(  ) {
+        return getOptions().isCollectTrace();
+    }
+
     public PsiClass getSelectedPsiClass() {
         String className = getSelectedClass();
         if( className != null )
@@ -134,10 +142,10 @@ public class ManaRaplJarConfiguration extends ApplicationConfiguration {
 
     private String buildManaCommandLine( ManaRaplJarConfiguration configuration ) {
         //command: rapl -p 9999 -i /Users/andreasschuler/Documents/repository/instrument-mana-test -n 5
-        return String.format( "rapl -p %d -i %s -n %d",
+        return String.format( "rapl -p %d -i %s -n %d %s",
                 configuration.getConnectionPort(),
                 getProject().getBasePath(),
-                configuration.getNoOfSamples() );
+                configuration.getNoOfSamples(), configuration.isCollectTrace() ? "-t" : "" );
     }
 
     @Override

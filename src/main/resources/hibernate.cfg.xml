@@ -22,5 +22,7 @@
         <mapping class="at.mana.idea.domain.Sample"/>
         <mapping class="at.mana.idea.domain.Trace"/>
         <mapping class="at.mana.idea.domain.Run"/>
+        <!--<mapping class="at.mana.idea.domain.Analysis"/>
+        <mapping class="at.mana.idea.domain.AnalysisComponent"/>-->
     </session-factory>
 </hibernate-configuration>

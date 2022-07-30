@@ -12,6 +12,10 @@ import com.intellij.execution.process.ProcessListener;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * @author Andreas Schuler
+ * @since 1.0
+ */
 public interface DataAcquisitionService extends ProcessListener {
 
     static DataAcquisitionService getInstance(@NotNull Project project) {

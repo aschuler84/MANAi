@@ -9,6 +9,7 @@
 package at.mana.idea;
 
 import at.mana.idea.configuration.ManaRaplConfigurationUtil;
+import at.mana.idea.listener.HoverListener;
 import at.mana.idea.settings.ManaSettingsState;
 import at.mana.idea.util.HibernateUtil;
 
@@ -18,6 +19,7 @@ import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationAction;
 import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationType;
+import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
@@ -40,8 +42,11 @@ public class ManaPluginStartup implements StartupActivity
 
     @Override
     public void runActivity(@NotNull Project project) {
+        // Install Editor Listeners
+        HoverListener hl = new HoverListener();
+        EditorFactory.getInstance().getEventMulticaster().addEditorMouseListener(hl );
+        EditorFactory.getInstance().getEventMulticaster().addEditorMouseMotionListener(hl);
         HibernateUtil.getSessionFactory();
-
 
         if( !ManaSettingsState.getInstance().initialVerification ) {
             // TODO: extract to configuration util

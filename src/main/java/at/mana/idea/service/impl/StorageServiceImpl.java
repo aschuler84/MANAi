@@ -68,6 +68,8 @@ public class StorageServiceImpl implements StorageService
     private final Map<PsiJavaFile, ManaEnergyExperimentModel> model = new HashMap<>();
     private Project project;
 
+    private PsiMethod selectedMethod;
+
     private MemberDescriptorService memberDescriptorService;
     private TraceService traceService;
 
@@ -268,6 +270,18 @@ public class StorageServiceImpl implements StorageService
         return model;
     }
 
+    public void setSelectedMethod( PsiMethod method ) {
+        this.selectedMethod = method;
+    }
+
+    public void clearSelectedMethod(  ) {
+        this.selectedMethod = null;
+    }
+
+    @Override
+    public boolean hasSelectedMethod( PsiMethod method ) {
+        return this.selectedMethod != null && this.selectedMethod.equals(method);
+    }
 
 
 }

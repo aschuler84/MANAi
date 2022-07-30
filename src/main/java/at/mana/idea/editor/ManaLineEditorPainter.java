@@ -66,17 +66,24 @@ public class ManaLineEditorPainter extends EditorLinePainter implements UpdateIn
                             && doc.getLineNumber(k.getTextOffset()) == lineNumber) {
 
                         // TODO: change model to store method hash and include linenumber in methodDescriptor
-
+                        // Store current marker position offset and line number
+                        JBColor defaultColor = ColorUtil.INLINE_TEXT;
+                        String caret = "";
+                        if( service.hasSelectedMethod( k ) ) {
+                            defaultColor = ColorUtil.INLINE_TEXT_HIGHLIGHTED;
+                            caret = " \u142F";
+                        }
                         // compute max consumption in this class
                         // print relative contribution per each method as chart -> color coded
-                        List<LineExtensionInfo> histogram = createHistogram( v );
+                        List<LineExtensionInfo> histogram = createHistogram( v, defaultColor );
                         Optional<MethodEnergyModel> oM = v.stream().max(Comparator.comparing(MethodEnergyModel::getStartDateTime));
                         if (oM.isPresent()) {
                             String energyConsumption = String.format( "\u251C %.3fJ", oM.get().getEnergyConsumption().getAverage() );
                             lines.addAll(histogram);
-                            lines.add(new LineExtensionInfo("    \u2502",ColorUtil.INLINE_TEXT, EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
+                            lines.add(new LineExtensionInfo("    \u2502",defaultColor, EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
                             lines.add( createInLineChart( oM.get().getEnergyConsumption().getAverage()/total.get() ) );
-                            lines.add(new LineExtensionInfo(energyConsumption, ColorUtil.INLINE_TEXT, EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
+                            lines.add(new LineExtensionInfo(energyConsumption, defaultColor, EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
+                            lines.add(new LineExtensionInfo(caret, defaultColor, EffectType.ROUNDED_BOX, JBColor.RED, Font.BOLD));
                         }
                     }
                 });
@@ -105,7 +112,7 @@ public class ManaLineEditorPainter extends EditorLinePainter implements UpdateIn
                 Font.PLAIN);
     }
 
-    private List<LineExtensionInfo> createHistogram( List<MethodEnergyModel> statistics ) {
+    private List<LineExtensionInfo> createHistogram( List<MethodEnergyModel> statistics, JBColor defaultColor ) {
         final int max = 5;
         double[] bins = new double[max];
         String[] elements = new String[]{
@@ -152,8 +159,8 @@ public class ManaLineEditorPainter extends EditorLinePainter implements UpdateIn
         if( lines.size() < max )
             IntStream.range( 0, max - lines.size() ).forEach( i -> lines.add(0, new LineExtensionInfo( " ", ColorUtil.HEAT_MAP_COLORS_DEFAULT[0], EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN) ) );
 
-        lines.add(0,new LineExtensionInfo("      \u2502", ColorUtil.INLINE_TEXT, EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
-        lines.add(new LineExtensionInfo("\u251C ", ColorUtil.INLINE_TEXT, EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
+        lines.add(0,new LineExtensionInfo("      \u2502", defaultColor, EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
+        lines.add(new LineExtensionInfo("\u251C ", defaultColor, EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
 
         //lines.add(new LineExtensionInfo(String.format( "%.3fJ", sum/(1.0*bins.length)), ColorUtil.INLINE_TEXT, EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
         var rate = (newest.getEnergyConsumption().getAverage() - lowest.getEnergyConsumption().getAverage() ) / lowest.getEnergyConsumption().getAverage();
@@ -169,6 +176,9 @@ public class ManaLineEditorPainter extends EditorLinePainter implements UpdateIn
         return lines;
     }
 
+
+    // TODO: Make inline painter elements clickable -> https://github.com/alexmojaki/birdseye-pycharm/blob/master/src/com/github/alexmojaki/birdseye/pycharm/HoverListener.java#L17-L59
+    // and https://github.com/alexmojaki/birdseye-pycharm/blob/614ab08e9e954e5a1f8a12efd35004d6839c1b88/src/com/github/alexmojaki/birdseye/pycharm/HoverValueEditorLinePainter.java#L53
 
 
 }

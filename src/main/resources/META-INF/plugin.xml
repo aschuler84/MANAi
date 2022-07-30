@@ -40,7 +40,7 @@
 
         <codeInsight.lineMarkerProvider language="JAVA"
                                         implementationClass="at.mana.idea.ManaMethodMarkerProvider"/>
-        <annotator language="JAVA" implementationClass="at.mana.idea.ManaMethodEnergyAnnotator"/>
+        <!--<annotator language="JAVA" implementationClass="at.mana.idea.ManaMethodEnergyAnnotator"/>-->
 
         <notificationGroup id="ManaNotificationGroup" displayType="BALLOON"/>
 

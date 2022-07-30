@@ -28,4 +28,10 @@ public interface StorageService {
     public MethodEnergyModel findDataFor(PsiMethod method, PsiJavaFile file);
 
     void processAndStore( List<String> measurements);
+
+    void setSelectedMethod( PsiMethod method );
+
+    void clearSelectedMethod(  );
+
+    boolean hasSelectedMethod( PsiMethod method );
 }

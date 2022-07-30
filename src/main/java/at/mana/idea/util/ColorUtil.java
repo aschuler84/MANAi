@@ -19,6 +19,7 @@ public class ColorUtil {
             JBColor.decode("0x073c0a"));
 
     public static final JBColor INLINE_TEXT = new JBColor( JBColor.decode("0x999999"), JBColor.decode("0x999999"));
+    public static final JBColor INLINE_TEXT_HIGHLIGHTED = new JBColor( JBColor.decode("0x222222"), JBColor.decode("0xCCCCCC"));
 
     public static final JBColor INLINE_TEXT_INCREASE = new JBColor(new Color(255, 143, 143), new Color(255, 143, 143));
     public static final JBColor INLINE_TEXT_DECREASE = new JBColor(new Color(154,197,166), new Color(154,197,166));

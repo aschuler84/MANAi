@@ -8,6 +8,8 @@
  */
 package at.mana.idea;
 
+import at.mana.idea.component.ManaMethodToolWindow;
+import at.mana.idea.component.ManaMethodToolWindowFactory;
 import at.mana.idea.component.plot.SingleSpectrumPlotComponent;
 import at.mana.idea.component.plot.SingleSpectrumPlotModel;
 import at.mana.idea.configuration.ManaRaplConfigurationUtil;
@@ -25,6 +27,7 @@ import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationAction;
 import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationType;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorFactory;
@@ -69,10 +72,9 @@ public class ManaPluginStartup implements StartupActivity
         EditorFactory.getInstance().getEventMulticaster().addEditorMouseMotionListener(hl);
 
         HibernateUtil.getSessionFactory();
+        ManaMethodToolWindowFactory.initToolWindow(project);
 
-        ManaEnergyDataNotifier publisher = project.getMessageBus()
-                .syncPublisher(ManaEnergyDataNotifier.MANA_ENERGY_DATA_NOTIFIER_TOPIC);
-        publisher.update( new EnergyDataNotifierEvent( project, null ));
+        //ManaMethodToolWindow methodToolWindow = (ManaMethodToolWindow) window.getContentManager().getComponent();
 
         // TODO: uncomment if required - Advanced inline charts
         /*final AnalysisService service = AnalysisService.getInstance(project);

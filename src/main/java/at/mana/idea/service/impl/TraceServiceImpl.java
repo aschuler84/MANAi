@@ -5,6 +5,7 @@ import at.mana.idea.domain.Sample;
 import at.mana.idea.domain.Trace;
 import at.mana.idea.service.MemberDescriptorService;
 import at.mana.idea.service.TraceService;
+import at.mana.idea.util.DateUtil;
 import at.mana.idea.util.HibernateUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -41,8 +42,8 @@ public class TraceServiceImpl implements TraceService {
 
                 childEntries.forEach(jsonElement -> {
                     JsonObject trace = jsonElement.getAsJsonObject();
-                    long startMillis = trace.get("start").getAsLong();
-                    long endMillis = trace.get("end").getAsLong();
+                    long startMicros = trace.get("start").getAsLong();
+                    long endMicros = trace.get("end").getAsLong();
                     String className = trace.get("className").getAsString();
                     String methodName = trace.get("methodName").getAsString();
                     String methodDescriptor = trace.get("methodDescriptor").getAsString();
@@ -53,14 +54,14 @@ public class TraceServiceImpl implements TraceService {
                     int indexOfStartEstimate = Arrays.stream(powerCpu)
                             .peek(aDouble -> startIndex.incrementAndGet())
                             .filter(aDouble ->
-                                    sample.getStartDateTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                                            + (sample.getSamplingPeriod() * startIndex.get()) >= startMillis)
+                                    DateUtil.getMicrosecondsSinceEpochFrom( sample.getStartDateTime().atZone(ZoneId.systemDefault()).toInstant() )
+                                            + ((sample.getSamplingPeriod() * 1000) * startIndex.get()) >= startMicros)
                             .mapToInt(value -> startIndex.get()).findFirst().orElse(0);
 
                     int indexOfEndEstimate = Arrays.stream(powerCpu)
                             .peek(aDouble -> endIndex.incrementAndGet())
-                            .filter(aDouble -> sample.getStartDateTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                                    + (sample.getSamplingPeriod() * endIndex.get()) > endMillis)
+                            .filter(aDouble -> DateUtil.getMicrosecondsSinceEpochFrom( sample.getStartDateTime().atZone(ZoneId.systemDefault()).toInstant() )
+                                    + ((sample.getSamplingPeriod()*1000) * endIndex.get()) > endMicros)
                             .mapToInt(value -> endIndex.get()).findFirst()
                             .orElseGet(() -> powerCpu.length-1 );  // if overflow return last or start index
 
@@ -73,8 +74,8 @@ public class TraceServiceImpl implements TraceService {
                     session.saveOrUpdate( descriptor );
 
                     methodTrace.setDescriptor(descriptor);
-                    methodTrace.setStart(Instant.ofEpochMilli(startMillis).atZone(ZoneId.systemDefault()).toLocalDateTime());
-                    methodTrace.setEnd(Instant.ofEpochMilli(endMillis).atZone(ZoneId.systemDefault()).toLocalDateTime());
+                    methodTrace.setStart(DateUtil.getInstantFromMicros(startMicros).atZone(ZoneId.systemDefault()).toLocalDateTime());
+                    methodTrace.setEnd(DateUtil.getInstantFromMicros(endMicros).atZone(ZoneId.systemDefault()).toLocalDateTime());
                     methodTrace.setCpuPower(IntStream.range(indexOfStartEstimate, indexOfEndEstimate + 1)
                             .mapToObj(i -> powerCpu[i]).collect(Collectors.toList()));
                     methodTrace.setRamPower(IntStream.range(indexOfStartEstimate, indexOfEndEstimate + 1)

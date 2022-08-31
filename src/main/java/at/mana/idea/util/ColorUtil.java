@@ -35,6 +35,14 @@ public class ColorUtil {
             new JBColor(new Color(255, 143, 143), new Color(255, 143, 143))
     };
 
+    public static final Color[] HEAT_MAP_COLORS_SEAGREEN = new Color[] {
+            new JBColor(JBColor.decode("0x86D9AC"), JBColor.decode("0x86D9AC")),
+            new JBColor(JBColor.decode("0x66C992"), JBColor.decode("0x66C992")),
+            new JBColor(JBColor.decode("0x41B675"), JBColor.decode("0x41B675")),
+            new JBColor(JBColor.decode("0x35A367"), JBColor.decode("0x35A367")),
+            new JBColor(JBColor.decode("0x2E8C59"), JBColor.decode("0x2E8C59"))
+    };
+
     public static final Color[] STACK_COLORS_DEFAULT = new Color[] {
             new JBColor(new Color(138,153,212), new Color(138,153,212)),
             new JBColor(new Color(120,184,174), new Color(120,184,174)),

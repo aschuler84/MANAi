@@ -44,6 +44,11 @@ public class ManaTraceFileEditor implements FileEditor {
     }
 
     @Override
+    public @Nullable VirtualFile getFile() {
+        return this.file;
+    }
+
+    @Override
     public @NotNull JComponent getComponent() {
         return comp;
     }

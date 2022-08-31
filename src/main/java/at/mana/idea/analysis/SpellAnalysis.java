@@ -4,6 +4,7 @@ import at.mana.core.util.DoubleStatistics;
 import at.mana.idea.domain.*;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +56,7 @@ public class SpellAnalysis {
                                                          ).reduce( this::reduce ).map( a -> divide(a, totals) ).orElseThrow() )
                         ).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         Analysis analysis = new Analysis();
+        analysis.setCreated( LocalDateTime.now() );
         analysis.getComponents().addAll(
                 componentSum.entrySet().stream()
                         .map( a -> new AnalysisComponent( a.getKey(), analysis, Arrays.asList(a.getValue()) ) )
@@ -75,12 +77,17 @@ public class SpellAnalysis {
     }
 
     private SpellComponent toAnalysisComponent( MemberDescriptor memberDescriptor, List<Trace> traces ) {
-        DoubleStatistics powerCpu = traces.stream().flatMap( trace -> trace.getCpuPower().stream() ).collect(DoubleStatistics.collector());
-        DoubleStatistics powerRam = traces.stream().flatMap( trace -> trace.getRamPower().stream() ).collect(DoubleStatistics.collector());
-        DoubleStatistics powerGpu = traces.stream().flatMap( trace -> trace.getGpuPower().stream() ).collect(DoubleStatistics.collector());
-        DoubleStatistics powerOther = traces.stream().flatMap( trace -> trace.getOtherPower().stream() ).collect(DoubleStatistics.collector());
+        DoubleStatistics powerCpu = traces.stream().flatMap( trace
+                -> trace.getCpuPower().stream() ).collect(DoubleStatistics.collector());
+        DoubleStatistics powerRam = traces.stream().flatMap( trace
+                -> trace.getRamPower().stream() ).collect(DoubleStatistics.collector());
+        DoubleStatistics powerGpu = traces.stream().flatMap( trace
+                -> trace.getGpuPower().stream() ).collect(DoubleStatistics.collector());
+        DoubleStatistics powerOther = traces.stream().flatMap( trace
+                -> trace.getOtherPower().stream() ).collect(DoubleStatistics.collector());
         double frequency = traces.size();
-        double duration = traces.stream().map(trace -> Duration.between( trace.getStart(), trace.getEnd() ).toMillis() ).mapToLong( l -> l ).average().orElse(0.0);
+        double duration = traces.stream().map(trace
+                -> Duration.between( trace.getStart(), trace.getEnd() ).toMillis() ).mapToLong( l -> l ).average().orElse(0.0);
         var component = new SpellComponent(  );
         component.values =  List.of(powerCpu.getAverage() + powerRam.getAverage() + powerOther.getAverage() + powerGpu.getAverage(), frequency, duration );
         component.descriptor =  memberDescriptor;

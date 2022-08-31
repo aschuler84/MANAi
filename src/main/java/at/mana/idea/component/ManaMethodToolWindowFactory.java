@@ -9,16 +9,20 @@
 package at.mana.idea.component;
 
 import at.mana.idea.component.plot.*;
+import at.mana.idea.model.AnalysisModel;
 import at.mana.idea.model.MethodEnergyModel;
 import at.mana.idea.model.MethodEnergySampleModel;
 import at.mana.idea.model.ManaEnergyExperimentModel;
+import at.mana.idea.service.AnalysisService;
 import at.mana.idea.service.EnergyDataNotifierEvent;
 import at.mana.idea.service.ManaEnergyDataNotifier;
 import at.mana.idea.service.StorageService;
 import at.mana.core.util.DoubleStatistics;
+import at.mana.idea.util.ColorUtil;
 import at.mana.idea.util.DateUtil;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbarPosition;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
@@ -55,6 +59,7 @@ import java.util.function.Function;
 
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.tree.TreePath;
 
 import static  at.mana.idea.util.I18nUtil.i18n;
 
@@ -67,24 +72,30 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
     private final Tree methodTree = new Tree();
     private SingleStackedBarPlotComponent barPlotComponent;
     private MultipleStackedBarPlotComponent multipleBarPlotComponent;
+    private SpectrumPlotComponent spectrumPlotComponent;
     private SingleStackedBarPlotModel barPlotModel;
     private MultipleStackedBarPlotModel multipleBarPlotModel;
+    private SpectrumPlotModel spectrumPlotModel;
     private JLabel lblTitle;
     private TreeTable treeTable;
     private ColumnInfo<DefaultMutableTreeNode, String>[] columns;
     private ManaEnergyExperimentModel model;
+    private AnalysisModel analysisModel;
     private JBTabbedPane tabContainer;
 
-    private void updateModel( PsiJavaFile file, ManaEnergyExperimentModel data ) {
+    private void updateModel(PsiJavaFile file, ManaEnergyExperimentModel data, AnalysisModel analysisModel) {
         ReadAction.run( () -> {
             this.model = data;
+            this.analysisModel = analysisModel;
+            DefaultMutableTreeNode root = new DefaultMutableTreeNode(file.getClasses()[0]);
             if( model != null && !model.getMethodEnergyStatistics().isEmpty() ) {
                 // TODO get classes from file -> build parent nodes for each of them
-                DefaultMutableTreeNode root = new DefaultMutableTreeNode(file.getClasses()[0]);
+                DefaultMutableTreeNode energyNode = new DefaultMutableTreeNode(model);
                 for (var stats : model.getMethodEnergyStatistics().entrySet()) {
                     DefaultMutableTreeNode node = new DefaultMutableTreeNode(stats.getKey());
-                    root.add(node);
+                    energyNode.add(node);
                 }
+                root.add(energyNode);
                 methodTree.setModel(new DefaultTreeModel(root));
 
                 // update model for overview chart
@@ -110,9 +121,8 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
                 String[] legend = new String[]{ "CPU", "DRAM", "UNCORE" };
                 multipleBarPlotModel = new DefaultMultipleStackedBarPlotModel( legend, series.toArray(SingleStackedBarPlotModel[]::new) );
                 SwingUtilities.invokeLater( () ->  multipleBarPlotComponent.setModel( multipleBarPlotModel ) );
-
             } else {
-                DefaultMutableTreeNode root = new DefaultMutableTreeNode(file.getClasses()[0]);
+
                 root.add( new DefaultMutableTreeNode( "No recorded energy data found" ) );
                 SwingUtilities.invokeLater( () -> {
                     methodTree.setModel(new DefaultTreeModel(root));
@@ -120,8 +130,29 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
                     bind(new ArrayList<>());
                 });
             }
-        } );
+            if( analysisModel != null && !analysisModel.getComponents().isEmpty() ) {
+                DefaultMutableTreeNode analysisNode = new DefaultMutableTreeNode(analysisModel);
+                /*for (var stats : analysisModel.getComponents().entrySet()) {
+                    DefaultMutableTreeNode node = new DefaultMutableTreeNode(stats.getKey());
+                    analysisNode.add(node);
+                }*/
 
+                root.add( analysisNode );
+                methodTree.setModel(new DefaultTreeModel(root));
+                spectrumPlotModel = new SpectrumPlotModel( analysisModel );
+                SwingUtilities.invokeLater( () ->  spectrumPlotComponent.setModel( spectrumPlotModel ) );
+            } else {
+                root.add( new DefaultMutableTreeNode( "No analysis data found" ) );
+                SwingUtilities.invokeLater( () -> {
+                    methodTree.setModel(new DefaultTreeModel(root));
+                    spectrumPlotComponent.setModel( null );
+                    bind(new ArrayList<>());
+                });
+            }
+
+
+        } );
+        spectrumPlotComponent.setModel(new SpectrumPlotModel(null));
     }
 
     private JBSplitter createBaseComponent() {
@@ -147,12 +178,19 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
                 if( node == null )
                     return;
                 if( node.getUserObject() instanceof PsiClass ) {
-                    PsiClass clazz = (PsiClass) node.getUserObject();
                     tabContainer.setSelectedIndex(0);
                 } else if ( node.getUserObject() instanceof PsiMethod ) {
                     List<MethodEnergyModel> stats = model.getMethodEnergyStatistics().get( node.getUserObject() );
                     tabContainer.setSelectedIndex(1);
                     bind( stats );
+                } else if( node.getUserObject() instanceof AnalysisModel ) {
+                    tabContainer.setSelectedIndex(2);
+                } else if( node.getUserObject() instanceof ManaEnergyExperimentModel ) {
+                    DefaultMutableTreeNode child = (DefaultMutableTreeNode) node.getChildAt(0);
+                    //List<MethodEnergyModel> stats = model.getMethodEnergyStatistics().get(child.getUserObject() );
+                    tabContainer.setSelectedIndex(1);
+                    methodTree.setSelectionPath(  new TreePath( child.getPath() ) );
+                    //bind( stats );
                 }
             }
         });
@@ -305,6 +343,27 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
         panel.add( splitRigthDetails, BorderLayout.CENTER );
         splitRigthDetails.setProportion( 0.8f );
         tabContainer.insertTab( "Method Data", null, panel, "", 1 );
+
+        panel = new JPanel();
+        panel.setLayout( new BorderLayout( ));
+        spectrumPlotComponent = new SpectrumPlotComponent();
+        spectrumPlotComponent.setCellRenderer( (value, column, row, cellComponent) -> {
+            Double numericValue = (Double) value;
+            String val = String.format( "%.3f", numericValue );
+            cellComponent.setText( val );
+            final int max = 5;
+            int index = (int) ( max * numericValue );
+            cellComponent.setFont( cellComponent.getFont().deriveFont( 10f ) );
+            cellComponent.setOpaque(true);
+            cellComponent.setBackground( ColorUtil.HEAT_MAP_COLORS_DEFAULT[Math.min(index, ColorUtil.HEAT_MAP_COLORS_DEFAULT.length-1)]);
+            cellComponent.setBorder( BorderFactory.createEmptyBorder(10,10,10,10) );
+            cellComponent.setForeground( cellComponent.getBackground().darker().darker().darker() );
+            cellComponent.setHorizontalAlignment( JLabel.CENTER );
+            return cellComponent;
+        } );
+        panel.add( spectrumPlotComponent, BorderLayout.CENTER );
+        tabContainer.insertTab( "Spell Analysis", null, panel, "", 2 );
+
         return tabContainer;
     }
 
@@ -349,9 +408,12 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
         treeTable.getTree().setShowsRootHandles(true);
         treeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         ToolbarDecorator decorator = ToolbarDecorator.createDecorator( treeTable );
-        //ActionManager actionManager = ActionManager.getInstance();
-        //decorator.addExtraAction( AnActionButton.fromAction(
-        //        actionManager.getAction("at.mana.idea.component.InitializeManaProject")));
+        ActionManager actionManager = ActionManager.getInstance();
+        decorator.addExtraAction( AnActionButton.fromAction(
+                actionManager.getAction("at.mana.idea.action.openEditor")));
+        decorator.addExtraAction( AnActionButton.fromAction(
+                actionManager.getAction("at.mana.idea.action.spellAnalysis")));
+
         decorator.setToolbarPosition(ActionToolbarPosition.TOP);
         decorator.setScrollPaneBorder(JBUI.Borders.customLine(JBColor.border(), 0, 0, 0, 1));
         decorator.setToolbarBorder(JBUI.Borders.customLine(JBColor.border(), 0, 0, 1, 1));
@@ -416,7 +478,9 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
                 if (psiFile instanceof PsiJavaFile) {
                     PsiJavaFile javaFile = (PsiJavaFile) psiFile;
                     StorageService service = StorageService.getInstance(project);
-                    updateModel(javaFile, ReadAction.compute( () -> service.findDataFor(javaFile)));
+                    AnalysisService analysisService = AnalysisService.getInstance(project);
+                    updateModel(javaFile, ReadAction.compute( () -> service.findDataFor(javaFile)),
+                            ReadAction.compute( () -> analysisService.findDataFor(javaFile)));
                 } else {
                     methodTree.getEmptyText().setText(i18n("methodtoolwindow.ui.table.empty.title"));
                 }
@@ -433,7 +497,9 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
             if( psiFile instanceof PsiJavaFile ) {
                 PsiJavaFile javaFile = (PsiJavaFile) psiFile;
                 StorageService service = StorageService.getInstance(project);
-                updateModel( javaFile, service.findDataFor( javaFile ));
+                AnalysisService analysisService = AnalysisService.getInstance(project);
+                updateModel(javaFile, ReadAction.compute( () -> service.findDataFor(javaFile)),
+                        ReadAction.compute( () -> analysisService.findDataFor(javaFile)));
             } else {
                 methodTree.getEmptyText().setText(i18n("methodtoolwindow.ui.table.empty.title"));
             }
@@ -447,7 +513,9 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
                     if( file instanceof PsiJavaFile ) {
                         PsiJavaFile javaFile = (PsiJavaFile) file;
                         StorageService service = StorageService.getInstance(project);
-                        updateModel( javaFile, service.findDataFor( javaFile ));
+                        AnalysisService analysisService = AnalysisService.getInstance(project);
+                        updateModel(javaFile, ReadAction.compute( () -> service.findDataFor(javaFile)),
+                                ReadAction.compute( () -> analysisService.findDataFor(javaFile)));
                 } else {
                         methodTree.getEmptyText().setText(i18n("methodtoolwindow.ui.table.empty.title"));
                 }
@@ -476,6 +544,12 @@ public class ManaMethodToolWindowFactory implements ToolWindowFactory, ManaEnerg
                 } else if( node.getUserObject() instanceof String ) {
                     label.setIcon( AllIcons.General.Error );
                     label.setText( node.getUserObject().toString() );
+                } else if( node.getUserObject() instanceof AnalysisModel ) {
+                    label.setIcon( AllIcons.Actions.Preview );
+                    label.setText( "Analysis Data" );
+                } else if( node.getUserObject() instanceof  ManaEnergyExperimentModel ) {
+                    label.setIcon( AllIcons.Debugger.ThreadStates.Socket );
+                    label.setText( "Recorded Energy Data" );
                 }
             }
             return label;

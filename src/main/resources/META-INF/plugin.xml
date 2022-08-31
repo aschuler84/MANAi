@@ -38,6 +38,9 @@
         <projectService serviceInterface="at.mana.idea.service.MemberDescriptorService"
                         serviceImplementation="at.mana.idea.service.impl.MemberDescriptorServiceImpl"/>
 
+        <projectService serviceImplementation="at.mana.idea.service.impl.AnalysisServiceImpl"
+                        serviceInterface="at.mana.idea.service.AnalysisService"/>
+
         <codeInsight.lineMarkerProvider language="JAVA"
                                         implementationClass="at.mana.idea.ManaMethodMarkerProvider"/>
         <!--<annotator language="JAVA" implementationClass="at.mana.idea.ManaMethodEnergyAnnotator"/>-->
@@ -51,9 +54,11 @@
                     anchor="bottom"
                     factoryClass="at.mana.idea.component.ManaMethodToolWindowFactory" />
 
+
         <configurationType implementation="at.mana.idea.configuration.ManaRaplConfigurationType"/>
 
         <editor.linePainter implementation="at.mana.idea.editor.ManaLineEditorPainter" />
+        <editor.linePainter implementation="at.mana.idea.editor.SpectrumLineEditorPainter" />
         
         <runConfigurationProducer implementation="at.mana.idea.configuration.ManaRaplRunConfigurationProducer"/>
 
@@ -67,8 +72,13 @@
                 id="at.mana.idea.settings.ManaSettingsConfigurable"
                 displayName="MANAi"/>
 
+        <fileEditorProvider implementation="at.mana.idea.component.ManaTraceFileEditorProvider" id="mana">
+        </fileEditorProvider>
+
     </extensions>
 
     <actions>
+        <action class="at.mana.idea.action.OpenEditorAction" id="at.mana.idea.action.openEditor"/>
+        <action class="at.mana.idea.action.SpellAnalysisAction" id="at.mana.idea.action.spellAnalysis"/>
     </actions>
 </idea-plugin>

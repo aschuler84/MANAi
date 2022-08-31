@@ -62,17 +62,14 @@ public class ManaLineEditorPainter extends EditorLinePainter implements UpdateIn
             //double total = statistics.getMethodEnergyStatistics().values().stream().flatMap(Collection::stream)
             //        .mapToDouble( value -> value.getEnergyConsumption().getAverage() ).sum();
                 statistics.getMethodEnergyStatistics().forEach((k, v) -> {
-                    if ( k.getTextOffset() < doc.getTextLength()
+                    if ( (v != null && !v.isEmpty() ) && k.getTextOffset() < doc.getTextLength()
                             && doc.getLineNumber(k.getTextOffset()) == lineNumber) {
 
                         // TODO: change model to store method hash and include linenumber in methodDescriptor
                         // Store current marker position offset and line number
                         JBColor defaultColor = ColorUtil.INLINE_TEXT;
                         String caret = "";
-                        if( service.hasSelectedMethod( k ) ) {
-                            defaultColor = ColorUtil.INLINE_TEXT_HIGHLIGHTED;
-                            caret = " \u142F";
-                        }
+
                         // compute max consumption in this class
                         // print relative contribution per each method as chart -> color coded
                         List<LineExtensionInfo> histogram = createHistogram( v, defaultColor );

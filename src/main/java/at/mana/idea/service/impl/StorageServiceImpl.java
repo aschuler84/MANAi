@@ -10,9 +10,7 @@ package at.mana.idea.service.impl;
 
 import static at.mana.core.util.MatrixHelper.transposeDbl;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -20,9 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -33,6 +29,7 @@ import at.mana.idea.domain.*;
 import at.mana.idea.service.MemberDescriptorService;
 import at.mana.idea.service.StorageService;
 import at.mana.idea.service.TraceService;
+import at.mana.idea.util.MethodUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -44,12 +41,10 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.newvfs.BulkFileListener;
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
 import com.intellij.psi.*;
-import com.intellij.psi.util.ClassUtil;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import at.mana.core.util.HashUtil;
 import at.mana.core.util.KeyValuePair;
 import at.mana.idea.model.ManaEnergyExperimentModel;
 import at.mana.idea.model.MethodEnergyModel;
@@ -111,14 +106,7 @@ public class StorageServiceImpl implements StorageService
             // data is invalidated once new records are created
             ManaEnergyExperimentModel eModel = model.computeIfAbsent( file, f -> new ManaEnergyExperimentModel() );
             eModel.setExperimentFile(file);
-            PsiClass[] classes = file.getClasses();
-            List<KeyValuePair<PsiMethod, String>> keys = Arrays.stream(classes).flatMap(c -> Arrays.stream(c.getMethods()))
-                    .map(m -> new KeyValuePair<>(m, HashUtil.hash(
-                            m.getName(),
-                            ClassUtil.getJVMClassName(m.getContainingClass()),
-                            ClassUtil.getAsmMethodSignature(m))))
-                    .collect(Collectors.toList());
-
+            List<KeyValuePair<PsiMethod, String>> keys = MethodUtil.buildHashFromMethods(file);
             HibernateUtil.executeInTransaction(session -> {
                 CriteriaBuilder builder = session.getCriteriaBuilder();
                 CriteriaQuery<MemberDescriptor> query = builder.createQuery(MemberDescriptor.class);
@@ -270,18 +258,6 @@ public class StorageServiceImpl implements StorageService
         return model;
     }
 
-    public void setSelectedMethod( PsiMethod method ) {
-        this.selectedMethod = method;
-    }
-
-    public void clearSelectedMethod(  ) {
-        this.selectedMethod = null;
-    }
-
-    @Override
-    public boolean hasSelectedMethod( PsiMethod method ) {
-        return this.selectedMethod != null && this.selectedMethod.equals(method);
-    }
 
 
 }

@@ -49,9 +49,9 @@ public class SpellAnalysisTest {
         // Then
         Assert.assertNotNull(result);
         Assert.assertEquals( 2, result.getComponents().size() );
-        Assert.assertEquals( 0.5, result.getComponents().stream().findFirst().get().getValues().get(0), 0.00000001 );
-        Assert.assertEquals( 0.5, result.getComponents().stream().findFirst().get().getValues().get(1), 0.00000001 );
-        Assert.assertEquals( 0.5, result.getComponents().stream().findFirst().get().getValues().get(2), 0.00000001 );
+        Assert.assertEquals( 0.5, result.getComponents().stream().findFirst().get().getComponentValues().get(0), 0.00000001 );
+        Assert.assertEquals( 0.5, result.getComponents().stream().findFirst().get().getComponentValues().get(1), 0.00000001 );
+        Assert.assertEquals( 0.5, result.getComponents().stream().findFirst().get().getComponentValues().get(2), 0.00000001 );
 
     }
 }

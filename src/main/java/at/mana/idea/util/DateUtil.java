@@ -8,7 +8,11 @@
  */
 package at.mana.idea.util;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Andreas Schuler
@@ -18,4 +22,12 @@ public class DateUtil {
 
     public static DateTimeFormatter Formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
+    public static Instant getInstantFromMicros(Long microsSinceEpoch) {
+        return Instant.ofEpochSecond(TimeUnit.MICROSECONDS.toSeconds(microsSinceEpoch),
+                TimeUnit.MICROSECONDS.toNanos( Math.floorMod( microsSinceEpoch, TimeUnit.SECONDS.toMicros(1))));
+    }
+
+    public static long getMicrosecondsSinceEpochFrom( Instant instant ) {
+       return ChronoUnit.MICROS.between(java.time.Instant.EPOCH, instant);
+    }
 }

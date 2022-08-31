@@ -17,10 +17,10 @@ public class AnalysisComponent {
     @GeneratedValue
     private Long id;
 
-    public AnalysisComponent(MemberDescriptor descriptor, Analysis analysis, List<Double> values) {
+    public AnalysisComponent(MemberDescriptor descriptor, Analysis analysis, List<Double> components) {
         this.descriptor = descriptor;
         this.analysis = analysis;
-        this.values = values;
+        this.componentValues = components;
     }
 
     @ManyToOne( fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
@@ -30,6 +30,6 @@ public class AnalysisComponent {
     private Analysis analysis;
 
     @ElementCollection
-    private List<Double> values;
+    private List<Double> componentValues;
 
 }

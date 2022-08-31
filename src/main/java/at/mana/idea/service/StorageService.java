@@ -23,15 +23,10 @@ public interface StorageService {
         return project.getService( StorageService.class);
     }
 
-    public ManaEnergyExperimentModel findDataFor(PsiJavaFile file );
+    public ManaEnergyExperimentModel findDataFor( PsiJavaFile file );
 
     public MethodEnergyModel findDataFor(PsiMethod method, PsiJavaFile file);
 
     void processAndStore( List<String> measurements);
 
-    void setSelectedMethod( PsiMethod method );
-
-    void clearSelectedMethod(  );
-
-    boolean hasSelectedMethod( PsiMethod method );
 }

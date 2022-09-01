@@ -37,10 +37,10 @@ public class TraceServiceImpl implements TraceService {
         return HibernateUtil.executeInTransaction( session -> {
             if (!childEntries.isEmpty()) {
                 // get data from samples
-                Double[] powerCpu = sample.getPowerCore().toArray(new Double[]{});
-                Double[] powerOther = sample.getPowerOther().toArray(new Double[]{});
-                Double[] powerRam = sample.getPowerRam().toArray(new Double[]{});
-                Double[] powerGpu = sample.getPowerGpu().toArray(new Double[]{});
+                Double[] powerCpu = sample.getPowerCore();
+                Double[] powerOther = sample.getPowerOther();
+                Double[] powerRam = sample.getPowerRam();
+                Double[] powerGpu = sample.getPowerGpu();
 
                 final Map<String, MemberDescriptor> cachedDescriptors = new HashMap<>();
 

@@ -20,5 +20,4 @@ public class MemberDescriptorServiceImpl implements MemberDescriptorService {
             return result.size() == 1 ? result.get(0) : memberDescriptor;
         });
     }
-
 }

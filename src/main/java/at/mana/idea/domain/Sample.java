@@ -46,14 +46,14 @@ public class Sample {
 
     private Long samplingPeriod;
 
-    @ElementCollection
-    private List<Double> powerCore;
-    @ElementCollection
-    private List<Double> powerGpu;
-    @ElementCollection
-    private List<Double> powerRam;
-    @ElementCollection
-    private List<Double> powerOther;
+    @Lob
+    private Double[] powerCore;
+    @Lob
+    private Double[] powerGpu;
+    @Lob
+    private Double[] powerRam;
+    @Lob
+    private Double[] powerOther;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL,mappedBy = "sample")
     private Set<Trace> trace = new HashSet<>();

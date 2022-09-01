@@ -197,10 +197,10 @@ public class StorageServiceImpl implements StorageService
 
                             sample.setDuration(duration);
                             sample.setSamplingPeriod( samplingRate );
-                            sample.setPowerCore( new ArrayList<>(Arrays.asList(energyData[0])) );
-                            sample.setPowerGpu( new ArrayList<>(Arrays.asList(energyData[1])) );
-                            sample.setPowerRam( new ArrayList<>(Arrays.asList(energyData[2])) );
-                            sample.setPowerOther( new ArrayList<>(Arrays.asList(energyData[3])) );
+                            sample.setPowerCore( energyData[0] );
+                            sample.setPowerGpu( energyData[1] );
+                            sample.setPowerRam( energyData[2] );
+                            sample.setPowerOther( energyData[3] );
                             sample.setMeasurement(measurement);
 
                             cleanSamples( sample );
@@ -227,10 +227,14 @@ public class StorageServiceImpl implements StorageService
 
 
     private void cleanSamples( Sample sample ){
-        sample.getPowerCore().removeIf( v -> v.equals( Double.NaN ) || v.equals(Double.POSITIVE_INFINITY) || v.equals(Double.NEGATIVE_INFINITY) );
-        sample.getPowerGpu().removeIf( v -> v.equals( Double.NaN ) || v.equals(Double.POSITIVE_INFINITY) || v.equals(Double.NEGATIVE_INFINITY));
-        sample.getPowerOther().removeIf( v -> v.equals( Double.NaN ) || v.equals(Double.POSITIVE_INFINITY) || v.equals(Double.NEGATIVE_INFINITY) );
-        sample.getPowerRam().removeIf( v -> v.equals( Double.NaN ) || v.equals(Double.POSITIVE_INFINITY) || v.equals(Double.NEGATIVE_INFINITY) );
+        Double[] core = Arrays.stream(sample.getPowerCore()).filter( v -> !v.equals( Double.NaN ) && !v.equals(Double.POSITIVE_INFINITY) && !v.equals(Double.NEGATIVE_INFINITY) ).toArray(Double[]::new);
+        Double[] gpu = Arrays.stream(sample.getPowerGpu()).filter( v -> !v.equals( Double.NaN ) && !v.equals(Double.POSITIVE_INFINITY) && !v.equals(Double.NEGATIVE_INFINITY) ).toArray(Double[]::new);
+        Double[] other = Arrays.stream(sample.getPowerOther()).filter( v -> !v.equals( Double.NaN ) && !v.equals(Double.POSITIVE_INFINITY) && !v.equals(Double.NEGATIVE_INFINITY) ).toArray(Double[]::new);
+        Double[] ram = Arrays.stream(sample.getPowerRam()).filter( v -> !v.equals( Double.NaN ) && !v.equals(Double.POSITIVE_INFINITY) && !v.equals(Double.NEGATIVE_INFINITY) ).toArray(Double[]::new);
+        sample.setPowerCore( core );
+        sample.setPowerGpu(gpu);
+        sample.setPowerOther(other);
+        sample.setPowerRam(ram);
     }
 
     private Map<String, List<JsonObject>> parseRecordedEnergyData(List<String> recorded) {
@@ -251,10 +255,10 @@ public class StorageServiceImpl implements StorageService
         measurement.getSamples().forEach( sample -> {
             var mModel =  new MethodEnergySampleModel(
                     sample.getDuration(),
-                    sample.getPowerCore().toArray(new Double[0]),
-                    sample.getPowerGpu().toArray(new Double[0]),
-                    sample.getPowerRam().toArray(new Double[0]),
-                    sample.getPowerOther().toArray(new Double[0]),
+                    sample.getPowerCore(),
+                    sample.getPowerGpu(),
+                    sample.getPowerRam(),
+                    sample.getPowerOther(),
                     sample.getStartDateTime(), sample.getEndDateTime());
             model.getSamples().add( mModel );
         });

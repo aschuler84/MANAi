@@ -2,13 +2,15 @@ package at.mana.idea.component.inline;
 
 import at.mana.idea.component.plot.SingleSpectrumPlotComponent;
 import at.mana.idea.component.plot.SingleSpectrumPlotModel;
+import at.mana.idea.service.EnergyDataNotifierEvent;
+import at.mana.idea.service.ManaEnergyDataNotifier;
 import at.mana.idea.util.SpringUtilities;
 import com.intellij.util.ui.JBInsets;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class SpectrumInlinePlotComponent{
+public class SpectrumInlinePlotComponent {
 
     private final SingleSpectrumPlotComponent[] plotComponents = new SingleSpectrumPlotComponent[ ] {
             new SingleSpectrumPlotComponent(),
@@ -57,7 +59,6 @@ public class SpectrumInlinePlotComponent{
         }
         return container;
     }
-
 
 
 }

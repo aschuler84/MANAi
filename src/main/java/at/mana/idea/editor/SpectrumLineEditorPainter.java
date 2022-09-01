@@ -16,6 +16,8 @@ import at.mana.idea.model.AnalysisModelComponent;
 import at.mana.idea.model.ManaEnergyExperimentModel;
 import at.mana.idea.model.MethodEnergyModel;
 import at.mana.idea.service.AnalysisService;
+import at.mana.idea.service.EnergyDataNotifierEvent;
+import at.mana.idea.service.ManaEnergyDataNotifier;
 import at.mana.idea.service.StorageService;
 import at.mana.idea.util.ColorUtil;
 import com.google.common.util.concurrent.AtomicDouble;
@@ -48,7 +50,7 @@ import java.util.stream.IntStream;
  * @author Andreas Schuler
  * @since 1.0
  */
-public class SpectrumLineEditorPainter extends EditorLinePainter implements UpdateInBackground {
+public class SpectrumLineEditorPainter extends EditorLinePainter implements UpdateInBackground, ManaEnergyDataNotifier {
 
     private Map<PsiMethod, SpectrumInlinePlotComponent> plotComponents = new HashMap<>();
 
@@ -153,4 +155,8 @@ public class SpectrumLineEditorPainter extends EditorLinePainter implements Upda
     }
 
 
+    @Override
+    public void update(EnergyDataNotifierEvent model) {
+        this.plotComponents.clear(); // clear components after new data is available -> refreshes inline charts
+    }
 }

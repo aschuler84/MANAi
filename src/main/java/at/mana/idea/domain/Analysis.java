@@ -3,11 +3,13 @@ package at.mana.idea.domain;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -16,8 +18,12 @@ import java.util.Set;
 public class Analysis {
 
     @Id
-    @GeneratedValue
-    private Long id;
+    @GeneratedValue( generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    private UUID id;
 
     private LocalDateTime created;
 

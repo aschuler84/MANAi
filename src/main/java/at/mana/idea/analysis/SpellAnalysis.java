@@ -78,13 +78,13 @@ public class SpellAnalysis {
 
     private SpellComponent toAnalysisComponent( MemberDescriptor memberDescriptor, List<Trace> traces ) {
         DoubleStatistics powerCpu = traces.stream().flatMap( trace
-                -> trace.getCpuPower().stream() ).collect(DoubleStatistics.collector());
+                -> Arrays.stream( trace.getCpuPower() ) ).collect(DoubleStatistics.collector());
         DoubleStatistics powerRam = traces.stream().flatMap( trace
-                -> trace.getRamPower().stream() ).collect(DoubleStatistics.collector());
+                -> Arrays.stream(trace.getRamPower() ) ).collect(DoubleStatistics.collector());
         DoubleStatistics powerGpu = traces.stream().flatMap( trace
-                -> trace.getGpuPower().stream() ).collect(DoubleStatistics.collector());
+                -> Arrays.stream(trace.getGpuPower() ) ).collect(DoubleStatistics.collector());
         DoubleStatistics powerOther = traces.stream().flatMap( trace
-                -> trace.getOtherPower().stream() ).collect(DoubleStatistics.collector());
+                -> Arrays.stream(trace.getOtherPower() ) ).collect(DoubleStatistics.collector());
         double frequency = traces.size();
         double duration = traces.stream().map(trace
                 -> Duration.between( trace.getStart(), trace.getEnd() ).toMillis() ).mapToLong( l -> l ).average().orElse(0.0);

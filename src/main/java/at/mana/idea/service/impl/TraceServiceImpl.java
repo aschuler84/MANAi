@@ -64,7 +64,7 @@ public class TraceServiceImpl implements TraceService {
                                     + ((sample.getSamplingPeriod()*1000) * endIndex.get()) > endMicros)
                             .mapToInt(value -> endIndex.get()).findFirst()
                             .orElseGet(() -> powerCpu.length-1 );  // if overflow return last or start index
-
+                    indexOfEndEstimate = Math.min( indexOfEndEstimate, powerCpu.length -1 );
                     Trace methodTrace = new Trace();
                     // This query should find member descriptors which have already been inserted
                     MemberDescriptor descriptor = memberDescriptorService.findOrDefault(hash, new MemberDescriptor(
@@ -76,14 +76,14 @@ public class TraceServiceImpl implements TraceService {
                     methodTrace.setDescriptor(descriptor);
                     methodTrace.setStart(DateUtil.getInstantFromMicros(startMicros).atZone(ZoneId.systemDefault()).toLocalDateTime());
                     methodTrace.setEnd(DateUtil.getInstantFromMicros(endMicros).atZone(ZoneId.systemDefault()).toLocalDateTime());
-                    methodTrace.setCpuPower(IntStream.range(indexOfStartEstimate, indexOfEndEstimate + 1)
-                            .mapToObj(i -> powerCpu[i]).collect(Collectors.toList()));
-                    methodTrace.setRamPower(IntStream.range(indexOfStartEstimate, indexOfEndEstimate + 1)
-                            .mapToObj(i -> powerRam[i]).collect(Collectors.toList()));
-                    methodTrace.setOtherPower(IntStream.range(indexOfStartEstimate, indexOfEndEstimate + 1)
-                            .mapToObj(i -> powerOther[i]).collect(Collectors.toList()));
-                    methodTrace.setGpuPower(IntStream.range(indexOfStartEstimate, indexOfEndEstimate + 1)
-                            .mapToObj(i -> powerGpu[i]).collect(Collectors.toList()));
+                    methodTrace.setCpuPower(IntStream.range(indexOfStartEstimate, Math.min(indexOfEndEstimate+1, powerCpu.length))
+                            .mapToObj(i -> powerCpu[i]).toArray(Double[]::new));
+                    methodTrace.setRamPower(IntStream.range(indexOfStartEstimate, Math.min(indexOfEndEstimate+1, powerRam.length))
+                            .mapToObj(i -> powerRam[i]).toArray(Double[]::new));
+                    methodTrace.setOtherPower(IntStream.range(indexOfStartEstimate, Math.min(indexOfEndEstimate+1, powerOther.length))
+                            .mapToObj(i -> powerOther[i]).toArray(Double[]::new));
+                    methodTrace.setGpuPower(IntStream.range(indexOfStartEstimate, Math.min(indexOfEndEstimate+1, powerGpu.length))
+                            .mapToObj(i -> powerGpu[i]).toArray(Double[]::new));
                     sample.getTrace().add(methodTrace);
                     methodTrace.setSample(sample);
                     session.save(methodTrace);

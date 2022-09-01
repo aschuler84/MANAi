@@ -25,7 +25,7 @@ public class SingleSpectrumPlotComponent extends JPanel {
 
     public void setModel(SingleSpectrumPlotModel model) {
         this.model = model;
-        this.repaint();
+        this.paintImmediately(getLocation().x, getLocation().y, getWidth(),getHeight());
     }
 
     public void setInsets( Insets insets ) {
@@ -43,7 +43,6 @@ public class SingleSpectrumPlotComponent extends JPanel {
         Graphics2D graphics = (Graphics2D) g.create();
         Font normalFont = graphics.getFont();
         Font smallFont = graphics.getFont().deriveFont( graphics.getFont().getSize()-4f );
-
         double topSpace = this.getHeight() * 0.1;
         double bottomSpace = this.getHeight() * 0.15;
 
@@ -68,8 +67,8 @@ public class SingleSpectrumPlotComponent extends JPanel {
             IntStream.range( 0, tickCount + 1 ).forEach(e -> {
                 if (e > 0 && e % 2 == 1) {
                     // draw a dashed line
-                    graphics.setColor( ColorUtil.HEAT_MAP_COLORS_DEFAULT[counter.get()] );
-                    Rectangle2D bar = new Rectangle2D.Double( rectX + (counter.get() * rectW/5 ), rectY, rectW/5, rectH );
+                    graphics.setColor( ColorUtil.HEAT_MAP_COLORS_SEAGREEN[counter.get()] );
+                    Rectangle2D bar = new Rectangle2D.Double( rectX + (counter.get() * rectW/5 ), rectY, rectW - (counter.get() * rectW/5 ), rectH );
                     graphics.fill( bar );
                     counter.incrementAndGet();
                 }
@@ -132,7 +131,7 @@ public class SingleSpectrumPlotComponent extends JPanel {
                     double xPos = rectW * this.model.getMarkerValue( i );
                     Line2D marker = new Line2D.Double( rectX + xPos, startY + 1 , rectX + xPos, endY - 1 );
                     graphics.setStroke(new BasicStroke( 1.6f ));
-                    graphics.setColor(JBColor.RED);
+                    graphics.setColor(ColorUtil.INLINE_TEXT_INCREASE.darker());
                     graphics.draw(marker);
                     graphics.setStroke(new BasicStroke( 0.8f ));
                     Line2D top = new Line2D.Double( rectX + xPos - 3, startY + 1 , rectX + xPos + 3, startY + 1 );

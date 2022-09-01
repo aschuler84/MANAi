@@ -187,7 +187,7 @@ public class StorageServiceImpl implements StorageService
                                                     + jsonEntry.get("powerRam").getAsDouble()
                                     };
                         }).toArray(Double[][]::new);
-                        if( energyData != null && energyData.length >0  ) {
+                        if( energyData != null && energyData.length > 0  ) {
                             energyData = transposeDbl().apply(energyData);
                             Sample sample = new Sample();
                             sample.setStartDateTime(startDateTime);
@@ -213,7 +213,9 @@ public class StorageServiceImpl implements StorageService
                             session.save(run);
                             traceService.attributeTraces( sample, rootEntry, childEntries );
                         }
+                        session.flush();
                     } );
+
                 }
                 return null;
             });
@@ -224,10 +226,10 @@ public class StorageServiceImpl implements StorageService
 
 
     private void cleanSamples( Sample sample ){
-        sample.getPowerCore().removeIf( v -> v.equals( Double.NaN ) );
-        sample.getPowerGpu().removeIf( v -> v.equals( Double.NaN ) );
-        sample.getPowerOther().removeIf( v -> v.equals( Double.NaN ) );
-        sample.getPowerRam().removeIf( v -> v.equals( Double.NaN ) );
+        sample.getPowerCore().removeIf( v -> v.equals( Double.NaN ) || v.equals(Double.POSITIVE_INFINITY) || v.equals(Double.NEGATIVE_INFINITY) );
+        sample.getPowerGpu().removeIf( v -> v.equals( Double.NaN ) || v.equals(Double.POSITIVE_INFINITY) || v.equals(Double.NEGATIVE_INFINITY));
+        sample.getPowerOther().removeIf( v -> v.equals( Double.NaN ) || v.equals(Double.POSITIVE_INFINITY) || v.equals(Double.NEGATIVE_INFINITY) );
+        sample.getPowerRam().removeIf( v -> v.equals( Double.NaN ) || v.equals(Double.POSITIVE_INFINITY) || v.equals(Double.NEGATIVE_INFINITY) );
     }
 
     private Map<String, List<JsonObject>> parseRecordedEnergyData(List<String> recorded) {

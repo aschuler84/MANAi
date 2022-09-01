@@ -8,7 +8,7 @@
         <property name="connection.url">jdbc:h2:~/.mana/manadb</property>
         <property name="connection.username">mana</property>
         <property name="connection.password">mana</property>
-        <property name="connection.pool_size">1</property>
+        <property name="connection.pool_size">10</property>
         <property name="hibernate.dialect">org.hibernate.dialect.H2Dialect</property>
         <!-- Echo the SQL to stdout -->
         <property name="show_sql">false</property>
@@ -16,6 +16,8 @@
         <property name="hibernate.current_session_context_class">thread</property>
         <!-- Drop and re-create the database schema on startup -->
         <property name="hibernate.hbm2ddl.auto">update</property>
+        <property name="hibernate.jdbc.batch_size">100</property>
+        <property name="hibernate.order_inserts">true</property>
         <!-- Mapping definitions -->
         <mapping class="at.mana.idea.domain.Measurement"/>
         <mapping class="at.mana.idea.domain.MemberDescriptor"/>

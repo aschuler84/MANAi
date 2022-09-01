@@ -3,9 +3,11 @@ package at.mana.idea.domain;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -14,8 +16,12 @@ import java.util.List;
 public class AnalysisComponent {
 
     @Id
-    @GeneratedValue
-    private Long id;
+    @GeneratedValue( generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    private UUID id;
 
     public AnalysisComponent(MemberDescriptor descriptor, Analysis analysis, List<Double> components) {
         this.descriptor = descriptor;

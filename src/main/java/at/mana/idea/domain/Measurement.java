@@ -11,10 +11,12 @@ package at.mana.idea.domain;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * @author Andreas Schuler
@@ -27,8 +29,12 @@ import java.util.Set;
 public class Measurement  {
 
     @Id
-    @GeneratedValue
-    private Long id;
+    @GeneratedValue( generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    private UUID id;
 
     @ManyToOne( fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     private MemberDescriptor descriptor;

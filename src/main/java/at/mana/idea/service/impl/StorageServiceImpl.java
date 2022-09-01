@@ -152,6 +152,7 @@ public class StorageServiceImpl implements StorageService
                 run.setDate( LocalDateTime.now() );
                 for( var entry : groupedEntries.entrySet() ) {
                     Measurement measurement = new Measurement();
+                    final Map<String, MemberDescriptor> cachedDescriptors = new HashMap<>();
                     entry.getValue().stream().forEach( json -> {
 
                         JsonObject rootEntry = json.getAsJsonObject("energy");
@@ -168,9 +169,9 @@ public class StorageServiceImpl implements StorageService
                         long samplingRate = rootEntry.get("samplingRate").getAsLong();
 
                         // try to find method descriptor in database get descriptor if available otherwise get new one
-                        MemberDescriptor descriptor = memberDescriptorService.findOrDefault(hash, new MemberDescriptor(
+                        MemberDescriptor descriptor = cachedDescriptors.computeIfAbsent(  hash, h -> memberDescriptorService.findOrDefault(hash, new MemberDescriptor(
                                 hash, method, methodDescriptor, clazz
-                        ));
+                        )));
 
                         Double[][] energyData = StreamSupport.stream(
                                 dataArray.spliterator(), true).map(data -> {

@@ -15,6 +15,8 @@ import com.intellij.openapi.project.Project;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -39,6 +41,8 @@ public class TraceServiceImpl implements TraceService {
                 Double[] powerOther = sample.getPowerOther().toArray(new Double[]{});
                 Double[] powerRam = sample.getPowerRam().toArray(new Double[]{});
                 Double[] powerGpu = sample.getPowerGpu().toArray(new Double[]{});
+
+                final Map<String, MemberDescriptor> cachedDescriptors = new HashMap<>();
 
                 childEntries.forEach(jsonElement -> {
                     JsonObject trace = jsonElement.getAsJsonObject();
@@ -67,9 +71,8 @@ public class TraceServiceImpl implements TraceService {
                     indexOfEndEstimate = Math.min( indexOfEndEstimate, powerCpu.length -1 );
                     Trace methodTrace = new Trace();
                     // This query should find member descriptors which have already been inserted
-                    MemberDescriptor descriptor = memberDescriptorService.findOrDefault(hash, new MemberDescriptor(
-                            hash, methodName, methodDescriptor, className
-                    ));
+                    MemberDescriptor descriptor = cachedDescriptors.computeIfAbsent( hash,  h -> memberDescriptorService.findOrDefault(hash, new MemberDescriptor(
+                            hash, methodName, methodDescriptor, className )));
 
                     session.saveOrUpdate( descriptor );
 
@@ -86,8 +89,8 @@ public class TraceServiceImpl implements TraceService {
                             .mapToObj(i -> powerGpu[i]).toArray(Double[]::new));
                     sample.getTrace().add(methodTrace);
                     methodTrace.setSample(sample);
-                    session.save(methodTrace);
-                    session.save(sample);
+                    //session.save(methodTrace);
+                    //session.save(sample);
                 });
             } else {
                 // No trace data available...

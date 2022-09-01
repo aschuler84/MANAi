@@ -8,9 +8,11 @@
  */
 package at.mana.idea.editor;
 
+import at.mana.idea.component.inline.SpectrumInlinePlotComponent;
 import at.mana.idea.component.plot.SingleSpectrumPlotComponent;
 import at.mana.idea.component.plot.SingleSpectrumPlotModel;
 import at.mana.idea.model.AnalysisModel;
+import at.mana.idea.model.AnalysisModelComponent;
 import at.mana.idea.model.ManaEnergyExperimentModel;
 import at.mana.idea.model.MethodEnergyModel;
 import at.mana.idea.service.AnalysisService;
@@ -19,9 +21,7 @@ import at.mana.idea.util.ColorUtil;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.intellij.openapi.actionSystem.UpdateInBackground;
 import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.EditorLinePainter;
-import com.intellij.openapi.editor.LineExtensionInfo;
+import com.intellij.openapi.editor.*;
 import com.intellij.openapi.editor.markup.EffectType;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -34,9 +34,11 @@ import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiMethod;
 import com.intellij.ui.JBColor;
+import com.intellij.util.ui.JBInsets;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import java.util.*;
@@ -48,7 +50,7 @@ import java.util.stream.IntStream;
  */
 public class SpectrumLineEditorPainter extends EditorLinePainter implements UpdateInBackground {
 
-    private Map<PsiMethod,SingleSpectrumPlotComponent> plotComponents = new HashMap<>();
+    private Map<PsiMethod, SpectrumInlinePlotComponent> plotComponents = new HashMap<>();
 
     @Override
     public @Nullable Collection<LineExtensionInfo> getLineExtensions(@NotNull Project project, @NotNull VirtualFile file, int lineNumber) {
@@ -60,17 +62,39 @@ public class SpectrumLineEditorPainter extends EditorLinePainter implements Upda
         }
 
         TextEditor editor = (TextEditor) FileEditorManager.getInstance(project).getSelectedEditor(file);
-
-
         PsiFile psiFile = PsiManager.getInstance(project).findFile( file );
         if( psiFile instanceof PsiJavaFile && !psiFile.getFileType().getDefaultExtension().endsWith("class") ) {
             PsiJavaFile javaFile = (PsiJavaFile) psiFile;
             AnalysisModel statistics =  ReadAction.compute( () ->  service.findDataFor( javaFile ) );
             if( statistics != null ) {
+                /*plotComponents.entrySet().stream().filter( e -> statistics.getComponents().containsKey( e.getKey() ) ).forEach(e -> {
+                    editor.getEditor().getContentComponent().remove( e.getValue() );
+                } );*/
                 final List<LineExtensionInfo> lines = new ArrayList<>();
                 statistics.getComponents().forEach((k, v) -> {
                     if ( k.getTextOffset() < doc.getTextLength()
                             && doc.getLineNumber(k.getTextOffset()) == lineNumber) {
+
+                            plotComponents.computeIfAbsent( k, m -> {
+                                SpectrumInlinePlotComponent plot = new SpectrumInlinePlotComponent();
+                                plot.getComponent().setBounds(
+                                        editor.getEditor().offsetToVisualLine(doc.getLineEndOffset(lineNumber),false) + 30,
+                                        editor.getEditor().visualLineToY( lineNumber), 250, editor.getEditor().getLineHeight() );
+                                plot.updateModel( 0, new SingleSpectrumPlotModel( new double[]{v.getPowerCoefficient()} ) );
+                                plot.updateModel( 1, new SingleSpectrumPlotModel( new double[]{v.getFrequencyCoefficient()} ) );
+                                plot.updateModel( 2, new SingleSpectrumPlotModel( new double[]{v.getDurationCoefficient()} ) );
+                                editor.getEditor().getContentComponent().add( plot.getComponent() );
+                                return plot;
+                            } );
+
+                            if( !editor.getEditor().getContentComponent().equals( plotComponents.get(k) ) ) {
+                                // if the label is already added to another component - we remove it
+                                editor.getEditor().getContentComponent().add(plotComponents.get(k).getComponent());
+                            }
+                            //plotComponents.get( k ).setModel( new SingleSpectrumPlotModel( new double[]{0.45} ) );
+                            Point offsetPoint = editor.getEditor().offsetToXY(doc.getLineEndOffset(lineNumber));
+                            plotComponents.get(k).getComponent().setLocation(offsetPoint.x + 20,offsetPoint.y );
+                                    //editor.getEditor().visualLineToY( lineNumber));
 
                             JBColor defaultColor = ColorUtil.INLINE_TEXT;
                             String caret = "";
@@ -78,7 +102,7 @@ public class SpectrumLineEditorPainter extends EditorLinePainter implements Upda
                                 defaultColor = ColorUtil.INLINE_TEXT_HIGHLIGHTED;
                                 caret = " \u142F";
                             }
-                            String coefficient = String.format( "\u251C   %.3f (P) | %.3f (Fqn) | %.3f (T)" + caret, v.getPowerCoefficient(),v.getFrequencyCoefficient(), v.getDurationCoefficient() );
+                            /*String coefficient = String.format( "\u251C   %.3f (P) | %.3f (Fqn) | %.3f (T)" + caret, v.getPowerCoefficient(),v.getFrequencyCoefficient(), v.getDurationCoefficient() );
                             lines.add(new LineExtensionInfo("     \u2502",defaultColor, EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
                             lines.add( createInLineChart( v.getPowerCoefficient() ) );
                             lines.add( new LineExtensionInfo("|",defaultColor, EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
@@ -86,7 +110,9 @@ public class SpectrumLineEditorPainter extends EditorLinePainter implements Upda
                             lines.add( new LineExtensionInfo("|",defaultColor, EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN));
                             lines.add( createInLineChart( v.getDurationCoefficient() ) );
                             lines.add(new LineExtensionInfo( coefficient, defaultColor, EffectType.ROUNDED_BOX, JBColor.RED, Font.PLAIN ));
-                    }
+                            */
+                       } // else if(  ) method k not found
+
                 });
                 return lines;
             }
@@ -94,6 +120,18 @@ public class SpectrumLineEditorPainter extends EditorLinePainter implements Upda
         return null;
     }
 
+    private JPanel createInlineChart(Editor editor, int x, int y, AnalysisModelComponent modelComponent ) {
+        JPanel panel = new JPanel();
+        panel.setOpaque(false);
+        SingleSpectrumPlotComponent plot = new SingleSpectrumPlotComponent();
+        plot.setModel( new SingleSpectrumPlotModel( new double[]{modelComponent.getPowerCoefficient()} ) );
+        plot.setInsets(JBInsets.create(0,0));
+        plot.setDisplayLegend(false);
+        plot.setBackground( new Color(0,0,0,0) );
+        plot.setBounds(x + 10, y, 60, editor.getLineHeight() );
+        panel.add( plot );
+        return panel;
+    }
 
 
 

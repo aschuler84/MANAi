@@ -15,7 +15,7 @@ import java.util.List;
 public class Trace {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @OneToOne
@@ -24,14 +24,18 @@ public class Trace {
     private LocalDateTime start;
     private LocalDateTime end;
 
-    @ElementCollection
-    private List<Double> cpuPower;
-    @ElementCollection
-    private List<Double> ramPower;
-    @ElementCollection
-    private List<Double> otherPower;
-    @ElementCollection
-    private List<Double> gpuPower;
+    //@ElementCollection
+    @Lob
+    private Double[] cpuPower;
+    //@ElementCollection
+    @Lob
+    private Double[] ramPower;
+    //@ElementCollection
+    @Lob
+    private Double[] otherPower;
+    //@ElementCollection
+    @Lob
+    private Double[] gpuPower;
 
     @ManyToOne( fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     private Sample sample;

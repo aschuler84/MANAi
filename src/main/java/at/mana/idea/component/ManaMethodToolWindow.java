@@ -2,6 +2,7 @@ package at.mana.idea.component;
 
 import at.mana.core.util.DoubleStatistics;
 import at.mana.idea.component.plot.*;
+import at.mana.idea.component.plot.relativearea.RelativeAreaPlotComponent;
 import at.mana.idea.model.AnalysisModel;
 import at.mana.idea.model.ManaEnergyExperimentModel;
 import at.mana.idea.model.MethodEnergyModel;
@@ -24,8 +25,6 @@ import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.psi.*;
 import com.intellij.ui.*;
 import com.intellij.ui.components.JBPanel;
@@ -313,10 +312,10 @@ public class ManaMethodToolWindow extends JPanel implements ManaEnergyDataNotifi
     }
 
     private JComponent createRightComponent() {
-        JBSplitter splitRigthDetails = new JBSplitter( false, "ManaMethodToolWindow.details.divider.proportion", 0.8f );
-        splitRigthDetails.setFirstComponent( createTableSummaryComponent() );
-        splitRigthDetails.setSecondComponent( createChartComponent() );
-        splitRigthDetails.setBorder(JBUI.Borders.empty());
+        //JBSplitter splitRigthDetails = new JBSplitter( false, "ManaMethodToolWindow.details.divider.proportion", 0.8f );
+        //splitRigthDetails.setFirstComponent( createTableSummaryComponent() );
+        //splitRigthDetails.setSecondComponent( createChartComponent() );
+        //splitRigthDetails.setBorder(JBUI.Borders.empty());
 
         JPanel panel = new JPanel();
         panel.setLayout( new BorderLayout( ) );
@@ -327,11 +326,11 @@ public class ManaMethodToolWindow extends JPanel implements ManaEnergyDataNotifi
         tabContainer.insertTab( "Overview", null, panel, "", 0 );
         tabContainer.setTabComponentInsets(JBUI.insetsRight(0));
 
-        panel = new JPanel();
-        panel.setLayout( new BorderLayout() );
-        panel.add( splitRigthDetails, BorderLayout.CENTER );
-        splitRigthDetails.setProportion( 0.8f );
-        tabContainer.insertTab( "Method Data", null, panel, "", 1 );
+        //panel = new JPanel();
+        //panel.setLayout( new BorderLayout() );
+        //.add( splitRigthDetails, BorderLayout.CENTER );
+        //splitRigthDetails.setProportion( 0.8f );
+        //tabContainer.insertTab( "Method Data", null, panel, "", 1 );
 
         panel = new JPanel();
         panel.setLayout( new BorderLayout( ));
@@ -349,9 +348,14 @@ public class ManaMethodToolWindow extends JPanel implements ManaEnergyDataNotifi
             cellComponent.setForeground( cellComponent.getBackground().darker().darker().darker() );
             cellComponent.setHorizontalAlignment( JLabel.CENTER );
             return cellComponent;
-        } );
+        });
         panel.add( spectrumPlotComponent, BorderLayout.CENTER );
-        tabContainer.insertTab( "Spell Analysis", null, panel, "", 2 );
+        tabContainer.insertTab( "Spell Analysis", null, panel, "", 1 );
+
+        panel = new JPanel();
+        panel.setLayout( new BorderLayout() );
+        panel.add( new RelativeAreaPlotComponent(), BorderLayout.CENTER );
+        tabContainer.insertTab( "Relative Area Plot", null, panel, "", 2 );
 
         return tabContainer;
     }

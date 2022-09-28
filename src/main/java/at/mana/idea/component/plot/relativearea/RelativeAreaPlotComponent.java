@@ -12,6 +12,15 @@ public class RelativeAreaPlotComponent extends JPanel {
         this.model.appendRelativeArea(new RelativeArea(10, 10, 10));
         this.model.appendRelativeArea(new RelativeArea(5, 20, 10));
         this.model.appendRelativeArea(new RelativeArea(20, 5, 5));
+        this.model.appendRelativeArea(new RelativeArea(5, 5, 5));
+        this.model.appendRelativeArea(new RelativeArea(20, 10, 5));
+        this.model.appendRelativeArea(new RelativeArea(15, 5, 7));
+        this.model.appendRelativeArea(new RelativeArea(21, 17, 23));
+        this.model.appendRelativeArea(new RelativeArea(20, 5, 41));
+        this.model.appendRelativeArea(new RelativeArea(38, 21, 5));
+        this.model.appendRelativeArea(new RelativeArea(15, 14, 15));
+        this.model.appendRelativeArea(new RelativeArea(11, 19, 20));
+        this.model.appendRelativeArea(new RelativeArea(28, 5, 3));
 
         this.setLayout(new GridBagLayout());
 

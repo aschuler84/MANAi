@@ -20,4 +20,11 @@ public class RelativeArea {
             return this.runtime;
         }
     }
+
+    public double getCombinedAxisValue (RelativeAreaAxis axis1, RelativeAreaAxis axis2) {
+        double value1 = getAxisValue(axis1);
+        double value2 = getAxisValue(axis2);
+
+        return value1 * value2;
+    }
 }

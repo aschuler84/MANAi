@@ -2,6 +2,7 @@ package at.mana.idea.component;
 
 import at.mana.core.util.DoubleStatistics;
 import at.mana.idea.component.plot.*;
+import at.mana.idea.component.plot.flamegraph.FlamegraphPlotComponent;
 import at.mana.idea.component.plot.relativearea.RelativeAreaPlotComponent;
 import at.mana.idea.model.AnalysisModel;
 import at.mana.idea.model.ManaEnergyExperimentModel;
@@ -356,6 +357,13 @@ public class ManaMethodToolWindow extends JPanel implements ManaEnergyDataNotifi
         panel.setLayout( new BorderLayout() );
         panel.add( new RelativeAreaPlotComponent(), BorderLayout.CENTER );
         tabContainer.insertTab( "Relative Area Plot", null, panel, "", 2 );
+
+        panel = new JPanel();
+        panel.setLayout( new BorderLayout() );
+        FlamegraphPlotComponent fg = new FlamegraphPlotComponent();
+        panel.add(fg.createComponent(), BorderLayout.CENTER );
+        fg.setModel(FlamegraphPlotComponent.getExampleFunctionTrace());
+        tabContainer.insertTab( "Flamegraph Plot", null, panel, "", 3 );
 
         return tabContainer;
     }

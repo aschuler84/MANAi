@@ -1,31 +1,33 @@
 package at.mana.idea.component.plot.relativearea;
 
+import at.mana.idea.component.plot.FunctionTrace;
+
 import java.util.ArrayList;
 
 public class RelativeAreaPlotModel {
-    private final ArrayList<RelativeArea> relativeAreas;
+    private final ArrayList<FunctionTrace> functionTraces;
 
     public RelativeAreaPlotModel () {
-        this.relativeAreas = new ArrayList<>();
+        this.functionTraces = new ArrayList<>();
     }
 
-    public RelativeAreaPlotModel (ArrayList<RelativeArea> relativeAreas) {
-        this.relativeAreas = relativeAreas;
+    public RelativeAreaPlotModel (ArrayList<FunctionTrace> functionTraces) {
+        this.functionTraces = functionTraces;
     }
 
-    public void appendRelativeArea (RelativeArea relativeArea) {
-        this.relativeAreas.add(relativeArea);
+    public void appendFunctionTrace(FunctionTrace functionTrace) {
+        this.functionTraces.add(functionTrace);
     }
 
-    public RelativeArea getRelativeAreaAtPosition (int index) {
-        if (index >= 0 && index < relativeAreas.size()) {
-            return this.relativeAreas.get(index);
+    public FunctionTrace getFunctionTraceAtPosition(int index) {
+        if (index >= 0 && index < functionTraces.size()) {
+            return this.functionTraces.get(index);
         } else {
             throw new IndexOutOfBoundsException("Provided Index was out of bounds!");
         }
     }
 
-    public int getRelativeAreaCount () {
-        return this.relativeAreas.size();
+    public int getFunctionTraceCount() {
+        return this.functionTraces.size();
     }
 }

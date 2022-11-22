@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/d3-flame-graph@4.1.3/dist/d3-flamegraph.css">
+    <link rel="stylesheet" href="graph.css"/>
+</head>
+<body>
+    <div id="flamegraph"></div>
+    <script type="text/javascript" src="https://d3js.org/d3.v7.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/d3-flame-graph@4.1.3/dist/d3-flamegraph.min.js"></script>
+    <script>
+        (function() {
+            function updatePlot( newData ) {
+                alert(newData);
+                /*var data = [];
+                for (let entry of newData) {
+                    var trace = {
+                        name: entry.name,
+                        x: entry.x,
+                        y: entry.y,
+                        type: entry.type,
+                        mode: entry.mode,
+                        fill: entry.fill
+                    }
+                    data.push( trace )
+                }
+
+                Plotly.newPlot('chart_target', data, layout,{ showTips: false,displayModeBar:false,responsive:true });*/
+            }
+
+            function onChange(event) {
+                let reader = new FileReader();
+                reader.onload = onReaderLoad;
+                reader.readAsText(event.target.files[0]);
+            }
+
+            function onReaderLoad(event){
+                let rawData = JSON.parse(event.target.result);
+                console.log(rawData.trace);
+                console.log(rawData.energy);
+
+                let chart = flamegraph().width(960).sort(true);
+                let entries = processRawToEntries(rawData);
+                let sortedEntries = sortEntries(entries);
+                let flamegraphData = processEntriesToFlamegraphData(sortedEntries);
+                let simplifiedData = simplifyData(flamegraphData);
+                let cleanedData = removeEmptyEntries(simplifiedData);
+                console.log("---");
+                console.log(cleanedData);
+
+                d3.select("#flamegraph").datum(cleanedData).call(chart);
+            }
+
+            function processRawToEntries (rawData) {
+                let entries = [];
+
+                $.each(rawData.trace, function (index, value) {
+                    let name = value.methodName;
+                    let start = value.start;
+                    let end = value.end;
+                    if (start >= end) { return false; }
+
+                    let entry = createFlamegraphEntry(name, start, end);
+                    entries.push(entry);
+                });
+
+                return entries;
+            }
+
+            function sortEntries (entries) {
+                entries.sort(function(a,b) {
+                    if (a.value === b.value) {
+                        return 0;
+                    } else {
+                        if (a.value < b.value) {
+                            return 1;
+                        } else {
+                            return -1;
+                        }
+                    }
+                });
+
+                return entries;
+            }
+
+            function createFlamegraphEntry (name, start, end) {
+                let entry = {};
+                entry.name = name;
+                entry.start = start;
+                entry.end = end;
+                entry.value = end - start;
+                entry.children = [];
+                return entry;
+            }
+
+            function processEntriesToFlamegraphData (entries) {
+                let root = getRootElement(entries);
+                if (root === null) { return null; }
+
+                $.each(entries, function (index, value) {
+                    let currStart = parseInt(value.start);
+                    let currEnd = parseInt(value.end);
+
+                    let done = false;
+                    if (value.name === root.name) { done = true; }
+                    let currRootEntry = root;
+
+                    while (!done) {
+                        if (currRootEntry.children.length === 0) {
+                            currRootEntry.children.push(value);
+                            done = true;
+                        } else {
+                            let newRoot = findParentAmongstChildren(currRootEntry.children, currStart, currEnd);
+
+                            if (newRoot !== null) {
+                                currRootEntry = newRoot;
+                            } else {
+                                currRootEntry.children.push(value);
+                                done = true;
+                            }
+                        }
+                    }
+                });
+
+                return root;
+            }
+
+            function getRootElement (entries) {
+                let totalStart = getMinimumStart(entries);
+                let totalEnd = getMaximumEnd(entries);
+                let root = null;
+
+                $.each(entries, function (index, value) {
+                    let currStart = parseInt(value.start);
+                    let currEnd = parseInt(value.end);
+
+                    if (currStart === totalStart && currEnd === totalEnd) {
+                        root = value;
+                        return false;
+                    }
+                });
+
+                return root;
+            }
+
+            function getMinimumStart (entries) {
+                let minStart = -1;
+
+                $.each(entries, function (index, value) {
+                    let currStart = parseInt(value.start);
+
+                    if (minStart === -1 || currStart < minStart) {
+                        minStart = currStart;
+                    }
+                });
+
+                return minStart;
+            }
+
+            function getMaximumEnd (entries) {
+                let maxEnd = -1;
+
+                $.each(entries, function (index, value) {
+                    let currEnd = parseInt(value.end);
+
+                    if (maxEnd === -1 || currEnd > maxEnd) {
+                        maxEnd = currEnd;
+                    }
+                });
+
+                return maxEnd;
+            }
+
+            function findParentAmongstChildren (children, currStart, currEnd) {
+                let matchingParent = null;
+
+                $.each(children, function (index, value) {
+                    let currChildStart = parseInt(value.start);
+                    let currChildEnd = parseInt(value.end);
+
+                    if (currChildStart <= currStart && currChildEnd >= currEnd) {
+                        matchingParent = value;
+                        return false;
+                    }
+                });
+
+                return matchingParent;
+            }
+
+            function simplifyData (currEntry) {
+                if (currEntry.children.length > 0) {
+                    currEntry.children = simplifyLayer(currEntry.children);
+
+                    for (let i = 0; i < currEntry.children.length; i++) {
+                        currEntry.children[i] = simplifyData(currEntry.children[i]);
+                    }
+                }
+
+                return currEntry;
+            }
+
+            function simplifyLayer (entries) {
+                for (let i = 0; i < entries.length; i++) {
+                    if (entries[i].value === 0) { continue; }
+
+                    for (let j = i + 1; j < entries.length; j++) {
+                        if (entries[i].name === entries[j].name) {
+                            entries[i] = combineEntries(entries[i], entries[j]);
+                            entries[j].value = 0;
+                            entries[j].children = [];
+                        }
+                    }
+                }
+
+                return entries;
+            }
+
+            function combineEntries (entry1, entry2) {
+                let value1 = parseInt(entry1.value);
+                let value2 = parseInt(entry2.value);
+
+                let newEntry = createSimplifiedEntry(entry1.name, value1 + value2);
+                $.each(entry1.children, function (index, value) { newEntry.children.push(value); });
+                $.each(entry2.children, function (index, value) { newEntry.children.push(value); });
+
+                return newEntry;
+            }
+
+            function createSimplifiedEntry (name, value) {
+                let entry = {};
+                entry.name = name;
+                entry.value = value;
+                entry.children = [];
+                return entry;
+            }
+
+            function removeEmptyEntries (data) {
+                for (let i = data.children.length - 1; i >= 0; i--) {
+                    if (data.children[i].value === 0) {
+                        data.children.splice(i, 1);
+                    }
+                }
+
+                for (let i = 0; i < data.children.length; i++) {
+                    data.children[i] = removeEmptyEntries(data.children[i]);
+                }
+
+                return data;
+            }
+        }());
+    </script>
+</body>
+</html>

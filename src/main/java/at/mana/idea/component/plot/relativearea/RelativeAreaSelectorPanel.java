@@ -24,7 +24,7 @@ public class RelativeAreaSelectorPanel extends JPanel {
 
     public RelativeAreaAxis getXAxis () {
         if (xSelector.getSelectedIndex() == 0) {
-            return RelativeAreaAxis.Energy;
+            return RelativeAreaAxis.Power;
         } else if (xSelector.getSelectedIndex() == 1) {
             return RelativeAreaAxis.Frequency;
         } else {
@@ -34,7 +34,7 @@ public class RelativeAreaSelectorPanel extends JPanel {
 
     public RelativeAreaAxis getYAxis () {
         if (ySelector.getSelectedIndex() == 0) {
-            return RelativeAreaAxis.Energy;
+            return RelativeAreaAxis.Power;
         } else if (ySelector.getSelectedIndex() == 1) {
             return RelativeAreaAxis.Frequency;
         } else {

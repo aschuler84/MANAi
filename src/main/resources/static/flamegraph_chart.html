@@ -35,8 +35,8 @@
 <body>
     <label for="displayValueSelect">Choose a value for display:</label><br/>
     <select name="displayValue" id="displayValueSelect">
-        <option value="power" selected>Power</option>
-        <option value="runtime">Runtime</option>
+        <option value="averagePower" selected>Average Power</option>
+        <option value="averageRuntime">Average Runtime</option>
         <option value="frequency">Frequency</option>
     </select>
     <div id="flamegraph"></div>
@@ -48,9 +48,9 @@
         function getValue (element) {
             let presentedValue = $("#displayValueSelect").val();
 
-            if (presentedValue === "power") { return element.power; }
+            if (presentedValue === "averagePower") { return element.averagePower; }
+            if (presentedValue === "averageRuntime") { return element.averageRuntime; }
             if (presentedValue === "frequency") { return element.frequency; }
-            if (presentedValue === "runtime") { return element.runtime; }
 
             return 0;
         }

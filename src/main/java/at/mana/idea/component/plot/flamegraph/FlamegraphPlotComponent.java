@@ -49,22 +49,9 @@ public class FlamegraphPlotComponent extends PlotComponent<FunctionTrace> implem
 
     public void update() {
         browser.getCefBrowser().executeJavaScript( "updatePlot('" + modelToJson() + "');", browser.getCefBrowser().getURL(), 0 );
-        /*
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep( 2000 );
-                } catch (InterruptedException e) {}
-
-                System.out.println("hmmm... CAME HERE :P");
-                browser.getCefBrowser().executeJavaScript( "updatePlot('" + modelToJson() + "');", browser.getCefBrowser().getURL(), 0 );
-            }
-        }.start();*/
     }
 
     private String modelToJson() {
-        System.out.println(model.toJson());
         return model.toJson();
     }
 

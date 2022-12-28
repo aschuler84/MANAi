@@ -10,17 +10,17 @@ import java.util.Objects;
 public class FunctionTrace {
     private final String name;
     private final String path;
-    private final double power;
+    private final double averagePower;
+    private final double averageRuntime;
     private final double frequency;
-    private final double runtime;
     private final ArrayList<FunctionTrace> subtraces;
 
-    public FunctionTrace(String name, String path, double power, double frequency, double runtime) {
+    public FunctionTrace(String name, String path, double averagePower, double averageRuntime, double frequency) {
         this.name = name;
         this.path = path;
-        this.power = power;
+        this.averagePower = averagePower;
+        this.averageRuntime = averageRuntime;
         this.frequency = frequency;
-        this.runtime = runtime;
         this.subtraces = new ArrayList<>();
     }
 
@@ -42,12 +42,12 @@ public class FunctionTrace {
 
     // returns one of the three axis values
     public double getAxisValue (FunctionTraceAxis axis) {
-        if (axis == FunctionTraceAxis.Power) {
-            return this.power;
-        } else if (axis == FunctionTraceAxis.Frequency) {
-            return this.frequency;
+        if (axis == FunctionTraceAxis.AveragePower) {
+            return this.averagePower;
+        } else if (axis == FunctionTraceAxis.AverageRuntime) {
+            return this.averageRuntime;
         } else {
-            return this.runtime;
+            return this.frequency;
         }
     }
 
@@ -79,10 +79,10 @@ public class FunctionTrace {
         String result = String.format(Locale.US, "{" +
                 "\"name\":\"%s\"," +
                 "\"path\":\"%s\"," +
-                "\"power\":%f," +
-                "\"frequency\":%f," +
-                "\"runtime\":%f",
-                this.name, this.path, this.power, this.frequency, this.runtime);
+                "\"averagePower\":%f," +
+                "\"averageRuntime\":%f," +
+                "\"frequency\":%f",
+                this.name, this.path, this.averagePower, this.averageRuntime, this.frequency);
 
         // append subtraces array to json string
         String subtraceString = ",\"subtraces\":[";

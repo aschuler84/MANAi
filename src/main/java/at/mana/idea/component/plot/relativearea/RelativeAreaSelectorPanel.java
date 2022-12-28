@@ -12,13 +12,13 @@ public class RelativeAreaSelectorPanel extends JPanel {
 
     public RelativeAreaSelectorPanel () {
         JLabel xLabel = new JLabel("X-Axis:");
-        xSelector = new ComboBox<>(new String[]{"Power", "Frequency", "Runtime"});
+        xSelector = new ComboBox<>(new String[]{"Average Power", "Average Runtime", "Frequency"});
         xSelector.setSelectedIndex(0);
         this.add(xLabel);
         this.add(xSelector);
 
         JLabel yLabel = new JLabel("Y-Axis:");
-        ySelector = new ComboBox<>(new String[]{"Power", "Frequency", "Runtime"});
+        ySelector = new ComboBox<>(new String[]{"Average Power", "Average Runtime", "Frequency"});
         xSelector.setSelectedIndex(2);
         this.add(yLabel);
         this.add(ySelector);
@@ -26,21 +26,21 @@ public class RelativeAreaSelectorPanel extends JPanel {
 
     public FunctionTraceAxis getXAxis () {
         if (xSelector.getSelectedIndex() == 0) {
-            return FunctionTraceAxis.Power;
+            return FunctionTraceAxis.AveragePower;
         } else if (xSelector.getSelectedIndex() == 1) {
-            return FunctionTraceAxis.Frequency;
+            return FunctionTraceAxis.AverageRuntime;
         } else {
-            return FunctionTraceAxis.Runtime;
+            return FunctionTraceAxis.Frequency;
         }
     }
 
     public FunctionTraceAxis getYAxis () {
         if (ySelector.getSelectedIndex() == 0) {
-            return FunctionTraceAxis.Power;
+            return FunctionTraceAxis.AveragePower;
         } else if (ySelector.getSelectedIndex() == 1) {
-            return FunctionTraceAxis.Frequency;
+            return FunctionTraceAxis.AverageRuntime;
         } else {
-            return FunctionTraceAxis.Runtime;
+            return FunctionTraceAxis.Frequency;
         }
     }
 

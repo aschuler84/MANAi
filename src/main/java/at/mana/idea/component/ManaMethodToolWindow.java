@@ -4,6 +4,7 @@ import at.mana.core.util.DoubleStatistics;
 import at.mana.idea.component.plot.*;
 import at.mana.idea.component.plot.flamegraph.FlamegraphPlotComponent;
 import at.mana.idea.component.plot.relativearea.RelativeAreaPlotComponent;
+import at.mana.idea.component.plot.relativevolume.RelativeVolumePlotComponent;
 import at.mana.idea.model.AnalysisModel;
 import at.mana.idea.model.ManaEnergyExperimentModel;
 import at.mana.idea.model.MethodEnergyModel;
@@ -313,10 +314,10 @@ public class ManaMethodToolWindow extends JPanel implements ManaEnergyDataNotifi
     }
 
     private JComponent createRightComponent() {
-        //JBSplitter splitRigthDetails = new JBSplitter( false, "ManaMethodToolWindow.details.divider.proportion", 0.8f );
-        //splitRigthDetails.setFirstComponent( createTableSummaryComponent() );
-        //splitRigthDetails.setSecondComponent( createChartComponent() );
-        //splitRigthDetails.setBorder(JBUI.Borders.empty());
+        /*JBSplitter splitRigthDetails = new JBSplitter( false, "ManaMethodToolWindow.details.divider.proportion", 0.8f );
+        splitRigthDetails.setFirstComponent( createTableSummaryComponent() );
+        splitRigthDetails.setSecondComponent( createChartComponent() );
+        splitRigthDetails.setBorder(JBUI.Borders.empty());*/
 
         JPanel panel = new JPanel();
         panel.setLayout( new BorderLayout( ) );
@@ -327,11 +328,11 @@ public class ManaMethodToolWindow extends JPanel implements ManaEnergyDataNotifi
         tabContainer.insertTab( "Overview", null, panel, "", 0 );
         tabContainer.setTabComponentInsets(JBUI.insetsRight(0));
 
-        //panel = new JPanel();
-        //panel.setLayout( new BorderLayout() );
-        //.add( splitRigthDetails, BorderLayout.CENTER );
-        //splitRigthDetails.setProportion( 0.8f );
-        //tabContainer.insertTab( "Method Data", null, panel, "", 1 );
+        /*panel = new JPanel();
+        panel.setLayout( new BorderLayout() );
+        panel.add( splitRigthDetails, BorderLayout.CENTER );
+        splitRigthDetails.setProportion( 0.8f );
+        tabContainer.insertTab( "Method Data", null, panel, "", 1 );*/
 
         panel = new JPanel();
         panel.setLayout( new BorderLayout( ));
@@ -355,15 +356,22 @@ public class ManaMethodToolWindow extends JPanel implements ManaEnergyDataNotifi
 
         panel = new JPanel();
         panel.setLayout( new BorderLayout() );
-        panel.add( new RelativeAreaPlotComponent(), BorderLayout.CENTER );
-        tabContainer.insertTab( "Relative Area Plot", null, panel, "", 2 );
-
-        panel = new JPanel();
-        panel.setLayout( new BorderLayout() );
         FlamegraphPlotComponent fg = new FlamegraphPlotComponent();
         panel.add(fg.createComponent(), BorderLayout.CENTER );
         fg.setModel(FlamegraphPlotComponent.getExampleFunctionTrace());
-        tabContainer.insertTab( "Flamegraph Plot", null, panel, "", 3 );
+        tabContainer.insertTab( "Flamegraph Plot", null, panel, "", 2 );
+
+        panel = new JPanel();
+        panel.setLayout( new BorderLayout() );
+        panel.add( new RelativeAreaPlotComponent(), BorderLayout.CENTER );
+        tabContainer.insertTab( "Relative Area Plot", null, panel, "", 3 );
+
+        panel = new JPanel();
+        panel.setLayout( new BorderLayout() );
+        RelativeVolumePlotComponent rvpc = new RelativeVolumePlotComponent();
+        panel.add(rvpc.createComponent(), BorderLayout.CENTER );
+        rvpc.setModel(FlamegraphPlotComponent.getExampleFunctionTrace());
+        tabContainer.insertTab( "Relative Volume Plot", null, panel, "", 4 );
 
         return tabContainer;
     }
@@ -478,8 +486,8 @@ public class ManaMethodToolWindow extends JPanel implements ManaEnergyDataNotifi
                     PsiJavaFile javaFile = (PsiJavaFile) psiFile;
                     StorageService service = StorageService.getInstance(project);
                     AnalysisService analysisService = AnalysisService.getInstance(project);
-                    updateModel(javaFile, ReadAction.compute( () -> service.findDataFor(javaFile)),
-                            ReadAction.compute( () -> analysisService.findDataFor(javaFile)));
+                    //updateModel(javaFile, ReadAction.compute( () -> service.findDataFor(javaFile)),
+                    //        ReadAction.compute( () -> analysisService.findDataFor(javaFile)));
                 } else {
                     methodTree.getEmptyText().setText(i18n("methodtoolwindow.ui.table.empty.title"));
                 }

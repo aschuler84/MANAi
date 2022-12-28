@@ -1,44 +1,56 @@
 package at.mana.idea.component.plot.relativearea;
 
 import at.mana.idea.component.plot.FunctionTrace;
+import at.mana.idea.component.plot.FunctionTraceAxis;
 import com.intellij.ui.JBColor;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 
 import static at.mana.idea.util.ColorUtil.HEAT_MAP_COLORS_DEFAULT;
 
 public class RelativeAreaVisualizationPanel extends JPanel {
-    private RelativeAreaSelectorPanel selectorPanel;
-    private RelativeAreaPlotModel model;
+    private final JLabel noDataLabel;
+    private ArrayList<FunctionTrace> traces;
+    private FunctionTraceAxis xAxis;
+    private FunctionTraceAxis yAxis;
 
-    public RelativeAreaVisualizationPanel(RelativeAreaSelectorPanel selectorPanel, RelativeAreaPlotModel model) {
-        this.selectorPanel = selectorPanel;
-        this.model = model;
+    public RelativeAreaVisualizationPanel() {
+        this.traces = new ArrayList<>();
+        noDataLabel = new JLabel("No data has been added to the visualization.");
+    }
+
+    public void refresh(ArrayList<FunctionTrace> traces, FunctionTraceAxis xAxis, FunctionTraceAxis yAxis) {
+        this.traces = traces;
+        this.xAxis = xAxis;
+        this.yAxis = yAxis;
+
+        this.repaint();
     }
 
     @Override
     public void paintComponent(Graphics g) {
-        if (model == null || model.getFunctionTraceCount() == 0) {
-            this.add(new JLabel("No data has been added to the visualization."));
+        super.paintComponent(g);
+        this.remove(noDataLabel);
+
+        if (this.traces.size() == 0) {
+            this.add(noDataLabel);
+            this.revalidate();
         } else {
-            super.paintComponent(g);
-            Graphics2D graphics = (Graphics2D) g.create();
-            RelativeAreaAxis xAxis = selectorPanel.getXAxis();
-            RelativeAreaAxis yAxis = selectorPanel.getYAxis();
+            Graphics2D graphics = (Graphics2D)g.create();
 
             double xSum = 0;
             double yMax = 0;
             double maxValue = 0;
             double valueSum = 0;
-            for (int i = 0; i < this.model.getFunctionTraceCount(); i++) {
-                FunctionTrace currArea = this.model.getFunctionTraceAtPosition(i);
-                xSum += currArea.getAxisValue(xAxis);
-                if (currArea.getAxisValue(yAxis) > yMax) {
-                    yMax = currArea.getAxisValue(yAxis);
+            for (FunctionTrace currTrace : this.traces) {
+                xSum += currTrace.getAxisValue(this.xAxis);
+                if (currTrace.getAxisValue(this.yAxis) > yMax) {
+                    yMax = currTrace.getAxisValue(this.yAxis);
                 }
 
-                double currValue = currArea.getCombinedAxisValue(xAxis, yAxis);
+                double currValue = currTrace.getCombinedAxisValue(this.xAxis, this.yAxis);
                 valueSum += currValue;
                 if (currValue > maxValue) {
                     maxValue = currValue;
@@ -56,22 +68,17 @@ public class RelativeAreaVisualizationPanel extends JPanel {
             int currentX = 50;
             int highestY = 0;
             int bottomY = totalHeight - 50;
-            for (int i = 0; i < this.model.getFunctionTraceCount(); i++) {
-                FunctionTrace currArea = this.model.getFunctionTraceAtPosition(i);
-                double currWidth = currArea.getAxisValue(xAxis) * factor;
-                double currHeight = currArea.getAxisValue(yAxis) * factor;
-                double currValue = currArea.getCombinedAxisValue(xAxis, yAxis);
+            for (FunctionTrace currTrace : this.traces) {
+                double currWidth = currTrace.getAxisValue(this.xAxis) * factor;
+                double currHeight = currTrace.getAxisValue(this.yAxis) * factor;
+                double currValue = currTrace.getCombinedAxisValue(this.xAxis, this.yAxis);
 
-                Rectangle rect = new Rectangle(currentX, (int)(bottomY - currHeight), (int)currWidth, (int)currHeight);
-                graphics.setColor(getColorByScore(currValue / maxValue));
-                graphics.fill(rect);
-                graphics.setColor(JBColor.BLACK);
-                graphics.draw(rect);
-                labelRect(graphics, currentX, currArea.getName(), Math.round(1000 * currValue / valueSum)/10.0+"%");
+                drawArea(graphics, currentX, bottomY, (int)Math.round(currWidth), (int)Math.round(currHeight), getColorByScore(currValue / maxValue));
+                labelArea(graphics, currentX, currTrace.getName(), Math.round(1000 * currValue / valueSum) / 10.0 + "%");
 
-                currentX += (int)(currArea.getAxisValue(xAxis) * factor);
-                if ((int)currArea.getAxisValue(yAxis) == (int)yMax) {
-                    highestY = (int)(bottomY - currHeight);
+                currentX += (int) (currTrace.getAxisValue(this.xAxis) * factor);
+                if ((int) currTrace.getAxisValue(this.yAxis) == (int) yMax) {
+                    highestY = (int) (bottomY - currHeight);
                 }
             }
 
@@ -79,64 +86,79 @@ public class RelativeAreaVisualizationPanel extends JPanel {
         }
     }
 
-    private Color getColorByScore (double score) {
-        System.out.println(score+" --> "+Math.round(score * 5)+" --> "+(int)Math.round(score * 5));
-        return HEAT_MAP_COLORS_DEFAULT[(int)Math.round(score * 5)];
+    private void drawArea (Graphics2D g, int posX, int posY, int width, int height, Color c) {
+        Rectangle rect = new Rectangle(posX, posY - height, width, height);
+        g.setColor(c);
+        g.fill(rect);
+        g.setColor(JBColor.BLACK);
+        g.draw(rect);
+    }
 
+    private void labelArea (Graphics g, int xPos, String name, String value) {
+        int totalHeight = super.getHeight();
+
+        g.setColor(JBColor.WHITE);
+        g.drawString(name, xPos + 5, totalHeight - 80);
+        g.drawString(value, xPos + 5, totalHeight - 65);
+    }
+
+    private Color getColorByScore (double score) {
+        return HEAT_MAP_COLORS_DEFAULT[(int)Math.round(score * 5)];
         //return Color.getHSBColor((float)((1.0 - score) / 3),0.8f, 0.7f);
     }
 
     private void drawAxisSystem(Graphics g, int maxXValue, int maxYValue, int maxXPosition, int maxYPosition) {
-        drawAxis(g, true, maxXValue, maxXPosition);
-        drawAxis(g, false, maxYValue, maxYPosition);
+        g.setColor(JBColor.DARK_GRAY);
+        drawHorizontalAxis(g, maxXValue, maxXPosition);
+        drawVerticalAxis(g, maxYValue, maxYPosition);
     }
 
-    private void drawAxis(Graphics g, boolean horizontal, int maxValue, int maxPosition) {
+    private void drawHorizontalAxis(Graphics g, double maxValue, int maxPosition) {
         int totalWidth = super.getWidth();
         int totalHeight = super.getHeight();
 
-        if (horizontal) {
-            // draw main axis line
-            g.drawLine(25, totalHeight - 25, totalWidth - 25, totalHeight - 25);
+        // draw main axis line
+        g.drawLine(25, totalHeight - 25, totalWidth - 25, totalHeight - 25);
 
-            // draw maximum delimiter
-            g.drawLine(maxPosition, totalHeight - 20, maxPosition, totalHeight - 30);
-            g.drawString(""+maxValue, maxPosition + 5, totalHeight - 10);
+        // draw maximum delimiter
+        drawDelimiter(g, true, maxPosition, totalHeight - 25, maxValue);
 
-            // draw half delimiter
-            int halfPosition = 50 + (maxPosition - 50) / 2;
-            g.drawLine(halfPosition, totalHeight - 20, halfPosition, totalHeight - 30);
-            g.drawString(""+(maxValue / 2), halfPosition + 5, totalHeight - 10);
+        // draw half delimiter
+        int halfPosition = 50 + (maxPosition - 50) / 2;
+        drawDelimiter(g, true, halfPosition, totalHeight - 25, maxValue / 2);
 
-            // draw quarter delimiter
-            int quarterPosition = 50 + (maxPosition - 50) / 4;
-            g.drawLine(quarterPosition, totalHeight - 20, quarterPosition, totalHeight - 30);
-            g.drawString(""+(maxValue / 4), quarterPosition + 5, totalHeight - 10);
+        // draw quarter delimiter
+        int quarterPosition = 50 + (maxPosition - 50) / 4;
+        drawDelimiter(g, true, quarterPosition, totalHeight - 25, maxValue / 4);
 
-            // draw three quarter delimiter
-            int threeQuarterPosition = 50 + (maxPosition - 50) * 3 / 4;
-            g.drawLine(threeQuarterPosition, totalHeight - 20, threeQuarterPosition, totalHeight - 30);
-            g.drawString(""+(maxValue * 3 / 4), threeQuarterPosition + 5, totalHeight - 10);
-        } else {
-            // draw main axis line
-            g.drawLine(25, 25, 25, totalHeight - 25);
-
-            // draw maximum delimiter
-            g.drawLine(20, maxPosition, 30, maxPosition);
-            g.drawString(""+maxValue, 10, maxPosition - 5);
-
-            // draw half delimiter
-            int halfPosition = totalHeight - 50 - ((totalHeight - 100) - (maxPosition - 50)) / 2;
-            g.drawLine(20, halfPosition, 30, halfPosition);
-            g.drawString(""+(maxValue / 2), 10, halfPosition - 5);
-        }
+        // draw three quarter delimiter
+        int threeQuarterPosition = 50 + (maxPosition - 50) * 3 / 4;
+        drawDelimiter(g, true, threeQuarterPosition, totalHeight - 25, maxValue * 3 / 4);
     }
 
-    private void labelRect (Graphics g, int xPos, String name, String value) {
+    private void drawVerticalAxis(Graphics g, double maxValue, int maxPosition) {
         int totalHeight = super.getHeight();
 
-        g.setColor(Color.BLACK);
-        g.drawString(name, xPos + 5, totalHeight - 80);
-        g.drawString(value, xPos + 5, totalHeight - 65);
+        // draw main axis line
+        g.drawLine(25, 25, 25, totalHeight - 25);
+
+        // draw maximum delimiter
+        drawDelimiter(g, false, 25, maxPosition, maxValue);
+
+        // draw half delimiter
+        int halfPosition = totalHeight - 50 - ((totalHeight - 100) - (maxPosition - 50)) / 2;
+        drawDelimiter(g, false, 25, halfPosition, maxValue / 2);
+    }
+
+    private void drawDelimiter (Graphics g, boolean horizontal, int xPos, int yPos, double value ) {
+        if (horizontal) {
+            // draw horizontal delimiter
+            g.drawLine(xPos, yPos - 5, xPos, yPos + 5);
+            g.drawString(""+value, xPos + 5, yPos - 10);
+        } else {
+            // draw vertical delimiter
+            g.drawLine(xPos - 5, yPos, xPos + 5, yPos);
+            g.drawString(""+value, xPos - 20, yPos - 5);
+        }
     }
 }

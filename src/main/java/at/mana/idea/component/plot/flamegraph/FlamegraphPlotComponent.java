@@ -2,13 +2,17 @@ package at.mana.idea.component.plot.flamegraph;
 
 import at.mana.idea.component.plot.PlotComponent;
 import at.mana.idea.component.plot.FunctionTrace;
+import org.cef.browser.CefBrowser;
+import org.cef.browser.CefFrame;
+import org.cef.handler.CefLoadHandler;
+import org.cef.network.CefRequest;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.stream.Collectors;
 
-public class FlamegraphPlotComponent extends PlotComponent<FunctionTrace> {
+public class FlamegraphPlotComponent extends PlotComponent<FunctionTrace> implements CefLoadHandler {
 
     private static final String CHART_ID = "/static/flamegraph_chart.html";
 
@@ -29,26 +33,23 @@ public class FlamegraphPlotComponent extends PlotComponent<FunctionTrace> {
 
     @Override
     protected void initBrowser() {
-        System.out.println("THIS IS A NEW INITIATE CALL!!!");
-
         // navigate to url
         // execute javascript
         //String file = Files.readString(Path.of(this.getClass().getResource(CHART_ID).getFile()).toUri());
         try (BufferedReader br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream( CHART_ID ))) ) {
             String content = br.lines().collect(Collectors.joining(System.lineSeparator()));
             this.browser.loadHTML( content, "mana-fg-plot" );
+
+            // initiate load handler
+            this.browser.getJBCefClient().addLoadHandler(this, browser.getCefBrowser());
         } catch (IOException e) {
             e.printStackTrace();
         }
-        // convert data to json
-        // call java script
-
-        update();
     }
 
     public void update() {
-        System.out.println("THIS IS A NEW UPDATE CALL!!!");
-
+        browser.getCefBrowser().executeJavaScript( "updatePlot('" + modelToJson() + "');", browser.getCefBrowser().getURL(), 0 );
+        /*
         new Thread() {
             @Override
             public void run() {
@@ -56,13 +57,34 @@ public class FlamegraphPlotComponent extends PlotComponent<FunctionTrace> {
                     Thread.sleep( 2000 );
                 } catch (InterruptedException e) {}
 
-                browser.getCefBrowser().executeJavaScript( "updatePlot(" + modelToJson() + ");", browser.getCefBrowser().getURL(), 0 );
+                System.out.println("hmmm... CAME HERE :P");
+                browser.getCefBrowser().executeJavaScript( "updatePlot('" + modelToJson() + "');", browser.getCefBrowser().getURL(), 0 );
             }
-        }.start();
+        }.start();*/
     }
 
     private String modelToJson() {
         System.out.println(model.toJson());
         return model.toJson();
+    }
+
+    @Override
+    public void onLoadingStateChange(CefBrowser browser, boolean isLoading, boolean canGoBack, boolean canGoForward) {
+
+    }
+
+    @Override
+    public void onLoadStart(CefBrowser browser, CefFrame frame, CefRequest.TransitionType transitionType) {
+
+    }
+
+    @Override
+    public void onLoadEnd(CefBrowser browser, CefFrame frame, int httpStatusCode) {
+        update();
+    }
+
+    @Override
+    public void onLoadError(CefBrowser browser, CefFrame frame, ErrorCode errorCode, String errorText, String failedUrl) {
+
     }
 }

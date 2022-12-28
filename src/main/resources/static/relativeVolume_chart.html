@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body { margin: 0; }
+    </style>
+</head>
+<body>
+</body>
+<script src="node_modules/three/build/three.js"></script>
+<!--<script type="module" src="node_modules/three/examples/jsm/loaders/FontLoader.js"></script>-->
+<script>
+    //import { FontLoader } from '/node_modules/three/examples/jsm/loaders/FontLoader.js';
+    //import THREE from "three";
+
+    alert("Test 1");
+    let renderer, scene, camera;
+    function setup() {
+        alert("Test 2a");
+        const screenRatio = window.innerHeight / window.innerWidth;
+        const width = 4;
+        const height = 4 * screenRatio;
+        alert("Test 2b");
+        const cLeft = width / -2;
+        const cRight =  width / 2;
+
+        const cTop = height / 2;
+        const cBottom = height / -2;
+        alert("Test 2c");
+        camera = new THREE.OrthographicCamera(cLeft, cRight, cTop, cBottom, -5, 1000);
+        camera.position.z = 0;
+        alert("Test 2d");
+        scene = new THREE.Scene();
+
+        //drawAxisSystem();
+        alert("Test 2e");
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setAnimationLoop(animation);
+        document.body.appendChild(renderer.domElement);
+        alert("Test 2f");
+    }
+
+    function drawAxisSystem() {
+        drawAxis(-0.1, -0.1, -0.1, 1.0, -0.1, -0.1);
+        drawAxis(-0.1, -0.1, -0.1, -0.1, 1.0, -0.1);
+        drawAxis(-0.1, -0.1, -0.1, -0.1, -0.1, 1.0);
+    }
+
+    function drawAxis(startX, startY, startZ, endX, endY, endZ) {
+        const points = [];
+        points.push(new THREE.Vector3(startX, startY, startZ));
+        points.push(new THREE.Vector3(endX, endY, endZ));
+
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        const material = new THREE.LineBasicMaterial({ color: 0xFFFFFF });
+        const line = new THREE.Line(geometry, material);
+        scene.add( line );
+
+        /*const loader = new FontLoader();
+        const font = loader.load(
+            // resource URL
+            'Myriad Pro_Regular.json',
+
+            // onLoad callback
+            function ( font ) {
+                // do something with the font
+                console.log( font );
+            },
+
+            // onProgress callback
+            function ( xhr ) {
+                console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+            },
+
+            // onError callback
+            function ( err ) {
+                console.log( 'An error happened' );
+            }
+        );*/
+    }
+
+    function renderDiagram() {
+        addMesh(0, 0, 0, 0.1, 0.1, 0.1, new THREE.Color(0xFFFFFF));
+
+        addNewVolume(0.1, 0.1, 0.1, new THREE.Color(0xFF0000));
+        addNewVolume(0.3, 0.3, 0.3, new THREE.Color(0x00FF00));
+        addNewVolume(0.5, 0.5, 0.5, new THREE.Color(0x0000FF));
+    }
+
+    let currX = 0, currY = 0, currZ = 0;
+    function addNewVolume(scaleX, scaleY, scaleZ, color) {
+        const mesh = addMesh(currX + scaleX / 2, scaleY / 2, currZ + scaleZ / 2, scaleX, scaleY, scaleZ, color);
+
+        currX += scaleX;
+        currZ += scaleZ;
+
+        return mesh;
+    }
+
+    const allMeshes = [];
+    function addMesh (posX, posY, posZ, scaleX, scaleY, scaleZ, color) {
+        const geometry = new THREE.BoxGeometry( scaleX, scaleY, scaleZ );
+        const material = new THREE.MeshBasicMaterial();
+        material.color = color;
+        material.wireframe = true;
+        material.wireframeLinewidth = 3;
+
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.position.x = posX;
+        mesh.position.y = posY;
+        mesh.position.z = posZ;
+        allMeshes.push(mesh);
+        scene.add(mesh);
+
+        return mesh;
+    }
+
+    let currRotationX = 0, currRotationY = 0;
+    let targetRotationX = 0, targetRotationY = 0;
+    function animation( time ) {
+        let deltaX;
+        if (currRotationX < targetRotationX) { deltaX = 1; }
+        else if (currRotationX > targetRotationX) { deltaX = -1 }
+        else { deltaX = 0; }
+
+        if (currRotationX != targetRotationX) {
+            currRotationX = currRotationX += deltaX * 5;
+
+            camera.rotation.x = currRotationX * Math.PI / 180;
+        }
+
+        let deltaY;
+        if (currRotationY < targetRotationY) { deltaY = 1; }
+        else if (currRotationY > targetRotationY) { deltaY = -1 }
+        else { deltaY = 0; }
+
+        if (currRotationY != targetRotationY) {
+            currRotationY = currRotationY += deltaY * 5;
+
+            camera.rotation.y = currRotationY * Math.PI / 180;
+        }
+
+        renderer.render(scene, camera);
+    }
+
+    function setDirection(dir) {
+        if (dir == 'xy') {
+            targetRotationX = 0;
+            targetRotationY = 0;
+        } else if (dir == 'yz') {
+            targetRotationX = 0;
+            targetRotationY = 90;
+        } else if (dir == 'xz') {
+            targetRotationX = 90;
+            targetRotationY = 90;
+        } else if (dir == 'all') {
+            targetRotationX = 45;
+            targetRotationY = 45;
+        }
+    }
+    alert("Test 2");
+    setup();
+    renderDiagram();
+    alert("Test 3");
+
+</script>
+</html>

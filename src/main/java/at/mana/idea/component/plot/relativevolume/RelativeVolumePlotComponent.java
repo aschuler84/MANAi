@@ -1,69 +1,79 @@
 package at.mana.idea.component.plot.relativevolume;
 
 import at.mana.idea.component.plot.FunctionTrace;
-import at.mana.idea.component.plot.PlotComponent;
-import org.cef.browser.CefBrowser;
-import org.cef.browser.CefFrame;
-import org.cef.handler.CefLoadHandler;
-import org.cef.network.CefRequest;
+import at.mana.idea.component.plot.ProjectBrowserPanel;
+import com.intellij.ui.Gray;
+import com.intellij.ui.JBColor;
 
+import javax.swing.*;
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
 
-public class RelativeVolumePlotComponent extends PlotComponent<FunctionTrace> implements CefLoadHandler {
-    private static final String CHART_ID = "/static/relativeVolume_chart.html";
-    private static final String relativeFilePath = "./src/main/resources/static/relativeVolume_chart.html";
+public class RelativeVolumePlotComponent extends JPanel {
+    private RelativeVolumePlotModel model;
+    private final ProjectBrowserPanel projectBrowser;
+    private final RelativeVolumeVisualizationPanel visualizationPanel;
 
-    @Override
-    protected void initBrowser() {
-        /*try {
-            System.out.println(getClass().getResource(CHART_ID).getFile());
-            File relativeVolumeChart = new File(getClass().getResource(CHART_ID).getFile());
-            Desktop.getDesktop().open(relativeVolumeChart);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
+    public RelativeVolumePlotComponent () {
+        // inserting test data, TODO: exchange it with real data
+        this.model = new RelativeVolumePlotModel();
+        this.model.appendFunctionTrace(new FunctionTrace("Bark", "TestProject.pack1.Dog", 3, 6, 4));
+        this.model.appendFunctionTrace(new FunctionTrace("Walk", "TestProject.pack1.Dog", 8, 3, 2));
+        this.model.appendFunctionTrace(new FunctionTrace("Miau", "TestProject.pack2.Cat", 1, 2, 2));
+        this.model.appendFunctionTrace(new FunctionTrace("Stray", "TestProject.pack2.Cat", 1, 8, 6));
 
-        /*try (BufferedReader br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream( CHART_ID ))) ) {
-            String content = br.lines().collect(Collectors.joining(System.lineSeparator()));
+        this.setLayout(new GridBagLayout());
 
-            // load html template
-            this.browser.loadHTML(content, "mana-rvp-plot");
+        projectBrowser = new ProjectBrowserPanel();
+        projectBrowser.setBackground(new JBColor(Gray._160, Gray._92));
+        GridBagConstraints browserConstraints = new GridBagConstraints();
+        browserConstraints.gridx = 0;
+        browserConstraints.gridy = 0;
+        browserConstraints.weightx = 0.2;
+        browserConstraints.weighty = 1;
+        browserConstraints.anchor = GridBagConstraints.NORTHWEST;
+        browserConstraints.fill = GridBagConstraints.BOTH;
+        this.add(projectBrowser, browserConstraints);
 
-            // initiate load handler
-            this.browser.getJBCefClient().addLoadHandler(this, browser.getCefBrowser());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
+        visualizationPanel = new RelativeVolumeVisualizationPanel();
+        visualizationPanel.setBackground(new JBColor(Gray._208, Gray._48));
+        GridBagConstraints visualizationConstraints = new GridBagConstraints();
+        visualizationConstraints.gridx = 1;
+        visualizationConstraints.gridy = 0;
+        visualizationConstraints.weightx = 0.8;
+        visualizationConstraints.weighty = 1;
+        visualizationConstraints.anchor = GridBagConstraints.NORTHWEST;
+        visualizationConstraints.fill = GridBagConstraints.BOTH;
+        this.add(visualizationPanel, visualizationConstraints);
+
+        projectBrowser.addSelectionChangedListener(e -> { this.refreshPlot(); });
+
+        this.refreshPlot();
     }
 
-    public void update() {
-        System.out.println("Update called!");
-        browser.getCefBrowser().executeJavaScript( "setup();", browser.getCefBrowser().getURL(), 0 );
-        System.out.println("Update called end!");
+    public void setModel(RelativeVolumePlotModel model) {
+        this.model = model;
+        this.refreshPlot();
     }
 
-    @Override
-    public void onLoadingStateChange(CefBrowser browser, boolean isLoading, boolean canGoBack, boolean canGoForward) {
-        //update();
-    }
+    private void refreshPlot () {
+        ArrayList<FunctionTrace> tracesToBeDisplayed = new ArrayList<>();
+        String filterPath = this.projectBrowser.getSelectedClass();
 
-    @Override
-    public void onLoadStart(CefBrowser browser, CefFrame frame, CefRequest.TransitionType transitionType) {
+        for (int i = 0; i < this.model.getFunctionTraceCount(); i++) {
+            FunctionTrace currTrace = this.model.getFunctionTraceAtPosition(i);
 
-    }
+            if (filterPath == null || filterPath.length() == 0 || currTrace.isInPath(filterPath)) {
+                tracesToBeDisplayed.add(currTrace);
+            }
+        }
 
-    @Override
-    public void onLoadEnd(CefBrowser browser, CefFrame frame, int httpStatusCode) {
-        update();
-    }
+        tracesToBeDisplayed.sort((o1, o2) -> {
+            if (o1.getVolume() < o2.getVolume()) { return 1; }
+            else if (o1.getVolume() > o2.getVolume()) { return -1; }
+            else { return 0; }
+        });
 
-    @Override
-    public void onLoadError(CefBrowser browser, CefFrame frame, ErrorCode errorCode, String errorText, String failedUrl) {
-        System.err.println("ERROR in Browser: "+errorText);
+        this.visualizationPanel.refresh(FunctionTrace.arrayListToJson(tracesToBeDisplayed));
     }
 }

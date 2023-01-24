@@ -368,9 +368,7 @@ public class ManaMethodToolWindow extends JPanel implements ManaEnergyDataNotifi
 
         panel = new JPanel();
         panel.setLayout( new BorderLayout() );
-        RelativeVolumePlotComponent rvpc = new RelativeVolumePlotComponent();
-        panel.add(rvpc.createComponent(), BorderLayout.CENTER );
-        rvpc.setModel(FlamegraphPlotComponent.getExampleFunctionTrace());
+        panel.add( new RelativeVolumePlotComponent(), BorderLayout.CENTER );
         tabContainer.insertTab( "Relative Volume Plot", null, panel, "", 4 );
 
         return tabContainer;

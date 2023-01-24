@@ -5,167 +5,509 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <style>
-        body { margin: 0; }
+        body {
+            margin: 0;
+            font-family: Arial;
+        }
+
+        #orientationButtonContainer {
+            position: absolute;
+            top: 10px;
+        }
+
+        #modeButtonContainer {
+            position: absolute;
+            bottom: 10px;
+        }
+
+        #volumeInfoButton {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        button {
+            width: 150px;
+            height: 50px;
+            margin: 10px;
+            color: white;
+            background: black;
+            border: 1px solid white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            color: black;
+            background: white;
+            border: 1px solid black;
+        }
+
+        <!--.axisLabel {
+                position: absolute;
+                color: white;
+                font-size: 20px;
+                transform: translate(-50%, -50%);
+            }-->
+
+        .infoPanel {
+            padding: 10px;
+            border: 1px solid white;
+            background: gray;
+            position: absolute;
+            font-size: 18px;
+            color: white;
+        }
+
+        #axisInfo {
+            margin: 10px;
+            top: 70px;
+        }
+
+        #volumeInfo {
+            margin: 10px;
+            top: 70px;
+            right: 10px;
+            max-width:20%;
+            max-height: 50%;
+            overflow: auto;
+            font-size: 14px;
+        }
+
+        #axisInfo #xInfo {
+            background-color: red;
+        }
+
+        #axisInfo #yInfo {
+            background-color: green;
+        }
+
+        #axisInfo #zInfo {
+            background-color: blue;
+        }
     </style>
 </head>
 <body>
+<div id="orientationButtonContainer" class="buttonContainer">
+    <button id="xyButton">XY View</button>
+    <button id="yzButton">YZ View</button>
+    <button id="xzButton">XZ View</button>
+    <button id="3dButton">3D View</button>
+</div>
+<div id="modeButtonContainer" class="buttonContainer">
+    <button id="standardButton">Standard</button>
+    <button id="centeredButton">Centered</button>
+    <button id="xAlignedButton">X Aligned</button>
+    <button id="yAlignedButton">Y Aligned</button>
+    <button id="zAlignedButton">Z Aligned</button>
+</div>
+<button id="volumeInfoButton">Toggle Volume Info</button>
+<div id="axisInfo" class="infoPanel">
+    <span id ="xInfo">X-Axis: Average Power [W]</span></br>
+    <span id ="yInfo">Y-Axis: Frequency</span></br>
+    <span id ="zInfo">Z-Axis: Average Runtime [ms]</span></br></br>
+    <span>X*Y-Plane: Power [W]</span></br>
+    <span>Y*Z-Plane: Runtime [ms]</span></br>
+    <span>X*Z-Plane: Average Energy [J]</span></br></br>
+    <span>X*Y*Z-Volume: Energy [J]</span>
+</div>
+<div id="volumeInfo" class="infoPanel"></div>
+<!--<span id="xLabel" class="axisLabel">Average Power [W]</span>
+<span id="yLabel" class="axisLabel">Frequency</span>
+<span id="zLabel" class="axisLabel">Average Runtime [ms]</span>
+<span id="xyLabel" class="axisLabel">Power [W]</span>
+<span id="yzLabel" class="axisLabel">Runtime [ms]</span>
+<span id="xzLabel" class="axisLabel">Average Energy [J]</span>-->
 </body>
-<script src="node_modules/three/build/three.js"></script>
-<!--<script type="module" src="node_modules/three/examples/jsm/loaders/FontLoader.js"></script>-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.148.0/three.js"></script>
 <script>
-    //import { FontLoader } from '/node_modules/three/examples/jsm/loaders/FontLoader.js';
-    //import THREE from "three";
-
-    alert("Test 1");
+    let traces;
     let renderer, scene, camera;
     function setup() {
-        alert("Test 2a");
+        var pieces = window.location.href.split("?");
+        traces = jQuery.parseJSON(decodeURIComponent(pieces[1].substring(5)));
+
+        for (let i = 0; i < traces.length; i++) {
+            let currPower = traces[i].averagePower * traces[i].frequency;
+            let currRuntime = traces[i].averageRuntime * traces[i].frequency;
+            let currAverageEnergy = traces[i].averagePower * traces[i].averageRuntime;
+            let currEnergy = currAverageEnergy * traces[i].frequency;
+
+            $("#volumeInfo").append("<b>Volume "+(i+1)+"</b></br>"+
+                "- Name: "+traces[i].name+"</br>"+
+                "- Path: "+traces[i].path+"</br>"+
+                "- Average Power: "+traces[i].averagePower+"W</br>"+
+                "- Frequency: "+traces[i].frequency+"</br>"+
+                "- Average Runtime: "+traces[i].averageRuntime+"ms</br>"+
+                "- Power: "+currPower+"W</br>"+
+                "- Runtime: "+currRuntime+"ms</br>"+
+                "- Average Energy: "+currAverageEnergy+"J</br>"+
+                "- Energy: "+currEnergy+"J</br><hr>");
+        }
+
         const screenRatio = window.innerHeight / window.innerWidth;
-        const width = 4;
-        const height = 4 * screenRatio;
-        alert("Test 2b");
+        const width = getHighestAxisValue() * 5;
+        const height = getHighestAxisValue() * 5 * screenRatio;
         const cLeft = width / -2;
         const cRight =  width / 2;
 
         const cTop = height / 2;
         const cBottom = height / -2;
-        alert("Test 2c");
-        camera = new THREE.OrthographicCamera(cLeft, cRight, cTop, cBottom, -5, 1000);
+        camera = new THREE.OrthographicCamera(cLeft, cRight, cTop, cBottom, -Math.pow(getHighestAxisValue(), 2), 1000);
         camera.position.z = 0;
-        alert("Test 2d");
         scene = new THREE.Scene();
 
-        //drawAxisSystem();
-        alert("Test 2e");
+        $("#xyButton").click(function() { setOrientation("xy"); });
+        $("#yzButton").click(function() { setOrientation("yz"); });
+        $("#xzButton").click(function() { setOrientation("xz"); });
+        $("#3dButton").click(function() { setOrientation("all"); });
+
+        $("#standardButton").click(function() { setMode("standard"); });
+        $("#centeredButton").click(function() { setMode("centered"); });
+        $("#xAlignedButton").click(function() { setMode("xAligned"); });
+        $("#yAlignedButton").click(function() { setMode("yAligned"); });
+        $("#zAlignedButton").click(function() { setMode("zAligned"); });
+
+        $("#volumeInfoButton").click(function() { $("#volumeInfo").toggle() });
+
+        drawAxisSystem(getHighestAxisValue());
+
         renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setAnimationLoop(animation);
         document.body.appendChild(renderer.domElement);
-        alert("Test 2f");
     }
 
-    function drawAxisSystem() {
-        drawAxis(-0.1, -0.1, -0.1, 1.0, -0.1, -0.1);
-        drawAxis(-0.1, -0.1, -0.1, -0.1, 1.0, -0.1);
-        drawAxis(-0.1, -0.1, -0.1, -0.1, -0.1, 1.0);
+    function setMode(newMode) {
+        if (newMode === "standard") {
+            let currX = 0, currY = 0, currZ = 0;
+
+            for(let i = 0; i < allVolumes.length; i++) {
+                allTargetPosX[i] = currX + allVolumes[i].geometry.parameters.width / 2;
+                allTargetPosY[i] = currY + allVolumes[i].geometry.parameters.height / 2;
+                allTargetPosZ[i] = currZ + allVolumes[i].geometry.parameters.depth / 2;
+
+                currX += allVolumes[i].geometry.parameters.width;
+                currY += allVolumes[i].geometry.parameters.height;
+                currZ += allVolumes[i].geometry.parameters.depth;
+            }
+        } else if (newMode === "centered") {
+            let currPos = 0;
+
+            for(let i = 0; i < allVolumes.length; i++) {
+                let offset = 0;
+                if (allVolumes[i].geometry.parameters.width < allVolumes[i].geometry.parameters.height && allVolumes[i].geometry.parameters.width < allVolumes[i].geometry.parameters.depth) {offset = allVolumes[i].geometry.parameters.width;}
+                else if (allVolumes[i].geometry.parameters.height < allVolumes[i].geometry.parameters.depth) {offset = allVolumes[i].geometry.parameters.height;}
+                else {offset = allVolumes[i].geometry.parameters.depth;}
+
+                currPos += offset;
+
+                allTargetPosX[i] = currPos - allVolumes[i].geometry.parameters.width / 2;
+                allTargetPosY[i] = currPos - allVolumes[i].geometry.parameters.height / 2;
+                allTargetPosZ[i] = currPos - allVolumes[i].geometry.parameters.depth / 2;
+            }
+        } else if (newMode === "xAligned") {
+            let currX = 0;
+
+            for(let i = 0; i < allVolumes.length; i++) {
+                allTargetPosX[i] = currX + allVolumes[i].geometry.parameters.width / 2;
+                allTargetPosY[i] = allVolumes[i].geometry.parameters.height / 2;
+                allTargetPosZ[i] = allVolumes[i].geometry.parameters.depth / 2;
+
+                currX += allVolumes[i].geometry.parameters.width;
+            }
+        } else if (newMode === "yAligned") {
+            let currY = 0;
+
+            for(let i = 0; i < allVolumes.length; i++) {
+                allTargetPosX[i] = allVolumes[i].geometry.parameters.width / 2;
+                allTargetPosY[i] = currY + allVolumes[i].geometry.parameters.height / 2;
+                allTargetPosZ[i] = allVolumes[i].geometry.parameters.depth / 2;
+
+                currY += allVolumes[i].geometry.parameters.height;
+            }
+        } else if (newMode === "zAligned") {
+            let currZ = 0;
+
+            for(let i = 0; i < allVolumes.length; i++) {
+                allTargetPosX[i] = allVolumes[i].geometry.parameters.width / 2;
+                allTargetPosY[i] = allVolumes[i].geometry.parameters.height / 2;
+                allTargetPosZ[i] = currZ + allVolumes[i].geometry.parameters.depth / 2;
+
+                currZ += allVolumes[i].geometry.parameters.depth;
+            }
+        }
     }
 
-    function drawAxis(startX, startY, startZ, endX, endY, endZ) {
+    let allMajorAxes = [];
+    let allMinorAxes = [];
+    function drawAxisSystem(length) {
+        var spacing = 0.05 * length;
+
+        allMajorAxes.push(drawAxis(-spacing, -spacing, -spacing, length, -spacing, -spacing, 0xff0000));
+        allMajorAxes.push(drawAxis(-spacing, -spacing, -spacing, -spacing, length, -spacing, 0x00ff00));
+        allMajorAxes.push(drawAxis(-spacing, -spacing, -spacing, -spacing, -spacing, length, 0x0000ff));
+
+        allMinorAxes.push(drawAxis(-spacing, -spacing, -spacing, length, length, -spacing, 0xaaaaaa));
+        allMinorAxes.push(drawAxis(-spacing, -spacing, -spacing, length, -spacing, length, 0xaaaaaa));
+        allMinorAxes.push(drawAxis(-spacing, -spacing, -spacing, -spacing, length, length, 0xaaaaaa));
+    }
+
+    function getAxisSum (axis) {
+        var sum = 0;
+
+        for (let i = 0; i < traces.length; i++) {
+            if (axis === "x") {
+                sum += traces[i].averagePower;
+            } else if (axis === "y") {
+                sum += traces[i].averageRuntime;
+            } else if (axis === "z") {
+                sum += traces[i].frequency;
+            }
+        }
+
+        return sum;
+    }
+
+    function getHighestAxisValue () {
+        var averagePowerSum = getAxisSum("x");
+        var frequencySum = getAxisSum("y");
+        var averageRuntimeSum = getAxisSum("z");
+
+        if (averagePowerSum >= averageRuntimeSum && averagePowerSum >= frequencySum) { return averagePowerSum; }
+        else if (averageRuntimeSum >= frequencySum) { return averageRuntimeSum; }
+        else { return frequencySum; }
+    }
+
+    function drawAxis(startX, startY, startZ, endX, endY, endZ, color) {
         const points = [];
         points.push(new THREE.Vector3(startX, startY, startZ));
         points.push(new THREE.Vector3(endX, endY, endZ));
 
         const geometry = new THREE.BufferGeometry().setFromPoints(points);
-        const material = new THREE.LineBasicMaterial({ color: 0xFFFFFF });
+        const material = new THREE.LineBasicMaterial({ color: color });
         const line = new THREE.Line(geometry, material);
-        scene.add( line );
 
-        /*const loader = new FontLoader();
-        const font = loader.load(
-            // resource URL
-            'Myriad Pro_Regular.json',
-
-            // onLoad callback
-            function ( font ) {
-                // do something with the font
-                console.log( font );
-            },
-
-            // onProgress callback
-            function ( xhr ) {
-                console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
-            },
-
-            // onError callback
-            function ( err ) {
-                console.log( 'An error happened' );
-            }
-        );*/
+        scene.add(line);
+        return line;
     }
 
     function renderDiagram() {
-        addMesh(0, 0, 0, 0.1, 0.1, 0.1, new THREE.Color(0xFFFFFF));
+        var highestEnergy = getHighestEnergy(traces);
 
-        addNewVolume(0.1, 0.1, 0.1, new THREE.Color(0xFF0000));
-        addNewVolume(0.3, 0.3, 0.3, new THREE.Color(0x00FF00));
-        addNewVolume(0.5, 0.5, 0.5, new THREE.Color(0x0000FF));
+        for (let i = 0; i < traces.length; i++) {
+            var currentTrace = traces[i];
+            var currentEnergy = getEnergyOfTrace(currentTrace);
+            var currentColor = getRelativeColorOfTrace(currentEnergy, highestEnergy);
+
+            addNewVolume(currentTrace.averagePower, currentTrace.averageRuntime, currentTrace.frequency, new THREE.Color(currentColor));
+        }
     }
 
+    function getHighestEnergy (traces) {
+        var highestEnergy = 0;
+
+        for (let i = 0; i < traces.length; i++) {
+            var currentEnergy = getEnergyOfTrace(traces[i]);
+
+            if (currentEnergy > highestEnergy) {
+                highestEnergy = currentEnergy;
+            }
+        }
+
+        return highestEnergy;
+    }
+
+    function getEnergyOfTrace (trace) {
+        return trace.averagePower * trace.averageRuntime * trace.frequency;
+    }
+
+    function getRelativeColorOfTrace (currentEnergy, highestEnergy) {
+        var score = currentEnergy / highestEnergy;
+
+        var h = (1.0 - score) / 3;
+        var s = 0.8;
+        var l = 0.7;
+        var r, g, b;
+
+        if (s === 0) {
+            r = l;
+            g = l;
+            b = l;
+        } else {
+            var hue2rgb = function hue2rgb(p, q, t){
+                if(t < 0) t += 1;
+                if(t > 1) t -= 1;
+                if(t < 1/6) return p + (q - p) * 6 * t;
+                if(t < 1/2) return q;
+                if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                return p;
+            }
+
+            var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+            var p = 2 * l - q;
+            r = hue2rgb(p, q, h + 1/3);
+            g = hue2rgb(p, q, h);
+            b = hue2rgb(p, q, h - 1/3);
+        }
+
+        return "#"+[Math.round(r * 255).toString(16), Math.round(g * 255).toString(16), Math.round(b * 255).toString(16)].join("");
+    }
+
+    let allVolumes = [];
+    let allTargetPosX = [], allTargetPosY = [], allTargetPosZ = [];
     let currX = 0, currY = 0, currZ = 0;
     function addNewVolume(scaleX, scaleY, scaleZ, color) {
-        const mesh = addMesh(currX + scaleX / 2, scaleY / 2, currZ + scaleZ / 2, scaleX, scaleY, scaleZ, color);
+        const mesh = addMesh(currX + scaleX / 2, currY + scaleY / 2, currZ + scaleZ / 2, scaleX, scaleY, scaleZ, color);
+        addEdgeHighlight(mesh, currX + scaleX / 2, currY + scaleY / 2, currZ + scaleZ / 2, 0xffffff);
+
+        allTargetPosX.push(mesh.position.x);
+        allTargetPosY.push(mesh.position.y);
+        allTargetPosZ.push(mesh.position.z);
+        allVolumes.push(mesh);
 
         currX += scaleX;
+        currY += scaleY;
         currZ += scaleZ;
 
         return mesh;
     }
 
-    const allMeshes = [];
     function addMesh (posX, posY, posZ, scaleX, scaleY, scaleZ, color) {
         const geometry = new THREE.BoxGeometry( scaleX, scaleY, scaleZ );
         const material = new THREE.MeshBasicMaterial();
         material.color = color;
-        material.wireframe = true;
-        material.wireframeLinewidth = 3;
 
         const mesh = new THREE.Mesh(geometry, material);
         mesh.position.x = posX;
         mesh.position.y = posY;
         mesh.position.z = posZ;
-        allMeshes.push(mesh);
         scene.add(mesh);
 
         return mesh;
     }
 
-    let currRotationX = 0, currRotationY = 0;
-    let targetRotationX = 0, targetRotationY = 0;
-    function animation( time ) {
-        let deltaX;
-        if (currRotationX < targetRotationX) { deltaX = 1; }
-        else if (currRotationX > targetRotationX) { deltaX = -1 }
-        else { deltaX = 0; }
+    function addEdgeHighlight (cubeMesh, posX, posY, posZ, color) {
+        const edgesGeometry = new THREE.EdgesGeometry(cubeMesh.geometry, 40);
+        const linesGeometry = new THREE.LineSegments(edgesGeometry, new THREE.LineBasicMaterial({ color: color}));
 
-        if (currRotationX != targetRotationX) {
-            currRotationX = currRotationX += deltaX * 5;
+        scene.add(linesGeometry);
+        cubeMesh.add(linesGeometry);
+    }
 
-            camera.rotation.x = currRotationX * Math.PI / 180;
+    let camCurrPosX = 0, camCurrPosY = 0, camCurrPosZ = 100;
+    let camTargetPos = new THREE.Vector3(0, 0, 0);
+    let camTargetRot = new THREE.Quaternion(0, 0, 0, 0);
+    function animation(time) {
+        // mesh movement
+        var volumeSpeed = 1.0;
+
+        for (let i = 0; i < allVolumes.length; i++) {
+            let currVolume = allVolumes[i];
+            let meshTargetPos = new THREE.Vector3(allTargetPosX[i], allTargetPosY[i], allTargetPosZ[i]);
+
+            let difference = meshTargetPos.clone().sub(currVolume.position);
+            if (difference.length() > 0.5) {
+                currVolume.position.addScaledVector(difference.clone().normalize(), volumeSpeed);
+
+                difference = currVolume.position.clone().sub(meshTargetPos);
+                if (difference.length() <= 1.0) {
+                    currVolume.position.set(meshTargetPos.x, meshTargetPos.y, meshTargetPos.z);
+                }
+            }
         }
 
-        let deltaY;
-        if (currRotationY < targetRotationY) { deltaY = 1; }
-        else if (currRotationY > targetRotationY) { deltaY = -1 }
-        else { deltaY = 0; }
+        // camera movement
+        var cameraMovementSpeed = 1.0;
 
-        if (currRotationY != targetRotationY) {
-            currRotationY = currRotationY += deltaY * 5;
+        let camPosDifference = camTargetPos.clone().sub(camera.position);
+        if (camPosDifference.length() > 0.5) {
+            camera.position.addScaledVector(camPosDifference.clone().normalize(), cameraMovementSpeed);
 
-            camera.rotation.y = currRotationY * Math.PI / 180;
+            camPosDifference = camera.position.clone().sub(camTargetPos);
+            if (camPosDifference.length() <= 1.0) {
+                camera.position.set(camTargetPos.x, camTargetPos.y, camTargetPos.z);
+            }
         }
+
+        // camera rotation
+        let cameraRotationSpeed = 0.05;
+
+        let newRotation = new THREE.Quaternion();
+        newRotation.setFromEuler(camera.rotation);
+        newRotation.rotateTowards(camTargetRot, cameraRotationSpeed);
+        camera.rotation.setFromQuaternion(newRotation);
 
         renderer.render(scene, camera);
     }
 
-    function setDirection(dir) {
-        if (dir == 'xy') {
-            targetRotationX = 0;
-            targetRotationY = 0;
-        } else if (dir == 'yz') {
-            targetRotationX = 0;
-            targetRotationY = 90;
-        } else if (dir == 'xz') {
-            targetRotationX = 90;
-            targetRotationY = 90;
-        } else if (dir == 'all') {
-            targetRotationX = 45;
-            targetRotationY = 45;
+    function setQuat(x, y, z) {camTargetRot.setFromEuler(new THREE.Euler(x*Math.PI/180,y*Math.PI/180,z*Math.PI/180));}
+
+    function setOrientation(orientation) {
+        for (let i = 0; i < allMinorAxes.length; i++) {
+            allMinorAxes[i].visible = true;
         }
+
+        if (orientation === 'xy') {
+            allMinorAxes[1].visible = false;
+            allMinorAxes[2].visible = false;
+            camTargetPos = new THREE.Vector3(getAxisSum("x") / 2, getAxisSum("y") / 2, 0);
+            camTargetRot.setFromEuler(new THREE.Euler(0, 0, 0));
+        } else if (orientation === 'yz') {
+            allMinorAxes[0].visible = false;
+            allMinorAxes[1].visible = false;
+            camTargetPos = new THREE.Vector3(0, getAxisSum("y") / 2, getAxisSum("z") / 2);
+            camTargetRot.setFromEuler(new THREE.Euler(90*Math.PI/180, 90*Math.PI/180, 0));
+        } else if (orientation === 'xz') {
+            allMinorAxes[0].visible = false;
+            allMinorAxes[2].visible = false;
+            camTargetPos = new THREE.Vector3(getAxisSum("x") / 2, 0, getAxisSum("z") / 2);
+            camTargetRot.setFromEuler(new THREE.Euler(90*Math.PI/180, 180*Math.PI/180, 90*Math.PI/180));
+        } else if (orientation === 'all') {
+            camTargetPos = new THREE.Vector3(0, 0, 0);
+            camTargetRot.set(-0.2798482, 0.3647052, 0.1159169, 0.8804763);
+        }
+
+        //setupAxisLabels(orientation);
     }
-    alert("Test 2");
+
+    /*const canvasWidth = innerWidth;
+    const canvasHeight = innerHeight;
+    function setupAxisLabels (orientation) {
+        $(".axisLabel").show();
+
+        if (orientation === "xy") {
+            $("#xLabel").css({"left": canvasWidth*0.61+"px", "top": canvasHeight*0.685+"px"});
+            $("#yLabel").css({"left": canvasWidth*0.365+"px", "top": canvasHeight*0.23+"px"});
+            $("#zLabel").hide();
+            $("#xyLabel").hide();
+            $("#yzLabel").hide();
+            $("#xzLabel").hide();
+        } else if (orientation === "yz") {
+            $("#xLabel").hide();
+            $("#yLabel").css({"left": canvasWidth*0.62+"px", "top": canvasHeight*0.695+"px"});
+            $("#zLabel").css({"left": canvasWidth*0.355+"px", "top": canvasHeight*0.23+"px"});
+            $("#xyLabel").hide();
+            $("#yzLabel").hide();
+            $("#xzLabel").hide();
+        } else if (orientation === "xz") {
+            $("#xLabel").css({"left": canvasWidth*0.355+"px", "top": canvasHeight*0.26+"px"});
+            $("#yLabel").hide();
+            $("#zLabel").css({"left": canvasWidth*0.615+"px", "top": canvasHeight*0.71+"px"});
+            $("#xyLabel").hide();
+            $("#yzLabel").hide();
+            $("#xzLabel").hide();
+        } else if (orientation === "all") {
+            $("#xLabel").hide();
+            $("#yLabel").hide();
+            $("#zLabel").hide();
+            $("#xyLabel").hide();
+            $("#yzLabel").hide();
+            $("#xzLabel").hide();
+        }
+    }*/
+
     setup();
     renderDiagram();
-    alert("Test 3");
-
+    setOrientation("xy");
 </script>
 </html>

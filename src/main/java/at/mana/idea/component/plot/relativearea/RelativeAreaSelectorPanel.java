@@ -10,7 +10,7 @@ public class RelativeAreaSelectorPanel extends JPanel {
     private final ComboBox<String> xSelector;
     private final ComboBox<String> ySelector;
 
-    public RelativeAreaSelectorPanel () {
+    public RelativeAreaSelectorPanel() {
         JLabel xLabel = new JLabel("X-Axis:");
         xSelector = new ComboBox<>(new String[]{"Average Power", "Average Runtime", "Frequency"});
         xSelector.setSelectedIndex(0);

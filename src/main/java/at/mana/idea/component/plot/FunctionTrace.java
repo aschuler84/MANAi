@@ -51,12 +51,21 @@ public class FunctionTrace {
         }
     }
 
-    // calculates the area between to axis for Relative Area Plot
+    // calculates the area between two axes
     public double getCombinedAxisValue (FunctionTraceAxis axis1, FunctionTraceAxis axis2) {
         double value1 = getAxisValue(axis1);
         double value2 = getAxisValue(axis2);
 
         return value1 * value2;
+    }
+
+    // calculates the volume between all three axes
+    public double getVolume () {
+        double value1 = getAxisValue(FunctionTraceAxis.AveragePower);
+        double value2 = getAxisValue(FunctionTraceAxis.AverageRuntime);
+        double value3 = getAxisValue(FunctionTraceAxis.Frequency);
+
+        return value1 * value2 * value3;
     }
 
     // appends a subtrace --> FunctionTrace which got callled by this FunctionTrace
@@ -74,7 +83,7 @@ public class FunctionTrace {
     }
 
     // converts object to JSON, used for flamegraph visualization
-    public String toJson () {
+    public String toJson (boolean includeSubtraces) {
         // generate base string
         String result = String.format(Locale.US, "{" +
                 "\"name\":\"%s\"," +
@@ -85,19 +94,21 @@ public class FunctionTrace {
                 this.name, this.path, this.averagePower, this.averageRuntime, this.frequency);
 
         // append subtraces array to json string
-        String subtraceString = ",\"subtraces\":[";
-        if (this.subtraces.size() > 0) {
-            for (FunctionTrace subtrace : subtraces) {
-                subtraceString += subtrace.toJson() + ",";
+        if (includeSubtraces) {
+            String subtraceString = ",\"subtraces\":[";
+            if (this.subtraces.size() > 0) {
+                for (FunctionTrace subtrace : subtraces) {
+                    subtraceString += subtrace.toJson(true) + ",";
+                }
+
+                subtraceString = subtraceString.substring(0, subtraceString.length()-1);
             }
 
-            subtraceString = subtraceString.substring(0, subtraceString.length()-1);
             subtraceString += "]";
-        } else {
-            subtraceString = "";
+            result += subtraceString;
         }
 
-        return result + subtraceString + "}";
+        return result + "}";
     }
 
     public boolean isInPath (String path) {
@@ -112,5 +123,16 @@ public class FunctionTrace {
         }
 
         return true;
+    }
+
+    public static String arrayListToJson(ArrayList<FunctionTrace> traces) {
+        String result = "[";
+
+        for (FunctionTrace trace : traces) {
+            result += trace.toJson(false) + ",";
+        }
+
+        if (traces.size() > 0) { result = result.substring(0, result.length() - 1); }
+        return result + "]";
     }
 }

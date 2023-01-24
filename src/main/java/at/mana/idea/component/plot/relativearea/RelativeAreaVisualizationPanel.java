@@ -86,12 +86,12 @@ public class RelativeAreaVisualizationPanel extends JPanel {
         }
     }
 
-    private void drawArea (Graphics2D g, int posX, int posY, int width, int height, Color c) {
+    private void drawArea (Graphics g, int posX, int posY, int width, int height, Color c) {
         Rectangle rect = new Rectangle(posX, posY - height, width, height);
         g.setColor(c);
-        g.fill(rect);
+        g.fillRect(posX, posY-height, width, height);
         g.setColor(JBColor.BLACK);
-        g.draw(rect);
+        g.drawRect(posX, posY-height, width, height);
     }
 
     private void labelArea (Graphics g, int xPos, String name, String value) {
@@ -134,6 +134,9 @@ public class RelativeAreaVisualizationPanel extends JPanel {
         // draw three quarter delimiter
         int threeQuarterPosition = 50 + (maxPosition - 50) * 3 / 4;
         drawDelimiter(g, true, threeQuarterPosition, totalHeight - 25, maxValue * 3 / 4);
+
+        // draw axis label
+        g.drawString(xAxis.toString(true), totalWidth - 30 - g.getFontMetrics().stringWidth(xAxis.toString(true)), totalHeight - 10);
     }
 
     private void drawVerticalAxis(Graphics g, double maxValue, int maxPosition) {
@@ -148,6 +151,10 @@ public class RelativeAreaVisualizationPanel extends JPanel {
         // draw half delimiter
         int halfPosition = totalHeight - 50 - ((totalHeight - 100) - (maxPosition - 50)) / 2;
         drawDelimiter(g, false, 25, halfPosition, maxValue / 2);
+
+        // draw axis label
+        g.drawString(yAxis.toString(true), 5, 15);
+
     }
 
     private void drawDelimiter (Graphics g, boolean horizontal, int xPos, int yPos, double value ) {

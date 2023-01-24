@@ -55,23 +55,35 @@
             return 0;
         }
 
+        // interface function for receiving the json data
         function updatePlot( rawJson ) {
+            // parse string to json
             currentJsonData = rawJson;
             let rawData = JSON.parse(rawJson);
 
+            // process data
             let data = processFlamegraphData(rawData);
 
-            let chart = flamegraph().width(innerWidth - 50).sort(true).selfValue(true);
+            // initialize flamegraph
+            let chart = flamegraph();
+            chart.width(innerWidth - 50);
+            chart.sort(true);
+            chart.selfValue(true);
             d3.select("#flamegraph").datum(data).call(chart);
         }
 
+        // processes json to d3 input data
         function processFlamegraphData(rawData) {
+            // create root element
             let root = createFlamegraphEntry(rawData.name, getValue(rawData));
+
+            // start recursive call
             root = appendChildren(root, rawData.subtraces);
 
             return root;
         }
 
+        // creates a simple flamegraph entry
         function createFlamegraphEntry (name, value) {
             let entry = {};
             entry.name = name;
@@ -80,18 +92,18 @@
             return entry;
         }
 
+        // appends multiple childen to a parent
         function appendChildren (parent, children) {
             $.each(children, function (index, value) {
                 let child = createFlamegraphEntry(value.name, getValue(value));
-
                 child = appendChildren(child, value.subtraces);
-
                 parent.children.push(child);
             });
 
             return parent;
         }
 
+        // bind update plot function to onChange of select
         $("#displayValueSelect").change(function() {
             updatePlot(currentJsonData);
         });

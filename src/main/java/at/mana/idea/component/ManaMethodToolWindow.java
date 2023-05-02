@@ -354,6 +354,7 @@ public class ManaMethodToolWindow extends JPanel implements ManaEnergyDataNotifi
         panel.add( spectrumPlotComponent, BorderLayout.CENTER );
         tabContainer.insertTab( "Spell Analysis", null, panel, "", 1 );
 
+        // adding the flamegraph plot
         panel = new JPanel();
         panel.setLayout( new BorderLayout() );
         FlamegraphPlotComponent fg = new FlamegraphPlotComponent();
@@ -361,11 +362,13 @@ public class ManaMethodToolWindow extends JPanel implements ManaEnergyDataNotifi
         fg.setModel(FlamegraphPlotComponent.getExampleFunctionTrace());
         tabContainer.insertTab( "Flamegraph Plot", null, panel, "", 2 );
 
+        // adding the relative area plot
         panel = new JPanel();
         panel.setLayout( new BorderLayout() );
         panel.add( new RelativeAreaPlotComponent(), BorderLayout.CENTER );
         tabContainer.insertTab( "Relative Area Plot", null, panel, "", 3 );
 
+        // adding the relative volume plot
         panel = new JPanel();
         panel.setLayout( new BorderLayout() );
         panel.add( new RelativeVolumePlotComponent(), BorderLayout.CENTER );

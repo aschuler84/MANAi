@@ -14,6 +14,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Random;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -24,24 +25,43 @@ public class FlamegraphPlotComponent extends PlotComponent<FunctionTrace> implem
     // TODO: replace with real data
     // insert some test data
     public static FunctionTrace getExampleFunctionTrace () {
-        FunctionTrace parent = new FunctionTrace("func1", "com.exa", 4, 1, 6);
+        //FunctionTrace parent = generateRandomTree(12);
+        FunctionTrace parent = new FunctionTrace("refresh", "example.project.GUI", 1, 1, 1);
 
-        FunctionTrace child1 = new FunctionTrace("func11", "com.exa", 6, 6, 4);
-        FunctionTrace child2 = new FunctionTrace("func12", "com.exa", 9, 8, 2);
-        FunctionTrace child3 = new FunctionTrace("func13", "com.exa", 2, 6, 5);
+        FunctionTrace child1 = new FunctionTrace("authorize", "com.example.project.logic", 1, 8, 3, parent);
+        FunctionTrace child2 = new FunctionTrace("loadPersonData", "com.example.project.logic", 2, 1, 2, parent);
+        FunctionTrace child3 = new FunctionTrace("loadLocationData", "com.example.project.logic", 14, 16, 1, parent);
 
-        FunctionTrace child11 = new FunctionTrace("func111", "com.exa", 6, 6, 4);
-        FunctionTrace child12 = new FunctionTrace("func112", "com.exa", 6, 6, 4);
-        FunctionTrace child13 = new FunctionTrace("func113", "com.exa", 6, 6, 4);
+        FunctionTrace child11 = new FunctionTrace("login", "com.example.project.auth", 3, 5, 1, child1);
+        FunctionTrace child12 = new FunctionTrace("getToken", "com.example.project.auth", 5, 3, 1, child1);
 
-        child1.appendSubtrace(child11);
-        child1.appendSubtrace(child12);
-        child1.appendSubtrace(child13);
-        parent.appendSubtrace(child1);
-        parent.appendSubtrace(child2);
-        parent.appendSubtrace(child3);
+        FunctionTrace child21 = new FunctionTrace("readPersonFromDB", "com.example.project.model", 5, 7, 1, child2);
+        FunctionTrace child22 = new FunctionTrace("processPersonData", "com.example.project.model", 7, 4, 2, child2);
+
+        FunctionTrace child31 = new FunctionTrace("readLocationFromDB", "com.example.project.model", 3, 5, 2, child3);
+        FunctionTrace child32 = new FunctionTrace("processLocationData", "com.example.project.model", 6, 3, 3, child3);
 
         return parent;
+    }
+
+    private static FunctionTrace generateRandomTree(int depth) {
+        Random rn = new Random();
+
+        FunctionTrace root = new FunctionTrace("main", "com.example.project", rn.nextInt(90)+10, rn.nextInt(90)+10, rn.nextInt(90)+10);
+        generateRandomTreeGeneration(rn, depth-1, rn.nextInt(10)+1, "func", root);
+
+        return root;
+    }
+
+    private static void generateRandomTreeGeneration (Random rn, int depth, int num, String namePrefix, FunctionTrace parent) {
+        if (depth <= 0) { return; }
+
+        for (int i = 0; i < num; i++) {
+            String newNamePrefix = namePrefix + i;
+
+            FunctionTrace trace = new FunctionTrace(newNamePrefix, "com.example.project", rn.nextInt(90)+10, rn.nextInt(90)+10, rn.nextInt(90)+10, parent);
+            generateRandomTreeGeneration(rn, depth-1, rn.nextInt(4)+1, newNamePrefix, trace);
+        }
     }
 
     @Override

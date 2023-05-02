@@ -7,7 +7,7 @@
     <style>
         body {
             margin: 0;
-            font-family: Arial;
+            font-family: Arial, serif;
         }
 
         #orientationButtonContainer {
@@ -41,13 +41,6 @@
             background: white;
             border: 1px solid black;
         }
-
-        <!--.axisLabel {
-                position: absolute;
-                color: white;
-                font-size: 20px;
-                transform: translate(-50%, -50%);
-            }-->
 
         .infoPanel {
             padding: 10px;
@@ -87,36 +80,30 @@
     </style>
 </head>
 <body>
-<div id="orientationButtonContainer" class="buttonContainer">
-    <button id="xyButton">XY View</button>
-    <button id="yzButton">YZ View</button>
-    <button id="xzButton">XZ View</button>
-    <button id="3dButton">3D View</button>
-</div>
-<div id="modeButtonContainer" class="buttonContainer">
-    <button id="standardButton">Standard</button>
-    <button id="centeredButton">Centered</button>
-    <button id="xAlignedButton">X Aligned</button>
-    <button id="yAlignedButton">Y Aligned</button>
-    <button id="zAlignedButton">Z Aligned</button>
-</div>
-<button id="volumeInfoButton">Toggle Volume Info</button>
-<div id="axisInfo" class="infoPanel">
-    <span id ="xInfo">X-Axis: Average Power [W]</span></br>
-    <span id ="yInfo">Y-Axis: Frequency</span></br>
-    <span id ="zInfo">Z-Axis: Average Runtime [ms]</span></br></br>
-    <span>X*Y-Plane: Power [W]</span></br>
-    <span>Y*Z-Plane: Runtime [ms]</span></br>
-    <span>X*Z-Plane: Average Energy [J]</span></br></br>
-    <span>X*Y*Z-Volume: Energy [J]</span>
-</div>
-<div id="volumeInfo" class="infoPanel"></div>
-<!--<span id="xLabel" class="axisLabel">Average Power [W]</span>
-<span id="yLabel" class="axisLabel">Frequency</span>
-<span id="zLabel" class="axisLabel">Average Runtime [ms]</span>
-<span id="xyLabel" class="axisLabel">Power [W]</span>
-<span id="yzLabel" class="axisLabel">Runtime [ms]</span>
-<span id="xzLabel" class="axisLabel">Average Energy [J]</span>-->
+    <div id="orientationButtonContainer" class="buttonContainer">
+        <button id="xyButton">XY View</button>
+        <button id="yzButton">YZ View</button>
+        <button id="xzButton">XZ View</button>
+        <button id="3dButton">3D View</button>
+    </div>
+    <div id="modeButtonContainer" class="buttonContainer">
+        <button id="standardButton">Standard</button>
+        <button id="centeredButton">Centered</button>
+        <button id="xAlignedButton">X Aligned</button>
+        <button id="yAlignedButton">Y Aligned</button>
+        <button id="zAlignedButton">Z Aligned</button>
+    </div>
+    <button id="volumeInfoButton">Toggle Volume Info</button>
+    <div id="axisInfo" class="infoPanel">
+        <span id ="xInfo">X-Axis: Average Power [W]</span></br>
+        <span id ="yInfo">Y-Axis: Frequency</span></br>
+        <span id ="zInfo">Z-Axis: Average Runtime [ms]</span></br></br>
+        <span>X*Y-Plane: Power [W]</span></br>
+        <span>Y*Z-Plane: Runtime [ms]</span></br>
+        <span>X*Z-Plane: Average Energy [J]</span></br></br>
+        <span>X*Y*Z-Volume: Energy [J]</span>
+    </div>
+    <div id="volumeInfo" class="infoPanel"></div>
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.148.0/three.js"></script>
 <script>
@@ -394,7 +381,6 @@
         cubeMesh.add(linesGeometry);
     }
 
-    let camCurrPosX = 0, camCurrPosY = 0, camCurrPosZ = 100;
     let camTargetPos = new THREE.Vector3(0, 0, 0);
     let camTargetRot = new THREE.Quaternion(0, 0, 0, 0);
     function animation(time) {
@@ -440,8 +426,6 @@
         renderer.render(scene, camera);
     }
 
-    function setQuat(x, y, z) {camTargetRot.setFromEuler(new THREE.Euler(x*Math.PI/180,y*Math.PI/180,z*Math.PI/180));}
-
     function setOrientation(orientation) {
         for (let i = 0; i < allMinorAxes.length; i++) {
             allMinorAxes[i].visible = true;
@@ -466,45 +450,7 @@
             camTargetPos = new THREE.Vector3(0, 0, 0);
             camTargetRot.set(-0.2798482, 0.3647052, 0.1159169, 0.8804763);
         }
-
-        //setupAxisLabels(orientation);
     }
-
-    /*const canvasWidth = innerWidth;
-    const canvasHeight = innerHeight;
-    function setupAxisLabels (orientation) {
-        $(".axisLabel").show();
-
-        if (orientation === "xy") {
-            $("#xLabel").css({"left": canvasWidth*0.61+"px", "top": canvasHeight*0.685+"px"});
-            $("#yLabel").css({"left": canvasWidth*0.365+"px", "top": canvasHeight*0.23+"px"});
-            $("#zLabel").hide();
-            $("#xyLabel").hide();
-            $("#yzLabel").hide();
-            $("#xzLabel").hide();
-        } else if (orientation === "yz") {
-            $("#xLabel").hide();
-            $("#yLabel").css({"left": canvasWidth*0.62+"px", "top": canvasHeight*0.695+"px"});
-            $("#zLabel").css({"left": canvasWidth*0.355+"px", "top": canvasHeight*0.23+"px"});
-            $("#xyLabel").hide();
-            $("#yzLabel").hide();
-            $("#xzLabel").hide();
-        } else if (orientation === "xz") {
-            $("#xLabel").css({"left": canvasWidth*0.355+"px", "top": canvasHeight*0.26+"px"});
-            $("#yLabel").hide();
-            $("#zLabel").css({"left": canvasWidth*0.615+"px", "top": canvasHeight*0.71+"px"});
-            $("#xyLabel").hide();
-            $("#yzLabel").hide();
-            $("#xzLabel").hide();
-        } else if (orientation === "all") {
-            $("#xLabel").hide();
-            $("#yLabel").hide();
-            $("#zLabel").hide();
-            $("#xyLabel").hide();
-            $("#yzLabel").hide();
-            $("#xzLabel").hide();
-        }
-    }*/
 
     setup();
     renderDiagram();

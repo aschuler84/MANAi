@@ -17,10 +17,10 @@ public class RelativeVolumePlotComponent extends JPanel {
     public RelativeVolumePlotComponent () {
         // inserting test data, TODO: exchange it with real data
         this.model = new RelativeVolumePlotModel();
-        this.model.appendFunctionTrace(new FunctionTrace("Bark", "TestProject.pack1.Dog", 3, 6, 4));
-        this.model.appendFunctionTrace(new FunctionTrace("Walk", "TestProject.pack1.Dog", 8, 3, 2));
-        this.model.appendFunctionTrace(new FunctionTrace("Miau", "TestProject.pack2.Cat", 1, 2, 2));
-        this.model.appendFunctionTrace(new FunctionTrace("Stray", "TestProject.pack2.Cat", 1, 8, 6));
+        this.model.appendFunctionTrace(new FunctionTrace("Optimize", "TestProject.pack1.Optimizer", 16, 6, 8));
+        this.model.appendFunctionTrace(new FunctionTrace("Summarize", "TestProject.pack2.Summarizer", 7, 3, 11));
+        this.model.appendFunctionTrace(new FunctionTrace("Evaluate", "TestProject.pack3.Evaluator", 6, 3, 9));
+        this.model.appendFunctionTrace(new FunctionTrace("Schedule", "TestProject.pack4.Scheduler", 4, 9, 7));
 
         this.setLayout(new GridBagLayout());
 
@@ -56,10 +56,12 @@ public class RelativeVolumePlotComponent extends JPanel {
         this.refreshPlot();
     }
 
+    // uses data from project browser to refresh visualization panel
     private void refreshPlot () {
         ArrayList<FunctionTrace> tracesToBeDisplayed = new ArrayList<>();
         String filterPath = this.projectBrowser.getSelectedClass();
 
+        // filter all function traces in model by selected project browser path
         for (int i = 0; i < this.model.getFunctionTraceCount(); i++) {
             FunctionTrace currTrace = this.model.getFunctionTraceAtPosition(i);
 
@@ -68,12 +70,11 @@ public class RelativeVolumePlotComponent extends JPanel {
             }
         }
 
-        tracesToBeDisplayed.sort((o1, o2) -> {
-            if (o1.getVolume() < o2.getVolume()) { return 1; }
-            else if (o1.getVolume() > o2.getVolume()) { return -1; }
-            else { return 0; }
-        });
+        // sort function traces by their volume
+        tracesToBeDisplayed.sort((o1, o2) -> Double.compare(o2.getVolume(), o1.getVolume()));
 
-        this.visualizationPanel.refresh(FunctionTrace.arrayListToJson(tracesToBeDisplayed));
+        // refresh the visualization panel
+        String jsonData = FunctionTrace.arrayListToJson(tracesToBeDisplayed);
+        this.visualizationPanel.refresh(jsonData);
     }
 }

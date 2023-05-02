@@ -19,10 +19,32 @@ public class RelativeAreaPlotComponent extends JPanel {
     public RelativeAreaPlotComponent () {
         // inserting test data, TODO: exchange it with real data
         this.model = new RelativeAreaPlotModel();
-        this.model.appendFunctionTrace(new FunctionTrace("Bark", "TestProject.pack1.Dog", 3, 6, 4));
-        this.model.appendFunctionTrace(new FunctionTrace("Walk", "TestProject.pack1.Dog", 8, 3, 2));
-        this.model.appendFunctionTrace(new FunctionTrace("Miau", "TestProject.pack2.Cat", 1, 2, 2));
-        this.model.appendFunctionTrace(new FunctionTrace("Stray", "TestProject.pack2.Cat", 1, 8, 6));
+        FunctionTrace parent = new FunctionTrace("refresh", "example.project.GUI", 1, 1, 1);
+
+        FunctionTrace child1 = new FunctionTrace("authorize", "com.example.project.logic", 1, 8, 3, parent);
+        FunctionTrace child2 = new FunctionTrace("loadPersonData", "com.example.project.logic", 2, 1, 2, parent);
+        FunctionTrace child3 = new FunctionTrace("loadLocationData", "com.example.project.logic", 14, 16, 1, parent);
+
+        FunctionTrace child11 = new FunctionTrace("login", "com.example.project.auth", 3, 5, 1, child1);
+        FunctionTrace child12 = new FunctionTrace("getToken", "com.example.project.auth", 5, 3, 1, child1);
+
+        FunctionTrace child21 = new FunctionTrace("readPersonFromDB", "com.example.project.model", 5, 7, 1, child2);
+        FunctionTrace child22 = new FunctionTrace("processPersonData", "com.example.project.model", 7, 4, 2, child2);
+
+        FunctionTrace child31 = new FunctionTrace("readLocationFromDB", "com.example.project.model", 3, 5, 2, child3);
+        FunctionTrace child32 = new FunctionTrace("processLocationData", "com.example.project.model", 6, 3, 3, child3);
+
+
+        this.model.appendFunctionTrace(parent);
+        this.model.appendFunctionTrace(child1);
+        this.model.appendFunctionTrace(child11);
+        this.model.appendFunctionTrace(child12);
+        this.model.appendFunctionTrace(child2);
+        this.model.appendFunctionTrace(child21);
+        this.model.appendFunctionTrace(child22);
+        this.model.appendFunctionTrace(child3);
+        this.model.appendFunctionTrace(child31);
+        this.model.appendFunctionTrace(child32);
 
         this.setLayout(new GridBagLayout());
 
@@ -72,10 +94,12 @@ public class RelativeAreaPlotComponent extends JPanel {
         this.refreshPlot();
     }
 
+    // uses data from project browser and selector panel to refresh visualization panel
     private void refreshPlot () {
         ArrayList<FunctionTrace> tracesToBeDisplayed = new ArrayList<>();
         String filterPath = this.projectBrowser.getSelectedClass();
 
+        // filter all function traces in model by selected project browser path
         for (int i = 0; i < this.model.getFunctionTraceCount(); i++) {
             FunctionTrace currTrace = this.model.getFunctionTraceAtPosition(i);
 
@@ -84,8 +108,11 @@ public class RelativeAreaPlotComponent extends JPanel {
             }
         }
 
+        // determine the selected resourrce for both axes
         FunctionTraceAxis xAxis = this.selectorPanel.getXAxis();
         FunctionTraceAxis yAxis = this.selectorPanel.getYAxis();
+
+        // refresh the visualization panel
         this.visualizationPanel.refresh(tracesToBeDisplayed, xAxis, yAxis);
     }
 }

@@ -24,6 +24,11 @@ public class FunctionTrace {
         this.subtraces = new ArrayList<>();
     }
 
+    public FunctionTrace(String name, String path, double averagePower, double averageRuntime, double frequency, FunctionTrace parent) {
+        this(name, path, averagePower, averageRuntime, frequency);
+        parent.appendSubtrace(this);
+    }
+
     // name of function, without path
     public String getName () {
         return this.name;
